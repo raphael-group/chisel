@@ -71,10 +71,10 @@ def main():
     mapping = os.path.join(dclo, 'mapping.tsv')
 
     log('Plotting', level='PROGRESS')
-        os.chdir(dplo)
+    os.chdir(dplo)
     up = (lambda f : os.path.join(os.pardir, f))
     cmd = 'python2.7 {} {} -m {}'
-    cmd = cmd.format(os.path.join(src, 'Plotter.py'), up(args['input']), up(mapping))
+    cmd = cmd.format(os.path.join(src, 'Plotter.py'), up(args['INPUT']), up(mapping))
     runcmd(cmd, './')
     os.chdir(os.pardir)
 

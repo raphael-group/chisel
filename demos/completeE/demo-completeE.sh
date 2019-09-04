@@ -53,7 +53,8 @@ export REF="data/refdata-GRCh38-2.1.0/fasta/genome.fa"
 Last, we download the pre-computed VCF with phased SNPs; the VCF has been computed following the reccommended instructions, using BCFtools to call germline SNPs and Eagle2 throught the Michigan Imputation Serverve with HRC panel to phase the SNPs.
 
 ```shell
-wget https://github.com/raphael-group/chisel-demos-data/completeE/phased.HRC.vcf -P data/
+wget https://github.com/raphael-group/chisel-data/blob/master/demos/completeE/phased.HRC.vcf.gz -P data/
+gzip -d data/phased.HRC.vcf.gz
 export PHA="data/phased.HRC.vcf"
 :<<'```shell' # Ignore this line
 ```

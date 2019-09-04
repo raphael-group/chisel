@@ -28,7 +28,8 @@ The demo auomatically downloads the required inferred copy numbers already compu
 mkdir -p data
 
 # Downloading copy numbers inferred by CHISEL for tumor section E
-
+wget -N https://github.com/raphael-group/chisel-data/raw/master/demos/cloningE/calls.tsv.gz -P data/
+gzip -df data/calls.tsv.gz
 export INPUT="data/calls.tsv"
 :<<'```shell' # Ignore this line
 ```

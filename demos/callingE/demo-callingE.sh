@@ -29,7 +29,8 @@ The demo auomatically downloads the required RDRs and BAFs already computed by t
 mkdir -p data
 
 # Downloading RDRs and BAFs computed by CHISEL for tumor section E
-
+wget -N https://github.com/raphael-group/chisel-data/raw/master/demos/callingE/combo.tsv.gz -P data/
+gzip -df data/combo.tsv.gz
 export INPUT="data/combo.tsv"
 :<<'```shell' # Ignore this line
 ```
