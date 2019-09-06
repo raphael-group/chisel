@@ -29,13 +29,13 @@ The demo auomatically downloads the required barcoded single-cell and matched-no
 mkdir -p data
 
 # Downloading barcoded single-cell BAM of breast tumor section E
-wget http://s3-us-west-2.amazonaws.com/10x.files/samples/cell-dna/1.0.0/breast_tissue_E_2k/breast_tissue_E_2k_possorted_bam.bam -P data/
-wget http://cf.10xgenomics.com/samples/cell-dna/1.0.0/breast_tissue_E_2k/breast_tissue_E_2k_possorted_bam.bam.bai -P data/
+wget -N -c http://s3-us-west-2.amazonaws.com/10x.files/samples/cell-dna/1.0.0/breast_tissue_E_2k/breast_tissue_E_2k_possorted_bam.bam -P data/
+wget -N -c http://cf.10xgenomics.com/samples/cell-dna/1.0.0/breast_tissue_E_2k/breast_tissue_E_2k_possorted_bam.bam.bai -P data/
 export TUM="data/breast_tissue_E_2k_possorted_bam.bam"
 
 # Downloading matched-normal BAM file as section A
-wget http://s3-us-west-2.amazonaws.com/10x.files/samples/cell-dna/1.0.0/breast_tissue_A_2k/breast_tissue_A_2k_possorted_bam.bam -P data/
-wget http://cf.10xgenomics.com/samples/cell-dna/1.0.0/breast_tissue_A_2k/breast_tissue_A_2k_possorted_bam.bam.bai -P data/
+wget -N -c http://s3-us-west-2.amazonaws.com/10x.files/samples/cell-dna/1.0.0/breast_tissue_A_2k/breast_tissue_A_2k_possorted_bam.bam -P data/
+wget -N -c http://cf.10xgenomics.com/samples/cell-dna/1.0.0/breast_tissue_A_2k/breast_tissue_A_2k_possorted_bam.bam.bai -P data/
 export NOR="data/breast_tissue_A_2k_possorted_bam.bam"
 :<<'```shell' # Ignore this line
 ```
@@ -43,17 +43,20 @@ export NOR="data/breast_tissue_A_2k_possorted_bam.bam"
 Next the corresponding reference genome is downloaded and unpacked
 
 ```shell
-wget http://cf.10xgenomics.com/supp/genome/refdata-GRCh38-2.1.0.tar.gz -P data/
-tar -xzvf data/refdata-GRCh38-2.1.0.tar.gz
-rm -f data/refdata-GRCh38-2.1.0.tar.gz
 export REF="data/refdata-GRCh38-2.1.0/fasta/genome.fa"
+export DIC="data/refdata-GRCh38-2.1.0/fasta/genome.dict"
+if [[ ! -f "${REF}" || ! -f "${DIC}" ]]; then
+    wget -N -c http://cf.10xgenomics.com/supp/genome/refdata-GRCh38-2.1.0.tar.gz -P data/
+    tar -xzvf data/refdata-GRCh38-2.1.0.tar.gz -C data/
+    rm -f data/refdata-GRCh38-2.1.0.tar.gz
+fi
 :<<'```shell' # Ignore this line
 ```
 
 Last, we download the pre-computed VCF with phased SNPs; the VCF has been computed following the reccommended instructions, using BCFtools to call germline SNPs and Eagle2 throught the Michigan Imputation Serverve with HRC panel to phase the SNPs.
 
 ```shell
-wget https://github.com/raphael-group/chisel-data/blob/master/demos/completeE/phased.HRC.vcf.gz -P data/
+wget -N -c https://github.com/raphael-group/chisel-data/raw/master/demos/completeE/phased.HRC.vcf.gz -P data/
 gzip -d data/phased.HRC.vcf.gz
 export PHA="data/phased.HRC.vcf"
 :<<'```shell' # Ignore this line
