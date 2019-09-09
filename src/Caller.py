@@ -115,7 +115,7 @@ def main():
 
     log('Inferring copy numbers')
     copynumbers = infer(bins, cells, mapb, members, calls)
-    
+
     log('Phasing copy-number states along the genome')
     copynumbers = phase(copynumbers, cells, args['j'])
 
@@ -134,7 +134,7 @@ def read_combo(f):
     form = (lambda p : ((p[0], int(p[1]), int(p[2])), p[3], int(p[4]), int(p[5]), float(p[6]), int(p[7]), int(p[8]), float(p[9])))
     data = defaultdict(lambda : dict())
     with open(f, 'r') as i:
-        for l in i:
+        for l in (l for l in i if l[0] != '#' and len(l) > 1):
             b, e, norm, wrdr, rdr, A, B, baf = form(l.strip().split())
             assert e not in data[b]
             data[b][e] = {'RDR':rdr, 'NORM':norm, 'wRDR':wrdr, 'BAF':baf, 'AB':(A, B), 'wBAF':A+B, 'mirroredBAF':min(baf, 1.0-baf)}
@@ -209,7 +209,7 @@ def scoring(e):
     pre_scores = None
     pre_ploidy = None
     ccnts = {c : {tuple(b) : tuple(counts[e][c][b]) for b in counts[e][c]} for c in counts[e]}
-    
+
     for ploidy in range(2, maxploidy+1, 2):
         scale = scaling(e, ploidy, clusters, ccnts, shift)
         ctot = {c : int(round(clusters[c][e]['RDR'] * scale)) for c in clusters}
@@ -234,7 +234,7 @@ def scoring(e):
             pre_states = states
             pre_scores = scores
             pre_ploidy = ploidy
-            
+
     assert states == pre_states
     return e, pre_states, pre_ploidy
 
@@ -297,7 +297,7 @@ def calling(e):
 
     return e, {c : states[best][c][0] for c in clusters}, best
 
-    
+
 def identify_base(e, clusters, ccnts, shift):
     nis = (lambda c : [sum(ccnts[c][b]) for b in ccnts[c]])
     xis = (lambda c : [ccnts[c][b][0] if np.random.random() < 0.5 else ccnts[c][b][1] for b in ccnts[c]])
@@ -370,7 +370,7 @@ def phasing(c):
 
         D.append({'0' : Dnon, '1' : Dswa})
         B.append({'0' : Bnon, '1' : Bswa})
-        
+
     res = []
     for i in reversed(xrange(len(table[c]))):
         if i == len(table[c]) - 1:
@@ -390,5 +390,3 @@ def phasing(c):
 
 if __name__ == '__main__':
     main()
-
-    
