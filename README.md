@@ -1,5 +1,6 @@
-# CHISEL <br/> <sub>Preliminary release</sub> #
+# CHISEL <br/> <sub><u>C</u>opy-number <u>H</u>aplotype <u>I</u>nference in <u>S</u>ingle-cell by <u>E</u>volutionary <u>L</u>inks</sub> #
 
+CHISEL is an algorithm to infer allele- and haplotype-specififc copy numbers in individual cells from low-coverage DNA sequencing data.
 This repository is preliminary and a full description of CHISEL will be available soon.
 This repository includes detailed instructions for installation and requirements, demos with related tutorial of different CHISEL applitcations, a list of current issues, and contacts.
 
