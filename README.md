@@ -36,7 +36,7 @@ The version of this repository is currently a preliminary release.
 ### Algorithm
 <a name="algorithm"></a>
 
-![](doc/CHISEL-cartoon.png "CHISEL algorithm")
+![](doc/chisel-cartoon.png "CHISEL algorithm")
 
 **The CHISEL algorithm.** **(A)** CHISEL computes RDRs and BAFs in low-coverage (<0.05X per cell) single-cell DNA sequencing data (top left). Read counts from 2000 individual cells (rows) in 5Mb genomic bins (columns) across three chromosomes (grey rectangles in first row) are shown. For each bin in each cell, CHISEL computes the RDR (top) by normalizing the observed read counts. CHISEL computes the BAF in each bin and cell (bottom) by first performing referenced-based phasing of germline SNPs in 50kb haplotype blocks (magenta and green) and then phasing all these blocks jointly across all cells. **(B)** CHISEL clusters RDRs and BAFs globally along the genome and jointly across all cells resulting here in 5 clusters of genomic bins (red, blue, purple, yellow, and grey) with distinct copy-number states. **(C)** CHISEL infers a pair of allele-specific copy numbers for each cluster by determining whether the allele-specific copy numbers of the largest balanced (BAF~0.5) cluster are equal to *{1, 1}* (diploid), *{2, 2}* (tetraploid), or are higher ploidy. **(D)** CHISEL infers haplotype-specific copy numbers *(a, b)* by phasing the allele-specific copy numbers consistently across all cells. **(E)** CHISEL clusters tumor cells into clones according to their haplotype-specific copy numbers. Here, a diploid clone (light gray) and two tumor clones (red and blue) are obtained. A phylogenetic tree describes the evolution of these clones. Somatic single-nucleotide variants (SNVs) are derived from pseudo-bulk samples and placed on the branches of the tree.
 
