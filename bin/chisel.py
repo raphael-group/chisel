@@ -148,7 +148,7 @@ def main():
     com = os.path.join(dcom, 'combo.tsv')
 
     log('Calling', level='PROGRESS')
-    cmd = 'python2.7 {} {} -p {} -K {} -j {}'
+    cmd = 'python2.7 {} {} -P {} -K {} -j {}'
     cmd = cmd.format(get_comp('Caller.py'), com, args['maxploidy'], args['upperk'], args['jobs'])
     if args['seed'] is not None:
         cmd += " --seed {}".format(args['seed'])

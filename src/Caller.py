@@ -19,20 +19,21 @@ from Combiner import EM
 
 
 def parse_args():
-    description = "Compute RDR from barcoded single-cell sequencing data."
+    description = "Inferring allele- and haplotype-specific copy number in single cells from estimated RDRs and BAFs."
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("INPUT", type=str, help="Input file with combined RDR and BAF per bin and per cell")
-    parser.add_argument("-s","--significativity", required=False, type=float, default=0.02, help="Minimum proportion of the clusters use to select ploidy (default: 0.02)")
-    parser.add_argument("-p","--maxploidy", required=False, type=int, default=4, help="Maximum total copy number to consider for base cluster (default: 4, corresponding to 2 WGD)")
-    parser.add_argument("-d","--shift", required=False, type=float, default=0.05, help="Maximum estimate shift for base cluster, the value is increased when base is not found (default: 0.05)")
+    parser.add_argument("-A","--sensitivity", required=False, type=float, default=1.0, help="Sensitivity of model selection for ploidy (default: 1, increase this parameter to lower sensitivity to noisy data, adjust this value (e.g. 2, 4, ..., 10, ...) to better deal with high-variance data (e.g. low coverage, small number of cells, low number of phased SNPs, etc...)")
     parser.add_argument("-K","--upperk", required=False, type=int, default=100, help="Maximum number of bin clusters (default: 100, use 0 to consider maximum number of clusters)")
+    parser.add_argument("-P","--maxploidy", required=False, type=int, default=4, help="Maximum total copy number to consider for base cluster (default: 4, corresponding to 2 WGD)")
     parser.add_argument("-k","--lowerk", required=False, type=int, default=0, help="Minimum number of bin clusters (default: 0)")
     parser.add_argument("-t","--threshold", required=False, type=float, default=0.05, help="Maximum tolerated difference of unexplained variance for cluster selection (default: 0.05)")
-    parser.add_argument("-l","--lorder", required=False, type=int, default=1, help="Order of the l-norm distance to be used, either 1 or 2 (default: 1)")
     parser.add_argument("-q","--restarts", required=False, type=int, default=200, help="Number of restarts for clustering (default: 200)")
     parser.add_argument("-j","--jobs", required=False, type=int, default=0, help="Number of parallele jobs to use (default: equal to number of available processors)")
+    parser.add_argument("-d","--shift", required=False, type=float, default=0.05, help="Maximum estimate shift for base cluster, the value is increased when base is not found (default: 0.05)")
+    parser.add_argument("-s","--significativity", required=False, type=float, default=0.02, help="Minimum proportion of the clusters use to select ploidy (default: 0.02)")
+    parser.add_argument("-l","--lorder", required=False, type=int, default=1, help="Order of the l-norm distance to be used, either 1 or 2 (default: 1)")
     parser.add_argument("--fastscaling", required=False, default=False, action='store_true', help="Consider average BAF of clusters instead of EM (default: False, using it is generally safe and significantly increases speed)")
-    parser.add_argument("--scoring", required=False, default=False, action='store_true', help="Number of parallele jobs to use (default: equal to number of available processors)")
+    #parser.add_argument("--scoring", required=False, default=False, action='store_true', help=" (default: equal to number of available processors)")
     parser.add_argument("--seed", required=False, type=int, default=None, help="Random seed for replication (default: none)")
     args = parser.parse_args()
 
@@ -67,7 +68,8 @@ def parse_args():
 
     return {
         'input' : args.INPUT,
-       'significativity' : args.significativity,
+        'sensitivity' : args.sensitivity,
+        'significativity' : args.significativity,
         'maxploidy' : args.maxploidy,
         'shift' : args.shift,
         'UB' : args.upperk,
@@ -77,7 +79,8 @@ def parse_args():
         'restarts' : args.restarts,
         'j' : args.jobs,
         'fastscaling' : args.fastscaling,
-        'scoring' : args.scoring,
+        #'scoring' : args.scoring,
+        'scoring' : False,
         'seed' : args.seed
     }
 
@@ -192,10 +195,11 @@ def call(bins, members, mapb, clusters, cells, args):
 
 
 def init(_clusters, _totsize, args, _counts, _rdrs):
-    global clusters, totsize, maxploidy, significativity, shift, lord, fastscaling, counts, rdrs
+    global clusters, totsize, maxploidy, significativity, shift, lord, fastscaling, counts, rdrs, sensitivity
     clusters = _clusters
     totsize = _totsize
     maxploidy = args['maxploidy']
+    sensitivity = args['sensitivity']
     significativity = args['significativity']
     shift = args['shift']
     lord = args['lord']
@@ -292,7 +296,7 @@ def calling(e):
     n = sum(len(ccnts[c]) for c in ccnts)
     lh = {pl : sum(states[pl][c][1] for c in states[pl]) for pl in states}
     ps = {pl : 1 + sum(len(allstates[pl][t]) for t in allstates[pl] if t <= maxsupp[pl]) for pl in states}
-    bic = (lambda pl : math.log(n) * float(ps[pl]) * 2 - 2.0 * lh[pl])
+    bic = (lambda pl : sensitivity * math.log(n) * float(ps[pl]) * 2 - 2.0 * lh[pl])
     best = min(lh.keys(), key=bic)
 
     return e, {c : states[best][c][0] for c in clusters}, best

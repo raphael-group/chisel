@@ -16,11 +16,12 @@ from Utils import *
 
 
 def parse_args():
-    description = "CHISEL command to run the pipeline starting from computed RDRs and BAFs."
+    description = "CHISEL command to re-run the inference of allele- and haplotype-specific copy numbers, cell clustering, and plotting. This steps starts from estimated RDRs and BAFs."
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("INPUT", nargs='?', default='combo/combo.tsv', type=str, help="Input file with combined RDR and BAF per bin and per cell (default: combo/combo.tsv)")
     parser.add_argument("-x","--rundir", required=False, default='./', type=str, help="Running directory (default: current directory)")
-    parser.add_argument("-p","--maxploidy", required=False, type=int, default=4, help="Maximum total copy number to consider for balanced cluster (default: 4, corresponding to a WGD)")
+    parser.add_argument("-A","--sensitivity", required=False, type=float, default=1.0, help="Sensitivity of model selection for ploidy (default: 1, increase this parameter to lower sensitivity to noisy data, adjust this value (e.g. 2, 4, ..., 10, ...) to better deal with high-variance data (e.g. low coverage, small number of cells, low number of phased SNPs, etc...)")
+    parser.add_argument("-P","--maxploidy", required=False, type=int, default=4, help="Maximum total copy number to consider for balanced cluster (default: 4, corresponding to a WGD)")
     parser.add_argument("-K","--upperk", required=False, type=int, default=100, help="Maximum number of bin clusters (default: 100, use 0 to consider maximum number of clusters)")
     parser.add_argument("--seed", required=False, type=int, default=None, help="Random seed for replication (default: None)")
     parser.add_argument("-j","--jobs", required=False, type=int, default=0, help="Number of parallele jobs to use (default: equal to number of available processors)")
@@ -44,6 +45,7 @@ def parse_args():
     return {
         "INPUT" : args.INPUT,
         "rundir" : args.rundir,
+        "sensitivity" : args.sensitivity,
         "maxploidy" : args.maxploidy,
         "upperk" : args.upperk,
         "seed" : args.seed,
@@ -65,8 +67,8 @@ def main():
         return comp
 
     log('Calling', level='PROGRESS')
-    cmd = 'python2.7 {} {} -p {} -K {} -j {}'
-    cmd = cmd.format(get_comp('Caller.py'), args['INPUT'], args['maxploidy'], args['upperk'], args['jobs'])
+    cmd = 'python2.7 {} {} -A {} -P {} -K {} -j {}'
+    cmd = cmd.format(get_comp('Caller.py'), args['INPUT'], args['sensitivity'], args['maxploidy'], args['upperk'], args['jobs'])
     if args['seed'] is not None:
         cmd += " --seed {}".format(args['seed'])
     runcmd(cmd, dcal, out='calls.tsv')
