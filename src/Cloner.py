@@ -2,6 +2,7 @@
 
 import sys, os
 import argparse
+import shutil
 import random
 import warnings
 
@@ -71,14 +72,31 @@ def main():
     clones = selecting(clus, args['minsize'])
     log('Number of identified clones: {}'.format(len(set(clones.values()))), level='INFO')
 
-    log('Refine clustering')
-    clones, clus = refine(cns, clus, clones, args['refinement'])
+    log('Refining clustering')
+    clones, clus = refining(cns, clus, clones, args['refinement'])
     log('Number of discarded cells: {}'.format(len(set(cells) - set(clones.keys()))), level='INFO')
 
+    log('Profiling clones')
+    profiles = profiling(cns, clus)
+    
     log('Writing clone map')
     print '\t'.join(['#CELL', 'CLUSTER', 'CLONE'])
     for c in cells:
         print '\t'.join(map(str, [c, clus[c], 'Clone{}'.format(clones[c]) if c in clones else 'None']))
+
+    log('Writing clone-corrected copy numbers in provided input')
+    ftmp = args['input'] + '_TMP'
+    assert not os.path.isfile(ftmp), "Temporary file {} does already exist!".format(ftmp)
+    form = (lambda p : ((p[0], int(p[1]), int(p[2])), p[3]))
+    with open(args['input'], 'r') as i:
+        with open(ftmp, 'w') as o:
+            for l in i:
+                if '#' != l[0]:
+                    b, e = form(l.strip().split())
+                    o.write('\t'.join(l.strip().split() + ['{}|{}'.format(*profiles[b][clus[e]])]) + '\n')
+                else:
+                    o.write('\t'.join(['#CHR', 'START', 'END', 'CELL', 'NORM_COUNT', 'COUNT', 'RDR', 'A_COUNT', 'B_COUNT', 'BAF', 'CLUSTER', 'HAP_CN', 'CORRECTED_HAP_CN']) + '\n')
+    shutil.move(ftmp, args['input'])
 
 
 def reading(f):
@@ -90,7 +108,6 @@ def reading(f):
                 b, c, cn = form(l.strip().split())
                 assert c not in cns[b] # and c not in stuff[b]
                 cns[b][c] = cn
-
     cns = dict(cns)
     orderchrs = (lambda x : int(''.join([l for l in x if l.isdigit()])))
     order = (lambda b : (orderchrs(b[0]), int(b[1]), int(b[2])))
@@ -115,7 +132,7 @@ def selecting(clus, minsize):
     return {c : clus[c] for c in clus if size[clus[c]] >= minsize}
 
 
-def refine(cns, clus, chosen, maxdiff):
+def refining(cns, clus, chosen, maxdiff):
     clones = set(chosen.values())
     safeargmax = (lambda C : argmax(C) if len(C) > 0 else (1, 1))
     getcn = (lambda g, i : safeargmax(Counter([cns[g][c] for c in chosen if chosen[c] == i])))
@@ -128,6 +145,13 @@ def refine(cns, clus, chosen, maxdiff):
     newclus = {c : newclones[c] if c in newclones else clus[c] for c in clus}
     assert False not in set(len({clus[c], chosen[c], newclus[c], newclones[c]}) == 1 for c in chosen)
     return newclones, newclus
+
+
+def profiling(cns, clus):
+    clones = set(clus.values())
+    safeargmax = (lambda C : argmax(C) if len(C) > 0 else (1, 1))
+    getcn = (lambda g, i : safeargmax(Counter([cns[g][c] for c in clus if clus[c] == i])))
+    return {g : {i : getcn(g, i) for i in clones} for g in cns}    
 
 
 if __name__ == '__main__':

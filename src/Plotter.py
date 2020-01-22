@@ -29,7 +29,7 @@ order = (lambda b : (orderchrs(b[0]), int(b[1]), int(b[2])))
 
 
 def parse_args():
-    description = "Compute RDR from barcoded single-cell sequencing data."
+    description = "Generate plots for the analysis of estimated RDRs and BAFs, inferred allele- and haplotype-specific copy numbers, and clones."
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("INPUT", type=str, help="Input file with combined RDR and BAF per bin and per cell")
     parser.add_argument("-m", "--clonemap", required=False, type=str, default=None, help="Clone map (default: not used, the cells will be clustered for plotting purposes)")
@@ -82,7 +82,7 @@ def main():
     log('\n'.join(['Arguments:'] + ['\t{} : {}'.format(a, args[a]) for a in args]), level='INFO')
 
     log('Reading input')
-    bins, pos, cells = read_cells(args['input'])
+    bins, pos, cells, iscorr = read_cells(args['input'])
     log('Number of cells: {}'.format(len(cells)), level='INFO')
     log('Number of bins: {}'.format(len(pos)), level='INFO')
 
@@ -106,51 +106,93 @@ def main():
     chosen = random.sample(list(enumerate(cells)), args['sample'])
     chosen = [p[1] for p in sorted(chosen, key=(lambda x : x[0]))]
 
-    log('Plotting RDR and mirrored BAF plots for random sample of cells')
+    log('Plotting RDR and mirrored BAF plots for {} random cells in rbplot_mirrored.{}'.format(args['sample'], args['format']))
     rbplot_mirrored(bins, chosen, args)
 
-    log('Plotting clustered RDR plots for random sample of cells')
+    log('Plotting clustered RDR plots for {} random cells in crdr.{}'.format(args['sample'], args['format']))
     crdr(bins, pos, chosen, args)
 
-    log('Plotting clustered-mirrored BAF plots for random sample of cells')
+    log('Plotting clustered-mirrored BAF plots for {} random cells in cbaf.{}'.format(args['sample'], args['format']))
     cbaf(bins, pos, chosen, args)
 
-    log('Plotting total copy numbers')
+    log('Plotting total copy numbers in {}'.format('totalcn.' + args['format']))
     totalcns(bins, pos, cells, index=index, clones=clones, selected=selected, args=args)
 
-    log('Plotting LOH')
+    if iscorr:
+        log('Plotting total copy numbers corrected by clones in {}'.format('totalcn-corrected.' + args['format']))
+        totalcns(bins, pos, cells, index=index, clones=clones, selected=selected, args=args, out='totalcn-corrected.', val='CORR-CNS')
+
+    log('Plotting LOH in {}'.format('loh.' + args['format']))
     loh(bins, pos, cells, index=index, clones=clones, selected=selected, args=args)
 
-    log('Plotting A-specific copy numbers')
+    if iscorr:
+        log('Plotting LOH corrected by clones in {}'.format('loh-corrected.' + args['format']))
+        loh(bins, pos, cells, index=index, clones=clones, selected=selected, args=args, out='loh-corrected.', val='CORR-CNS')
+
+    log('Plotting A-specific copy numbers in {}'.format('Aspecificcn.' + args['format']))
     acns(bins, pos, cells, index=index, clones=clones, selected=selected, args=args)
 
-    log('Plotting B-specific copy numbers')
+    if iscorr:
+        log('Plotting A-specific copy numbers corrected by clones in {}'.format('Aspecificcn-corrected.' + args['format']))
+        acns(bins, pos, cells, index=index, clones=clones, selected=selected, args=args, out='Aspecificcn-corrected.', val='CORR-CNS')
+
+    log('Plotting B-specific copy numbers in {}'.format('Bspecificcn.' + args['format']))
     bcns(bins, pos, cells, index=index, clones=clones, selected=selected, args=args)
 
-    log('Plotting copy-number states')
+    if iscorr:
+        log('Plotting B-specific copy numbers corrected by clones in {}'.format('Bspecificcn-corrected.' + args['format']))
+        bcns(bins, pos, cells, index=index, clones=clones, selected=selected, args=args, out='Bspecificcn-corrected.', val='CORR-CNS')
+    
+    log('Plotting allele-specific copy numbers in {}'.format('allelecn.' + args['format']))
     states(bins, pos, cells, index=index, clones=clones, selected=selected, args=args)
 
-    log('Plotting minor-copy allele')
+    if iscorr:
+        log('Plotting allele-specific copy numbers corrected by clones in {}'.format('allelecn-corrected.' + args['format']))
+        states(bins, pos, cells, index=index, clones=clones, selected=selected, args=args, out='allelecn-corrected.', val='CORR-CNS')
+    
+    log('Plotting haplotype-specific copy numbers in {}'.format('haplotypecn.' + args['format']))
     minor(bins, pos, cells, index=index, clones=clones, selected=selected, args=args)
 
+    if iscorr:
+        log('Plotting haplotype-specific copy numbers corrected by clones in {}'.format('haplotypecn-corrected.' + args['format']))
+        minor(bins, pos, cells, index=index, clones=clones, selected=selected, args=args, out='haplotypecn-corrected.', val='CORR-CNS')
+    
     log('KTHKBYE!')
 
 
 def read_cells(f):
     bins = defaultdict(lambda : dict())
     cells = set()
-    form = (lambda p : ((p[0], int(p[1]), int(p[2])), p[3], float(p[6]), float(p[9]), p[10], tuple(map(int, p[11].split('|')))))
     with open(f, 'r') as i:
-        for l in i:
-            if l[0] != '#' and len(l) > 1:
-                b, e, rdr, baf, c, cns = form(l.strip().split())
-                bins[b][e] = {'RDR' : rdr, 'BAF' : baf, 'Cluster' : c, 'CNS' : cns}
-                cells.add(e)
-    pos = sorted(bins.keys(), key=order)
-    for x, b in enumerate(pos):
-        for e in cells:
-            bins[b][e]['Genome'] = x
-    return bins, pos, sorted(cells)
+        p = i.readline().strip().split()
+    if len(p) == 12:    
+        form = (lambda p : ((p[0], int(p[1]), int(p[2])), p[3], float(p[6]), float(p[9]), p[10], tuple(map(int, p[11].split('|')))))
+        with open(f, 'r') as i:
+            for l in i:
+                if l[0] != '#' and len(l) > 1:
+                    b, e, rdr, baf, c, cns = form(l.strip().split())
+                    bins[b][e] = {'RDR' : rdr, 'BAF' : baf, 'Cluster' : c, 'CNS' : cns}
+                    cells.add(e)
+        pos = sorted(bins.keys(), key=order)
+        for x, b in enumerate(pos):
+            for e in cells:
+                bins[b][e]['Genome'] = x
+        return bins, pos, sorted(cells), False
+    elif len(p) == 13:
+        form = (lambda p : ((p[0], int(p[1]), int(p[2])), p[3], float(p[6]), float(p[9]), p[10], tuple(map(int, p[11].split('|'))), tuple(map(int, p[12].split('|')))))
+        with open(f, 'r') as i:
+            for l in i:
+                if l[0] != '#' and len(l) > 1:
+                    b, e, rdr, baf, c, cns, corr = form(l.strip().split())
+                    bins[b][e] = {'RDR' : rdr, 'BAF' : baf, 'Cluster' : c, 'CNS' : cns, 'CORR-CNS' : corr}
+                    cells.add(e)
+        pos = sorted(bins.keys(), key=order)
+        for x, b in enumerate(pos):
+            for e in cells:
+                bins[b][e]['Genome'] = x
+        return bins, pos, sorted(cells), True        
+    else:
+        raise ValueError("Input format is wrong: 12 or 13 fields expected but {} were found".format(len(p)))
 
 
 def set_style(args):
@@ -298,11 +340,11 @@ def cbaf(bins, pos, chosen, args):
     plt.close()
 
 
-def totalcns(bins, pos, cells, index=None, clones=None, selected=None, args=None):
+def totalcns(bins, pos, cells, index=None, clones=None, selected=None, args=None, out='totalcn.', val='CNS'):
     df = []
     mapc = {}
     for x, e in enumerate(index):
-        df.extend([{'Cell' : x, 'Genome' : bins[b][e]['Genome'], 'Total CN' : min(6, sum(bins[b][e]['CNS']))} for b in pos])
+        df.extend([{'Cell' : x, 'Genome' : bins[b][e]['Genome'], 'Total CN' : min(6, sum(bins[b][e][val]))} for b in pos])
         mapc[x] = (clones[e], selected[e])
     df = pd.DataFrame(df)
     table = pd.pivot_table(df, values='Total CN', columns=['Genome'], index=['Cell'], aggfunc='first')
@@ -317,48 +359,48 @@ def totalcns(bins, pos, cells, index=None, clones=None, selected=None, args=None
     palette.update({6 : 'orchid'})
     colors = [palette[x] for x in xrange(7) if x in set(df['Total CN'])]
     cmap = LinearSegmentedColormap.from_list('multi-level', colors, len(colors))
-    draw(table, bins, pos, cells, index, mapc, palette=cmap, center=None, method='single', metric='hamming', title=title, out='totalcn.', args=args)
+    draw(table, bins, pos, cells, index, mapc, palette=cmap, center=None, method='single', metric='hamming', title=title, out=out, args=args)
 
 
-def loh(bins, pos, cells, index=None, clones=None, selected=None, args=None):
+def loh(bins, pos, cells, index=None, clones=None, selected=None, args=None, out='loh.', val='CNS'):
     df = []
     mapc = {}
     for x, e in enumerate(index):
-        df.extend([{'Cell' : x, 'Genome' : bins[b][e]['Genome'], 'LOH' : 1 if 0 in bins[b][e]['CNS'] else 0} for b in pos])
+        df.extend([{'Cell' : x, 'Genome' : bins[b][e]['Genome'], 'LOH' : 1 if 0 in bins[b][e][val] else 0} for b in pos])
         mapc[x] = (clones[e], selected[e])
     df = pd.DataFrame(df)
     table = pd.pivot_table(df, values='LOH', columns=['Genome'], index=['Cell'], aggfunc='first')
     myColors = sns.cubehelix_palette(2, start=2, rot=0, dark=0, light=.95)
     cmap = LinearSegmentedColormap.from_list('Custom', myColors, len(myColors))
     title = 'Loss of heterozigosity (LOH)'
-    draw(table, bins, pos, cells, index, mapc, palette=cmap, center=None, method='median', metric='cityblock', title=title, out='loh.', args=args)
+    draw(table, bins, pos, cells, index, mapc, palette=cmap, center=None, method='median', metric='cityblock', title=title, out=out, args=args)
 
 
-def acns(bins, pos, cells, index=None, clones=None, selected=None, args=None):
+def acns(bins, pos, cells, index=None, clones=None, selected=None, args=None, out='Aspecificcn.', val='CNS'):
     df = []
     mapc = {}
     for x, e in enumerate(index):
-        df.extend([{'Cell' : x, 'Genome' : bins[b][e]['Genome'], 'A-specific CN' : min(8, bins[b][e]['CNS'][0])} for b in pos])
+        df.extend([{'Cell' : x, 'Genome' : bins[b][e]['Genome'], 'A-specific CN' : min(8, bins[b][e][val][0])} for b in pos])
         mapc[x] = (clones[e], selected[e])
     df = pd.DataFrame(df)
     table = pd.pivot_table(df, values='A-specific CN', columns=['Genome'], index=['Cell'], aggfunc='first')
     title = 'A-specific copy numbers'
-    draw(table, bins, pos, cells, index, mapc, palette='coolwarm', center=2, method='single', metric='hamming', title=title, out='acn.', args=args)
+    draw(table, bins, pos, cells, index, mapc, palette='coolwarm', center=2, method='single', metric='hamming', title=title, out=out, args=args)
 
 
-def bcns(bins, pos, cells, index=None, clones=None, selected=None, args=None):
+def bcns(bins, pos, cells, index=None, clones=None, selected=None, args=None, out='Bspecificcn.', val='CNS'):
     df = []
     mapc = {}
     for x, e in enumerate(index):
-        df.extend([{'Cell' : x, 'Genome' : bins[b][e]['Genome'], 'B-specific CN' : min(8, bins[b][e]['CNS'][1])} for b in pos])
+        df.extend([{'Cell' : x, 'Genome' : bins[b][e]['Genome'], 'B-specific CN' : min(8, bins[b][e][val][1])} for b in pos])
         mapc[x] = (clones[e], selected[e])
     df = pd.DataFrame(df)
     table = pd.pivot_table(df, values='B-specific CN', columns=['Genome'], index=['Cell'], aggfunc='first')
     title = 'B-specific copy numbers'
-    draw(table, bins, pos, cells, index, mapc, palette='coolwarm', center=2, method='single', metric='hamming', title=title, out='bcn.', args=args)
+    draw(table, bins, pos, cells, index, mapc, palette='coolwarm', center=2, method='single', metric='hamming', title=title, out=out, args=args)
 
 
-def states(bins, pos, cells, index=None, clones=None, selected=None, args=None):
+def states(bins, pos, cells, index=None, clones=None, selected=None, args=None, out='allelecn.', val='CNS'):
     avail = [(t - i, i) for t in xrange(7) for i in reversed(xrange(t+1)) if i <= t - i]
     order = (lambda p : (max(p), min(p)))
     convert = (lambda p : order(p) if sum(p) <= 6 else min(avail, key=(lambda x : abs(p[0] - x[0]) + abs(p[1] - x[1]))))
@@ -366,7 +408,7 @@ def states(bins, pos, cells, index=None, clones=None, selected=None, args=None):
     mapc = {}
     found = set()
     for x, e in enumerate(index):
-        df.extend([{'Cell' : x, 'Genome' : bins[b][e]['Genome'], 'Value' : convert(bins[b][e]['CNS'])} for b in pos])
+        df.extend([{'Cell' : x, 'Genome' : bins[b][e]['Genome'], 'Value' : convert(bins[b][e][val])} for b in pos])
         mapc[x] = (clones[e], selected[e])
     df = pd.DataFrame(df)
     found = [v for v in avail if v in set(df['Value'])]
@@ -385,21 +427,21 @@ def states(bins, pos, cells, index=None, clones=None, selected=None, args=None):
     palette.update({(3, 3) : 'plum', (4, 2) : 'orchid', (5, 1) : 'purple', (6, 0) : 'indigo'})
     colors = [palette[c] for x, c in enumerate(avail) if x in found]
     cmap = LinearSegmentedColormap.from_list('multi-level', colors, len(colors))
-    draw(table, bins, pos, cells, index, mapc, palette=cmap, center=None, method='single', metric='cityblock', title=title, out='states.', args=args)
+    draw(table, bins, pos, cells, index, mapc, palette=cmap, center=None, method='single', metric='cityblock', title=title, out=out, args=args)
 
 
-def minor(bins, pos, cells, index=None, clones=None, selected=None, args=None):
+def minor(bins, pos, cells, index=None, clones=None, selected=None, args=None, out='haplotypecn.', val='CNS'):
     get_minor = (lambda s : (3 - min(2, min(s))) * (0 if s[0] == s[1] else (-1 if s[0] < s[1] else 1)))
     df = []
     mapc = {}
     for x, e in enumerate(index):
-        df.extend([{'Cell' : x, 'Genome' : bins[b][e]['Genome'], 'Minor allele' : get_minor(bins[b][e]['CNS'])} for b in pos])
+        df.extend([{'Cell' : x, 'Genome' : bins[b][e]['Genome'], 'Minor allele' : get_minor(bins[b][e][val])} for b in pos])
         mapc[x] = (clones[e], selected[e])
     df = pd.DataFrame(df)
     table = pd.pivot_table(df, values='Minor allele', columns=['Genome'], index=['Cell'], aggfunc='first')
     title = 'Minor alleles'
     colormap = 'PiYG'
-    draw(table, bins, pos, cells, index, mapc, palette=colormap, center=0, method='single', metric='hamming', title=title, out='minor.', args=args)
+    draw(table, bins, pos, cells, index, mapc, palette=colormap, center=0, method='single', metric='hamming', title=title, out=out, args=args)
 
 
 def draw(table, bins, pos, cells, index, clones, palette, center, method, metric, title, out, args):
