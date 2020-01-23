@@ -11,11 +11,12 @@ The results of CHISEL on the published low-coverage single-cell DNA sequencing d
 [CHISEL data](https://github.com/raphael-group/chisel-data)
 
 This repository includes detailed instructions for installation and requirements, demos with related tutorial of different CHISEL applitcations, a list of current issues, and contacts.
-The version of this repository is currently a preliminary release.
+The CHISEL repository is currently in a preliminary release and improved versions are released frequently.
+During this stage, please remember to often update your version by pulling the last release of CHISEL.
 
 ## Contents ##
 
-1. [Overview](#overview) (available soon)
+1. [Overview](#overview)
     - [Algorithm](#algorithm)
     - [Software](#software)
 2. [Setup](#setup)
@@ -27,7 +28,9 @@ The version of this repository is currently a preliminary release.
     - [Commands](#commands)
     - [Demos](#demos)
     - [Reccomendations and quality control](#reccomendations)
-4. [Current issues](#currentissues)
+4. [Development](#development)
+    - [Recent and important updates](#updates)
+    - [Current issues](#currentissues)
 5. [Contacts](#contacts)
 
 ## Overview
@@ -188,14 +191,26 @@ Each demo is an exemplary and guided execution of a CHISEL command on available 
 ### Reccomendations and quality control
 <a name="reccomendations"></a>
 
-The following recommendations guide the user in the process of quality control for the final results. Moreover, these recommendations help the user in the investigation of the solutions obtained with different parameters to deal with datasets of different features.
+The following recommendations guide the user in the process of quality control for the final results. In order to deal with datasets with different features, these recommendations help the user in investigating solutions obtained with different parameters. In particular, some of these guides are especially helpful when analyzing datasets with non-standard features and with noisy or high-variance sequencing data, e.g. due to low number of cells, different sequencing coverages, low number of phased germline SNPs.
 
 | Recommendation | Description |
 |----------------|-------------|
+| [Ploidy selection](guides/ploidy.md) | Adjusting model-selection parameters to accurately infer ploidy in noisy and high-variance datasets |
 | [Identification of clones](guides/clones.md) | Interpreting the identified clones and explore alternative solutions |
 | [Global clustering](guides/clustering.md) | Interpreting the global clustering of RDRs and BAFs, and exploring alternative solutions |
 
-## Current issues
+## Development
+<a name="development"></a>
+
+### Recent and important updates
+<a name="updates"></a>
+
+- **[22-Jan-2020]** This version introduced two important updates:
+    1. CHISEL now use the inferred clones to correct the inferred allele- and haplotype-specific copy numbers, removing noise and outlying errors. As such, CHISEL generates plots with both uncorrected and corrected copy numbers;
+    2. CHISEL now has a **sensitivity**, which can be varied through the command `chisel-cloning.py` to enable the accurate inference of cell ploidy even in the case of noisy or high-variance data (e.g. low number of cells with low coverage).
+- **[20-Jan-2020]** This version introduced the previously missing command `chisel-pseudonormal.py`. This command can be used to extract sequencing reads from diploid cells to form a pseudo matched-normal sample, which is required by the full CHISEL pipeline. A corresponding demo has also been introduced.
+
+### Current issues
 <a name="currentissues"></a>
 
 CHISEL is in active development, please report any issue or question as this could help the development and improvement of CHISEL. Known issues with current version are reported here below.
