@@ -87,13 +87,13 @@ def main():
     log('Writing clone-corrected copy numbers in provided input')
     ftmp = args['input'] + '_TMP'
     assert not os.path.isfile(ftmp), "Temporary file {} does already exist!".format(ftmp)
-    form = (lambda p : ((p[0], int(p[1]), int(p[2])), p[3]))
+    form = (lambda p : ((p[0], int(p[1]), int(p[2])), p[3], p[0:12]))
     with open(args['input'], 'r') as i:
         with open(ftmp, 'w') as o:
             for l in i:
                 if '#' != l[0]:
-                    b, e = form(l.strip().split())
-                    o.write('\t'.join(l.strip().split() + ['{}|{}'.format(*profiles[b][clus[e]])]) + '\n')
+                    b, e, val = form(l.strip().split())
+                    o.write('\t'.join(val + ['{}|{}'.format(*profiles[b][clus[e]])]) + '\n')
                 else:
                     o.write('\t'.join(['#CHR', 'START', 'END', 'CELL', 'NORM_COUNT', 'COUNT', 'RDR', 'A_COUNT', 'B_COUNT', 'BAF', 'CLUSTER', 'HAP_CN', 'CORRECTED_HAP_CN']) + '\n')
     shutil.move(ftmp, args['input'])
