@@ -84,7 +84,7 @@ def main():
     log('\n'.join(['Arguments:'] + ['{} : {}'.format(a, args[a]) for a in args]), level='INFO')
 
     log('Computing bins')
-    bins = get_bins(ref=args['ref'], chrs=args['chrs'], bsize=args['bins'])
+    bins = get_bins(args['ref'], args['chrs'], args['bins'], bams=[args['tumor'], args['normal']], samtools=args['samtools'])
 
     log('Counting reads on normal')
     counts = counting_normal(args['normal'], bins, args['samtools'], args['J'])
@@ -202,41 +202,40 @@ def extracting(job):
     return (c, b, stdout.strip())
 
 
-def get_bins(ref, chrs, bsize):
+def get_bins(ref, chromosomes, bsize, bams=None, samtools=None):
+    chrs = set(c.replace('chr', '') for c in chromosomes)
     ends = {}
-    ends["hg38"] = [-1, 248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 159345973, 145138636, 138394717, 133797422, 135086622, 133275309, 114364328, 107043718, 101991189, 90338345, 83257441, 80373285, 58617616, 64444167, 46709983, 50818468]
-    ref = "hg38"
+    refdict = os.path.splitext(ref)[0] + '.dict'
+    with open(refdict, 'r') as i:
+        for l in i:
+            if '@SQ' in l:
+                assert 'SN:' in l and 'LN:' in l
+                c = l.split('SN:')[1].split()[0]
+                if c.replace('chr', '') in chrs:
+                    end = int(l.split('LN:')[1].split()[0])
+                    ends[c] = end
+                    
+    missing = [c for c in chrs if c not in ends and 'chr{}'.format(c) not in ends]
+    if missing:
+        msg = "The following chromosomes have not been found in the dictionary of the reference genome with or without chr-notation: \n\t{}"
+        error(msg.format(','.join(missing)))
 
-    ln = (lambda c : ends[ref][int(''.join([l for l in c if l.isdigit()]))])
-    fl = (lambda l, c : l + [ln(c)] if l[-1] < ln(c) else (l if l[-1] == ln(c) else []))
-    bk = (lambda c : fl(list(range(0, ln(c), bsize)), c))
-    bins = {c : sorted(zip(bk(c)[:-1], bk(c)[1:]), key=(lambda x : x[0])) for c in chrs}
+    if bams and samtools:
+        for bam in bams:
+            cmd = "{} view -H {}".format(samtools, bam)
+            stdout, stderr = sp.Popen(shlex.split(cmd), stdout=sp.PIPE, stderr=sp.PIPE).communicate()
+            allchrs = set(p.replace('SN:','') for l in stdout.strip().split('\n') if l[:3] == '@SQ' for p in l.strip().split() if p[:3])
+            missing = [c for c in ends if c not in allchrs]
+            if missing:
+                msg = "The following chromosomes have not been found in {} with these exact names: \n\t{}"
+                error(msg.format(bam, ','.join(missing)))
+            
+    fl = (lambda l, c : l + [ends[c]] if l[-1] < ends[c] else (l if l[-1] == ends[c] else []))
+    bk = (lambda c : fl(list(range(0, ends[c], bsize)), c))
+    bins = {c : sorted(zip(bk(c)[:-1], bk(c)[1:]), key=(lambda x : x[0])) for c in ends}
     assert False not in set(len(bins[c]) > 0 for c in bins), "Binning failed for some chromosomes"
 
     return bins
-
-
-# def get_bins(ref, chrs, bsize):
-#     ends = {c : None for c in chrs}
-#     refdict = os.path.splitext(ref)[0] + '.dict'
-#     with open(refdict, 'r') as i:
-#         for l in i:
-#             if '@SQ' in l:
-#                 assert 'SN:' in l and 'LN:' in l
-#                 c = l.split('SN:')[1].split()[0]
-#                 if c in chrs:
-#                     end = int(l.split('LN:')[1].split()[0])
-#                     ends[c] = end
-#     if None in ends.values():
-#         err("The following chromosomes have not been found in the dictionary of the reference genome: \n\t{}".format(','.join([c for c in ends if ends[c] == None])))
-#     print ends
-
-#     fl = (lambda l, c : l + [ends[c]] if l[-1] < ends[c] else (l if l[-1] == ends[c] else []))
-#     bk = (lambda c : fl(list(range(0, ends[c], bsize)), c))
-#     bins = {c : sorted(zip(bk(c)[:-1], bk(c)[1:]), key=(lambda x : x[0])) for c in chrs}
-#     assert False not in set(len(bins[c]) > 0 for c in bins), "Binning failed for some chromosomes"
-
-#     return bins
 
 
 if __name__ == '__main__':

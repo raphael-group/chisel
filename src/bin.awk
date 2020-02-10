@@ -8,4 +8,4 @@ BEGIN{}
         X[substr($0, RSTART+5, RLENGTH-5)]++
     }
 }
-END{ for(i in X) print i, x[i] }
+END{ for(i in X) print i, X[i] }

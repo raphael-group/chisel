@@ -121,8 +121,9 @@ def main():
         return comp
 
     log('Computing RDRs', level='PROGRESS')
-    cmd = 'python2.7 {} -n {} -t {} -r {} -b {} -m {} -j {} --outdir {}'
-    cmd = cmd.format(get_comp('RDREstimator.py'), args['normal'], args['tumor'], args['reference'], args['binsize'], args['minreads'], args['jobs'], drdr)
+    cmd = 'python2.7 {} -n {} -t {} -r {} -b {} -m {} -j {} -c \"{}\" --outdir {}'
+    cmd = cmd.format(get_comp('RDREstimator.py'), args['normal'], args['tumor'], args['reference'], args['binsize'], args['minreads'], args['jobs'], args['chromosomes'], drdr)
+    print args['chromosomes']
     if args['samtools'] is not None:
         cmd += " -s {}".format(args['samtools'])
     runcmd(cmd, drdr, out='rdr.tsv')
