@@ -97,6 +97,8 @@ def main():
     chrs = args['chromosomes'].split()
     bins = get_bins(args['reference'], chrs, args['binsize'], bams=[args['tumor']], samtools=args['samtools'])
     counts = defaultdict(lambda : defaultdict(lambda : dict()))
+    assert len(chrs) == len(bins.keys())
+    chrs = bins.keys()
     
     log('Counting reads on barcoded cells')
     counts = counting_cells(counts, args['tumor'], bins, args['samtools'], args['jobs'])
