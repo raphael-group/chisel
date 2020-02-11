@@ -57,7 +57,7 @@ Last, we download the pre-computed VCF with phased SNPs; the VCF has been comput
 
 ```shell
 wget -N -c https://github.com/raphael-group/chisel-data/raw/master/demos/completeE/phased.HRC.vcf.gz -P data/
-gzip -d data/phased.HRC.vcf.gz
+gzip -f -d data/phased.HRC.vcf.gz
 export PHA="data/phased.HRC.vcf"
 :<<'```shell' # Ignore this line
 ```
