@@ -53,11 +53,12 @@ The current software implementation provides different commands within `bin` to 
 
 CHISEL is written in python 2.7, is based on standard python packages, and does not required any compilation but only two additional standard open-source softwares.
 To support CHISEL distribution, we report two automatic and easy installation processes for CHISEL and all the requirements, through package managers which keep everything up to date.
-In particular, CHISEL will be distributed as a python [conda](https://conda.io/en/latest/index.html) package through the channel [bioconda](https://bioconda.github.io/); this is the main recommended installation process.
+The usage of package managers is the recommended installation process.
 The details are reported in the following sections:
 1. [Dependencies](#dependencies): required packages and additional software;
-2. [Conda installation](#conda): automatic installation through package manager conda on bioconda channel;
-3. [Virtualenv installation](#virtualenv): automatic installation through python virtual environments.
+2. [Conda installation](#conda): automatic installation through package manager conda;
+3. [Virtualenv installation](#virtualenv): automatic installation through python virtual environments;
+3. [Additional notes](#additionalnotes): additional and useful notes for possible issues and reccomendations.
 
 ### Dependencies
 <a name="dependencies"></a>
@@ -89,7 +90,25 @@ CHISEL also requires few standard additional softwares, which can be easily and 
 ### Conda installation
 <a name="conda"></a>
 
-Available soon...
+Conda provides one of the most common package and virtual-environment manager for python.
+If conda is not available in your system, you can easily obtain it by installing one of the two most-common distributions (NO administration access is required for the installation): [anaconda](https://www.anaconda.com/) or [miniconda](https://docs.conda.io/en/latest/miniconda.html).
+Once conda is installed in a directory `${CONDA-HOME}`, the following few commands represent an easy **one-time** process to install CHISEL in the home directory `${CHISEL-HOME}`.
+
+```shell
+$ git clone https://github.com/raphael-group/chisel ${CHISEL-HOME}/  # Clone the git repository into a specific directory `${CHISEL-HOME}`
+$ ${CONDA-HOME}/bin/conda create -n chisel python=2.7 numpy=1.16.1 scipy=1.2.1 pandas=0.20.1 matplotlib=2.0.2 seaborn=0.7.1 # Install required packages within environment # Create a CHISEL-specific virtual environment with required packages
+$ source ${CONDA-HOME}/bin/activate chisel # Activate the CHISEL-specific virtual environment
+```
+
+User needs to activate the environment **anytime** before using any CHISEL command with the following:
+```shell
+$ source ${CONDA-HOME}/bin/activate chisel # Activate the CHISEL-specific virtual environment
+```
+
+Once any CHISEL usage is completed, user can exit the environment with the following:
+```shell
+$ source deactivate
+```
 
 ### Virtualenv installation
 <a name="virtualenv"></a>
@@ -116,7 +135,8 @@ Once any CHISEL usage is completed, user can exit the environment with the follo
 $ deactivate
 ```
 
-Additional notes:
+### Additional notes:
+<a name="additionalnotes"></a>
 
 - To be able to run every CHISEL command without the need of specifying the prefix `${CHISEL-HOME}/bin/` at every use, simply add it to `$PATH` with the following command
 ```shell
