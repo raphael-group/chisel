@@ -1,3 +1,4 @@
+```shell
 usage: chisel-pseudonormal.py [-h] -r REFERENCE [-x RUNDIR] [-e THRESHOLD]
                               [-b SIZE] [-c CHROMOSOMES] [-m MINREADS]
                               [--samtools SAMTOOLS] [-j JOBS]
@@ -38,3 +39,4 @@ optional arguments:
   -n NORMAL, --normal NORMAL
                         Name of the generated pseudo matched-normal BAM file
                         (default: pseudonormal.bam)
+```

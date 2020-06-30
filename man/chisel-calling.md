@@ -1,3 +1,4 @@
+```shell
 usage: chisel-calling.py [-h] [-x RUNDIR] [-A SENSITIVITY] [-P MAXPLOIDY]
                          [-K UPPERK] [--seed SEED] [-j JOBS]
                          [INPUT]
@@ -30,3 +31,4 @@ optional arguments:
   --seed SEED           Random seed for replication (default: None)
   -j JOBS, --jobs JOBS  Number of parallele jobs to use (default: equal to
                         number of available processors)
+```

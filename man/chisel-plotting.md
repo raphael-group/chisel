@@ -1,3 +1,4 @@
+```shell
 usage: chisel-plotting.py [-h] [-m CLONEMAP] [-f FIGFORMAT] [-s SAMPLE]
                           [--excludenoisy] [--gridsize GRIDSIZE]
                           [--plotsize PLOTSIZE] [--clussize CLUSSIZE]
@@ -32,3 +33,4 @@ optional arguments:
   --xmin XMIN           Minimum x-axis value (default: None)
   --ymax YMAX           Maximum x-axis value (default: None)
   --ymin YMIN           Minimum x-axis value (default: None)
+```

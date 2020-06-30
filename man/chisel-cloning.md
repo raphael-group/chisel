@@ -1,3 +1,4 @@
+```chisel
 usage: chisel-cloning.py [-h] [-x RUNDIR] [-f MAXDIFF] [-s MINSIZE]
                          [-r REFINEMENT] [--seed SEED]
                          [INPUT]
@@ -24,3 +25,4 @@ optional arguments:
                         closest clone (default: 0.0, note that 1.0 can be used
                         to force the assigment of all cells)
   --seed SEED           Random seed for replication (default: None)
+```
