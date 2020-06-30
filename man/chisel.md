@@ -1,3 +1,4 @@
+```shell
 usage: chisel.py [-h] [-x RUNDIR] -t TUMOR -n NORMAL -r REFERENCE -l
                  LISTPHASED [-b SIZE] [-k BLOCKSIZE] [-c CHROMOSOMES]
                  [-m MINREADS] [-p MAXPLOIDY] [-K UPPERK]
@@ -55,3 +56,4 @@ optional arguments:
   --seed SEED           Random seed for replication (default: None)
   -j JOBS, --jobs JOBS  Number of parallele jobs to use (default: equal to
                         number of available processors)
+```
