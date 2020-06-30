@@ -191,7 +191,7 @@ where `${CHISEL-HOME}` is the CHISEL home directory and `<command>` is one of th
 | [`chisel-calling.py`](man/chisel-calling.md) | Running from the inference of copy numbers | Computed RDRs and BAFs | [Final results and plots](doc/chisel-calling.md) |
 | [`chisel-cloning.py`](man/chisel-cloning.md) | Running from the identification of clones | Inferred copy numbers | [Final results and plots](doc/chisel-cloning.md) |
 | [`chisel-plotting.py`](man/chisel-plotting.md) | Running plot generation | Inferred copy numbers and clones | [Final plots](doc/chisel-plotting.md) |
-| [`chisel-pseudonormal.py`](man/chisel-pseudonormal.md) | Extracting diploid cells to form a pseudo matched-normal sample | A barcoded BAM file containing diploid cells and the corresponding reference genome | [A BAM file for matched-normal sample](doc/chisel-pseudonormal.md) |
+| [`chisel-pseudonormal.py`](man/chisel-pseudonormal.md) | Extracting diploid cells to form a pseudo matched-normal sample | A barcoded BAM file containing diploid cells and the corresponding reference genome | [A BAM file to be used as a matched-normal sample](doc/chisel-pseudonormal.md) |
 
 Click on the name of each command to obtain a description of all the available parameters.
 
