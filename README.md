@@ -96,7 +96,7 @@ Once conda is installed in a directory `${CONDA-HOME}`, the following few comman
 
 ```shell
 $ git clone https://github.com/raphael-group/chisel ${CHISEL-HOME}/  # Clone the git repository into a specific directory `${CHISEL-HOME}`
-$ ${CONDA-HOME}/bin/conda create -n chisel python=2.7 numpy=1.16.1 scipy=1.2.1 pandas=0.20.1 matplotlib=2.0.2 seaborn=0.7.1 # Install required packages within environment # Create a CHISEL-specific virtual environment with required packages
+$ ${CONDA-HOME}/bin/conda create -n chisel -c bioconda -c anaconda -n chisel python=2.7 numpy=1.12 scipy=1.2.1 pandas=0.20.1 matplotlib=2.0.2 seaborn=0.7.1 samtools=1.9 bcftools=1.9 gawk # Install required packages within environment # Create a CHISEL-specific virtual environment with required packages
 $ source ${CONDA-HOME}/bin/activate chisel # Activate the CHISEL-specific virtual environment
 ```
 
@@ -129,6 +129,7 @@ User needs to activate the environment **anytime** before using any CHISEL comma
 ```shell
 $ source ${PATH-TO-ENV}/chisel/bin/activate
 ```
+Note that user also needs to add SAMtools and BCFtools to PATH (see additional notes below).
 
 Once any CHISEL usage is completed, user can exit the environment with the following:
 ```shell
