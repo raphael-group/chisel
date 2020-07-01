@@ -7,6 +7,6 @@ However, CHISEL provides a parameter to adjust the sensitivity of the model-sele
 
 For QC purposes, the reccommendation is to analyze the allele-specific copy numbers inferred by CHISEL, for example using the corresponding [plots](../doc/chisel-plotting.md).
 If a substantial number of cells with different ploidies has been inferred, the reccommendation is to analyze how the results change by re-running the inference of copy numbers varying the sensitivity of the model-selection criterion.
-Specifically, the CHISEL [command `chisel-calling.py`](../doc/chisel-calling.py) can be used to do this very efficiently by varying the sensitivity with the argument `-A` to re-run the CHISEL inference without the need of re-estimating RDRs and BAFs (which generally is the most time-consuming step).
+Specifically, the CHISEL [command `chisel-calling.py`](../doc/chisel-calling.md) can be used to do this very efficiently by varying the sensitivity with the argument `-A` to re-run the CHISEL inference without the need of re-estimating RDRs and BAFs (which generally is the most time-consuming step).
 The use can thus analyse the inferred tumor ploidies by increase the sensitivity with values of `-A 2`, `-A 3`, `-A 4`...
 The inference of different ploidies is well supported by the data if the results do not substantially change when increasing the sensitivity, otherwise the results obtained with higher sensitivity are more likely.
