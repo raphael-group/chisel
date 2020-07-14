@@ -1,20 +1,21 @@
 import setuptools
+from setuptools import setup
 
 
 setuptools.setup(
     name='chisel',
     version='0.1',
-    python_requires='2.7',
+    python_requires='<3',
     scripts=['bin/chisel.py', 
              'bin/chisel-calling.py',
              'bin/chisel-cloning.py',
              'bin/chisel-plotting.py',
-             'bin/chisel-pseudonormal.py']
+             'bin/chisel-pseudonormal.py'],
     author='Simone Zaccaria',
     author_email='zaccaria@princeton.edu',
     description='Copy-number Haplotype Inference in Single-cell by Evolutionary Links',
     long_description='https://github.com/raphael-group/chisel',
-    long_description_content_type='text/markdown',
+#    long_description_content_type='text/markdown',
     url='https://github.com/ENCODE-DCC/caper',
     packages=setuptools.find_packages(exclude=['conda',
                                                'demos', 
@@ -47,9 +48,9 @@ setuptools.setup(
         'single-cell',
         'DNA',
         'copy-number'],
-    entry_points={'console_scripts': ['chisel = bin.chisel:main', 
-                                      'chisel-calling = bin.chisel-calling:main',
-                                      'chisel-cloning = bin.chisel-cloning:main',
-                                      'chisel-plotting = bin.chisel-plotting:main',
-                                      'chisel-pseudonormal = bin.chisel-pseudonormal:main']}
+    entry_points={'console_scripts': ['chisel=bin.chisel:main', 
+                                      'chiselcalling=bin.chisel_calling:main',
+                                      'chisel-cloning=bin.chisel_cloning:main',
+                                      'chisel-plotting=bin.chisel_plotting:main',
+                                      'chisel-pseudonormal=bin.chisel_pseudonormal:main']}
 )
