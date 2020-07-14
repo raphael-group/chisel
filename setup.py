@@ -7,10 +7,10 @@ setuptools.setup(
     version='0.1',
     python_requires='<3',
     scripts=['bin/chisel.py', 
-             'bin/chisel-calling.py',
-             'bin/chisel-cloning.py',
-             'bin/chisel-plotting.py',
-             'bin/chisel-pseudonormal.py'],
+             'bin/chisel_calling.py',
+             'bin/chisel_cloning.py',
+             'bin/chisel_plotting.py',
+             'bin/chisel_pseudonormal.py'],
     author='Simone Zaccaria',
     author_email='zaccaria@princeton.edu',
     description='Copy-number Haplotype Inference in Single-cell by Evolutionary Links',
@@ -49,8 +49,8 @@ setuptools.setup(
         'DNA',
         'copy-number'],
     entry_points={'console_scripts': ['chisel=bin.chisel:main', 
-                                      'chiselcalling=bin.chisel_calling:main',
-                                      'chisel-cloning=bin.chisel_cloning:main',
-                                      'chisel-plotting=bin.chisel_plotting:main',
-                                      'chisel-pseudonormal=bin.chisel_pseudonormal:main']}
+                                      'chisel_calling=bin.chisel_calling:main',
+                                      'chisel_cloning=bin.chisel_cloning:main',
+                                      'chisel_plotting=bin.chisel_plotting:main',
+                                      'chisel_pseudonormal=bin.chisel_pseudonormal:main']}
 )
