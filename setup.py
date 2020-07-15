@@ -5,7 +5,7 @@ from setuptools import setup
 setuptools.setup(
     name='chisel',
     version='0.1',
-    python_requires='<3',
+    python_requires='==2.7.*',
     scripts=['bin/chisel.py', 
              'bin/chisel_calling.py',
              'bin/chisel_cloning.py',
@@ -24,11 +24,10 @@ setuptools.setup(
                                                'guides', 
                                                'man']),
     install_requires=[
-        'numpy==1.16.1',
-        'scipy==1.2.1',
-        'pandas==0.20.1',
-        'matplotlib==2.0.2',
-        'seaborn==0.7.1'
+        'numpy>=1.16.1',
+        'scipy>=1.2.1',
+        'pandas',
+        'seaborn>=0.7.1'
     ],
     license='BSD',
     platforms=["Linux", "MacOs", "Windows"],
