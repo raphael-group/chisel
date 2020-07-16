@@ -31,6 +31,7 @@ def kclustering(data, restarts, threshold, seed=None, lord=1, j=1, LB=1, UB=None
     TCENTER = center(points)
     TERROR = sum(error(p, TCENTER) for p in points)
     PAIRWISE = pdist(points)
+    assert np.isfinite(PAIRWISE).all(), 'Pairwise distance contain NaN!\n{}'.format(PAIRWISE)
 
     objs = {}
     clus = {}
@@ -52,7 +53,7 @@ def kclustering(data, restarts, threshold, seed=None, lord=1, j=1, LB=1, UB=None
     def compute(K):
         log('Computing for {}:'.format(K), level='INFO')
         if K not in objs:
-            assert K not in clus
+            assert K not in clus, 'The number of clusters {} does not have an objective but a solution'.format(K)
             obj, clu = kclustering_fixed(points, K, restarts, TERROR, PAIRWISE, lord, j)
             objs[K] = obj
             clus[K] = clu
@@ -63,7 +64,7 @@ def kclustering(data, restarts, threshold, seed=None, lord=1, j=1, LB=1, UB=None
     
     while(R - L > 1):
         M = int(math.floor(float(R + L) / 2.0))
-        assert M not in {L, R}
+        assert M not in {L, R}, 'Median point is equal to boundaries but it cannot happen'
         compute(M)
         if objs[M] - objs[MAXR] > threshold:
             L = M
@@ -160,7 +161,7 @@ def run_kclustering(job):
     lookup = (lambda i, j : PAIRWISE[indices_to_condensed(i, j, N)])
 
     ## Initialization
-    centroids = set()
+    centroids = []
     for i in range(K):
         if len(centroids) == 0:
             chosen = randint(N)
@@ -168,8 +169,8 @@ def run_kclustering(job):
         else:
             chosen = weighted_ichoice(probs)
             probs = [min(probs[x], lookup(x, chosen)**2) if x != chosen else 0.0 for x in xrange(N)]
-        centroids.add(chosen)
-    assert len(centroids) == K
+        centroids.append(chosen)
+    assert len(centroids) == K, 'Found less centroids {} than expected {}'.format(len(centroids), K)
     centroids = np.stack([POINTS[i] for i in centroids])
 
     ## Iterative process
@@ -195,7 +196,13 @@ def run_kclustering(job):
 
 def weighted_ichoice(weights):
     w = np.array(weights)
-    cs = np.cumsum(w) / np.sum(w, dtype=float)
-    r = np.random.rand()
-    return np.searchsorted(cs, r)
+    wsum = np.sum(w, dtype=float)
+    if wsum > 0:
+        assert np.isfinite(wsum).all(), 'wsum distance contain NaN!\n{}'.format(wsum)
+        assert np.isfinite(w).all(), 'w distance contain NaN!\n{}'.format(w)
+        cs = np.cumsum(w) / wsum
+        r = np.random.rand()
+        return np.searchsorted(cs, r)
+    else:
+        return random.choice(list(enumerate(weights)))[0]
 
