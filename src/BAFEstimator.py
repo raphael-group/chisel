@@ -25,6 +25,7 @@ def parse_args():
     parser.add_argument("-s","--samtools", required=False, default=None, type=str, help="Path to the directory to \"samtools\" executable, required in default mode (default: samtools is directly called as it is in user $PATH)")
     parser.add_argument("-j","--jobs", required=False, type=int, default=0, help="Number of parallele jobs to use (default: equal to number of available processors)")
     parser.add_argument("-c","--listcells", type=str, required=False, default=None, help="File where first column contains all the cells to consider (default: not used)")
+    parser.add_argument("--rundir", type=str, required=False, default='./', help="Running directory (default: ./)")
     args = parser.parse_args()
 
     if not os.path.isfile(args.tumor):
@@ -37,6 +38,8 @@ def parse_args():
         raise ValueError("Reference genome does not exist!")
     if args.listcells is not None and not os.path.isfile(args.listcells):
         raise ValueError("Specified list of cells does not exist!")
+    if not os.path.isdir(args.rundir):
+        raise ValueError("Running directory does not exists: {}".format(args.rundir))
 
     if not args.jobs:
         args.jobs = mp.cpu_count()
@@ -64,7 +67,8 @@ def parse_args():
         'samtools' : samtools,
         'J' : args.jobs,
         'gamma' : 0.01,
-        'list' : args.listcells
+        'list' : args.listcells,
+        'rundir' : os.path.abspath(args.rundir)
     }
 
 
@@ -81,11 +85,11 @@ def main():
     log('Counting phased SNPs in matched normal')
     snps = selecting(args, phased)
     log('Number of selected heterozygous SNPs: {}'.format(sum(len(snps[c]) for c in snps)), level='INFO')
-    log('Writing selected phased SNPs in ./selectedSNPs.tsv', level='INFO')
-    with open('selectedSNPs.tsv', 'w') as o:
-        det = (lambda c, o : [snps[c][o]['REFALT'][0], snps[c][o]['REFALT'][1], snps[c][o]['NORM'][0], snps[c][o]['NORM'][1], snps[c][o]['PHASE']])
-        rec = (lambda c, o : '\t'.join(map(str, [c, o] + det(c, o))))
-        o.write('\n'.join([rec(c, o) for c in sorted(snps, key=orderchrs) for o in sorted(snps[c])]) + '\n')
+    # log('Writing selected phased SNPs in ./selectedSNPs.tsv', level='INFO')
+    # with open('selectedSNPs.tsv', 'w') as o:
+    #     det = (lambda c, o : [snps[c][o]['REFALT'][0], snps[c][o]['REFALT'][1], snps[c][o]['NORM'][0], snps[c][o]['NORM'][1], snps[c][o]['PHASE']])
+    #     rec = (lambda c, o : '\t'.join(map(str, [c, o] + det(c, o))))
+    #     o.write('\n'.join([rec(c, o) for c in sorted(snps, key=orderchrs) for o in sorted(snps[c])]) + '\n')
 
     log('Extracting SNP counts for all cells')
     abc = extracting(args, snps)
@@ -124,7 +128,7 @@ def read_phase(f):
 
 
 def selecting(args, phased):
-    jobs = [(c, 'hetSNPs-{}.tmp'.format(c)) for c in phased]
+    jobs = [(c, os.path.join(args['rundir'], 'hetSNPs-{}.tmp'.format(c))) for c in phased]
     for c, f in jobs:
         with open(f, 'w') as o:
             o.write('\n'.join(['{}\t{}'.format(c, o) for o in sorted(phased[c])]) + '\n')
@@ -136,7 +140,9 @@ def selecting(args, phased):
 
     uniq = (lambda l : reduce(lambda x, y : inupdate(x, y), [{e[0] : (e[1], e[2], e[3], e[4])} for e in reversed(l)]))
     refalt = {c : uniq(l) for c, l in pool.imap_unordered(counting_germinal, jobs) if len(l) > 0}
-
+    pool.close()
+    pool.join()
+    
     form = (lambda c, o : {'REFALT' : tuple(refalt[c][o][:2]), 'PHASE' : phased[c][o], 'NORM' : tuple(refalt[c][o][2:])})
     return {c : {o : form(c, o) for o in refalt[c]} for c in refalt}
 
@@ -179,7 +185,8 @@ def isHet(countA, countB, gamma):
 
 def extracting(args, snps):
     jobs = [(c, o) for c in snps for o in snps[c]]
-    countawk = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'count.awk')
+    countawk = os.path.join(args['rundir'], 'count.awk') #os.path.join(os.path.dirname(os.path.abspath(__file__)), 'count.awk')
+    mkcount(countawk)
     bar = ProgressBar(total=len(jobs), length=40, verbose=False)
 
     initargs = (args['tumor'], args['samtools'], countawk)
@@ -194,7 +201,10 @@ def extracting(args, snps):
                 e, al, count = tuple(a.split())
                 abc[c][o][e][al] += int(count)
         bar.progress(advance=True, msg="Extracted SNP {}:{}".format(c, o))
-
+    pool.close()
+    pool.join()
+    
+    os.remove(countawk)
     return {c : {o : dict(filter(lambda (e, al) : sum(al.values()) > 0, abc[c][o].items())) for o in abc[c]} for c in abc}
 
 
@@ -208,6 +218,54 @@ def counting_cell(job):
     sam = sp.Popen(shlex.split(cmd_sam.format(job[0], job[1], job[1])), stdout=sp.PIPE, stderr=sp.PIPE)
     stdout, stderr = sp.Popen(shlex.split(cmd_awk.format(job[1])), stdin=sam.stdout, stdout=sp.PIPE, stderr=sp.PIPE).communicate()
     return (job[0], job[1], stdout)
+
+
+def mkcount(f):
+    with open(f, 'w') as o:
+        o.write('#!/usr/bin/awk\n\n')
+        o.write('BEGIN{}\n')
+        o.write('{\n')
+        o.write('    if ( match($0, /CB:Z:[ACGT]+/) )\n')
+        o.write('    {\n')
+        o.write('        REF = $4 - 1;\n')
+        o.write('        QUE = 0;\n')
+        o.write('        CIG = $6;\n')
+        o.write('        CEL = substr($0, RSTART+5, RLENGTH-5);\n')
+        o.write('        while( match(CIG, /^[[:digit:]]+/) )\n')
+        o.write('        {\n')
+        o.write('            N = substr(CIG, RSTART, RLENGTH);\n')
+        o.write('            CIG = substr(CIG, RSTART+RLENGTH);\n')
+        o.write('            if( match(CIG, /^[MIDNSHP=X]/) )\n')
+        o.write('            {\n')
+        o.write('                C = substr(CIG, RSTART, RLENGTH);\n')
+        o.write('                CIG = substr(CIG, RSTART+RLENGTH);\n')
+        o.write('                if (C == "M" || C == "=" || C == "X")\n')
+        o.write('                {\n')
+        o.write('                    REF += N;\n')
+        o.write('                    QUE += N;\n')
+        o.write('                    if (TAG <= REF)\n')
+        o.write('                    {\n')
+        o.write('                        X[CEL, substr($10, QUE - REF + TAG, 1)]++;\n')
+        o.write('                        next;\n')
+        o.write('                    };\n')
+        o.write('                } else if (C == "D" || C == "N")\n')
+        o.write('                {\n')
+        o.write('                    REF += N;\n')
+        o.write('                    if (TAG <= REF)\n')
+        o.write('                    {\n')
+        o.write('                        X[CEL, "N"]++;\n')
+        o.write('                        next;\n')
+        o.write('                    }\n')
+        o.write('                } else if (C == "I" || C == "S")\n')
+        o.write('                {\n')
+        o.write('                    QUE += N;\n')
+        o.write('                };\n')
+        o.write('            };\n')
+        o.write('        };\n')
+        o.write('    };\n')
+        o.write('}\n')
+        o.write('END{ for (p in X) { split(p, x, SUBSEP); print x[1], x[2], X[x[1], x[2]] } }\n')
+    return
 
 
 if __name__ == '__main__':
