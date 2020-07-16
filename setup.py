@@ -4,7 +4,7 @@ from setuptools import setup
 
 setuptools.setup(
     name='chisel',
-    version='0.1',
+    version='0.0.4',
     python_requires='==2.7.*',
     scripts=['bin/chisel.py', 
              'bin/chisel_calling.py',
