@@ -110,7 +110,7 @@ def main():
 
     log('Estimating RDR and BAF of every cluster')
     clusters = est_clusters(bins, cells, members, mapb)
-
+    
     log('Selecting ploidies')
     calls, ploidy = call(bins, members, mapb, clusters, cells, args)
     msg = '\n'.join(['Cells with base ploidy {}: {}'.format(p, v) for p, v in Counter(ploidy.values()).items()])
@@ -139,7 +139,7 @@ def read_combo(f):
     with open(f, 'r') as i:
         for l in (l for l in i if l[0] != '#' and len(l) > 1):
             b, e, norm, wrdr, rdr, A, B, baf = form(l.strip().split())
-            assert e not in data[b]
+            assert e not in data[b], 'A cell with duplicated name has been found for the same bin {}'.format(b)
             data[b][e] = {'RDR':rdr, 'NORM':norm, 'wRDR':wrdr, 'BAF':baf, 'AB':(A, B), 'wBAF':A+B, 'mirroredBAF':min(baf, 1.0-baf)}
     return {b : data[b] for b in data}
 
@@ -160,7 +160,8 @@ def format_combo(bins):
 
 def est_clusters(bins, cells, members, mapb):
     partition = {c : filter((lambda b : members[mapb[b]] == c), bins.keys()) for c in set(members)}
-    assert len(members) == sum(len(partition[c]) for c in partition)
+    assert len(members) == sum(len(partition[c]) for c in partition), 'The bins have not been partitioned into clusters, and something is missing'
+    partition = {c : partition[c] for c in partition if len(partition[c]) > 0}
     size = {c : sum(b[2] - b[1] for b in partition[c]) for c in partition}
     cal_rdr = (lambda c, e : sum(bins[b][e]['RDR'] * bins[b][e]['wRDR'] for b in partition[c]) / float(sum(bins[b][e]['wRDR'] for b in partition[c])))
     est_rdr = (lambda c, e : cal_rdr(c, e) if sum(bins[b][e]['wRDR'] for b in partition[c]) > 0 else 0.0)
@@ -174,7 +175,7 @@ def call(bins, members, mapb, clusters, cells, args):
     jobs = (e for e in cells)
     bar = ProgressBar(total=len(cells), length=40, verbose=False)
     totsize = set(sum(clusters[c][e]['size'] for c in clusters) for e in cells)
-    assert len(totsize) == 1
+    assert len(totsize) == 1, 'The same cluster has different sizes in different cells'
     counts = {e : {c : {tuple(b) : tuple(bins[b][e]['AB']) for b in bins if members[mapb[b]] == c} for c in clusters} for e in cells}
     rdrs = {e : {c : {tuple(b) : (bins[b][e]['RDR'], bins[b][e]['wRDR']) for b in bins if members[mapb[b]] == c} for c in clusters} for e in cells}
     # initargs = (cells, bins, members, mapb, clusters, list(totsize)[0], args['maxploidy'], args['significativity'], args['shift'], args['lord'])
@@ -188,7 +189,7 @@ def call(bins, members, mapb, clusters, cells, args):
         res = map(update, pool.imap_unordered(calling, jobs))
     else:
         res = map(update, pool.imap_unordered(scoring, jobs))
-    assert False not in res
+    assert False not in res, 'Some process in the pool did not terminate succesfully'
     pool.close()
     pool.join()
     return {c : {e : calls[e][c] for e in cells} for c in clusters}, ploidy
@@ -220,17 +221,17 @@ def scoring(e):
         cmax = max(ctot.values())
         split = (lambda c : (ctot[c] * (1.0 - clusters[c][e]['BAF']), ctot[c] * clusters[c][e]['BAF']))
         clus = {c : split(c) for c in clusters}
-        assert False not in set(clus[c][0] >= clus[c][1] for c in clusters)
+        assert False not in set(clus[c][0] >= clus[c][1] for c in clusters), 'Found wrong order in allele-specific copy numbers for scoring'
 
         mkstate = (lambda t, s : (max(s, t - s), min(s, t - s)))
         allstates = {t : set(mkstate(t, s) for s in xrange(t+1)) for t in xrange(cmax+1)}
-        assert False not in set(sum(s) <= t and s[0] >= s[1] for t in allstates for s in allstates[t])
+        assert False not in set(sum(s) <= t and s[0] >= s[1] for t in allstates for s in allstates[t]), 'Found a state with maximum copy number higher than predicted maximum'
 
         dist = (lambda x, y : np.linalg.norm(np.array(x) - np.array(y), ord=lord))
         states = {c : min(allstates[ctot[c]], key=(lambda s : dist(clus[c], s))) for c in clusters}
         scores = {s : sum(clusters[c][e]['size'] for c in filter((lambda c : states[c] == s), states.keys())) for s in set(states.values())}
 
-        assert sum(clusters[c][e]['size'] for c in states) == sum(scores.values())
+        assert sum(clusters[c][e]['size'] for c in states) == sum(scores.values()), 'The scoring value did not account for all clusters according to their size'
         scores = {s : scores[s] for s in scores if (float(scores[s]) / float(totsize)) >= significativity}
         if pre_scores and len(pre_scores.keys()) >= len(scores.keys()):
             return e, pre_states, pre_ploidy
@@ -239,14 +240,14 @@ def scoring(e):
             pre_scores = scores
             pre_ploidy = ploidy
 
-    assert states == pre_states
+    assert states == pre_states, 'The states with the highest ploidy have not been considered'
     return e, pre_states, pre_ploidy
 
 
 def calling(e):
     ccnts = {c : {tuple(b) : tuple(counts[e][c][b]) for b in counts[e][c]} for c in counts[e]}
     crdrs = {c : {tuple(b) : tuple(rdrs[e][c][b]) for b in rdrs[e][c]} for c in rdrs[e]}
-    assert False not in set(set(ccnts[c].keys()) == set(crdrs[c].keys()) for c in ccnts)
+    assert False not in set(set(ccnts[c].keys()) == set(crdrs[c].keys()) for c in ccnts), 'RDRs or BAFs for some clusters is missing'
     baf = (lambda A, B : (float(min(A, B)) / float(A + B)) if (A + B) > 0 else 0.5)
     cbafs = {c : {b : baf(*ccnts[c][b]) for b in ccnts[c]} for c in ccnts}
 
@@ -289,10 +290,11 @@ def calling(e):
     avail = (lambda pl, c : set(st for t in set(bnd(capp[pl][c]+i*d, pl) for i in xrange(2) for d in [1, -1]) for st in allstates[pl][t]))
     vmax = (lambda L, c, pl : max(((l, clh(l[0], l[1], c, pl)) for l in L), key=(lambda x : x[1])))
     states = {pl : {c : vmax(avail(pl, c), c, pl) if clusters[c][e]['RDR'] > 0 else ((0, 0), 1.0) for c in clusters} for pl in scale}
-
-    norm = float(sum(clusters[c][e]['size'] for c in clusters))
-    issupp = (lambda pl, t : (sum(clusters[c][e]['size'] for c in clusters if t == sum(states[pl][c][0])) / norm) >= 0.02)
-    maxsupp = {pl : max(t for t in allstates[pl] if issupp(pl, t)) for pl in states}
+    
+    norm = float(sum(clusters[c][e]['size'] for c in clusters if clusters[c][e]['RDR'] > 0))
+    issupp = (lambda pl, t, THRES : (sum(clusters[c][e]['size'] for c in clusters if t == sum(states[pl][c][0])) / norm) >= THRES)
+    safemax = (lambda L : max(L) if len(L) > 0 else max(t for t in allstates[pl] if issupp(pl, t, 0.00)))
+    maxsupp = {pl : safemax([t for t in allstates[pl] if issupp(pl, t, 0.02)]) for pl in states}
     n = sum(len(ccnts[c]) for c in ccnts)
     lh = {pl : sum(states[pl][c][1] for c in states[pl]) for pl in states}
     ps = {pl : 1 + sum(len(allstates[pl][t]) for t in allstates[pl] if t <= maxsupp[pl]) for pl in states}
@@ -322,7 +324,7 @@ def identify_base(e, clusters, ccnts, shift):
             return max((collapse(mk_bubble(clusters[c][e]['RDR'])) for c in sel), key=(lambda x : x[1]))[0], sel
         else:
             s += shift/2.0
-    assert False
+    assert False, 'There is a bin with a BAF shift > 0.5, likely BAF was not mirrored between 0 and 0.5'
 
 
 def infer(bins, cells, mapb, members, calls):
@@ -388,7 +390,7 @@ def phasing(c):
             res.insert(0, norm[i] if prev == '0' else swap[i])
             prev = B[i][prev]
 
-    assert prev == -1
+    assert prev == -1, 'The backtracking of the dynamic programming did not terminate with the first bin'
     return c, {b : res[i] for i, b in enumerate(sorted(table[c].keys(), key=order))}
 
 
