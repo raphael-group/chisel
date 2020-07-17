@@ -59,7 +59,7 @@ fi
 Last, we download the pre-computed list of phased germline SNPs. Note that differently from the [one](https://github.com/raphael-group/chisel-data/raw/master/demos/completeE/phased.HRC.vcf.gz) obtained through the reccommended instructions (i.e. using BCFtools to call germline SNPs and Eagle2 throught the Michigan Imputation Serverve with HRC panel to phase the SNPs) this file only contains the lables `0|1` or `1|0` for every SNP, which is the minimum requirement for CHISEL.
 
 ```shell
-curl -L 'https://zenodo.org/record/3950299/files/phases.tsv?download=1' -P data/phased.tsv
+curl -L 'https://zenodo.org/record/3950299/files/phases.tsv?download=1' > data/phased.tsv
 export PHA="data/phased.tsv"
 :<<'```shell' # Ignore this line
 ```
