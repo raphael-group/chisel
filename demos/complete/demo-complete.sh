@@ -46,13 +46,11 @@ export NOR="data/normal.bam"
 Next the corresponding reference genome is downloaded and unpacked
 
 ```shell
-export REF="data/refdata-GRCh38-2.1.0/fasta/genome.fa"
-export DIC="data/refdata-GRCh38-2.1.0/fasta/genome.dict"
-if [[ ! -f "${REF}" || ! -f "${DIC}" ]]; then
-    curl -L http://cf.10xgenomics.com/supp/genome/refdata-GRCh38-2.1.0.tar.gz > data/refdata-GRCh38-2.1.0.tar.gz
-    tar -xzvf data/refdata-GRCh38-2.1.0.tar.gz -C data/
-    rm -f data/refdata-GRCh38-2.1.0.tar.gz
-fi
+curl -L https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz | gzip -d > data/hg19.fa
+samtools faidx data/hg19.fa
+samtools dict data/hg19.fa > data/hg19.dict
+export REF="data/hg19.fa"
+export DIC="data/hg19.dict"
 :<<'```shell' # Ignore this line
 ```
 
