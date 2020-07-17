@@ -47,6 +47,6 @@ export MAPP="data/mapping.tsv"
 We now run the command CHISEL command that starts from the inference of copy numbers from RDRs and BAFs.
 
 ```shell
-chisel-plotting ${INPUT} -m ${MAPP}
+chisel_plotting ${INPUT} -m ${MAPP}
 exit $?
 ```

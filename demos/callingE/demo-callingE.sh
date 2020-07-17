@@ -43,6 +43,6 @@ export INPUT="data/combo.tsv"
 We now run the command CHISEL command that starts from the inference of copy numbers from RDRs and BAFs.
 
 ```shell
-chisel-calling ${INPUT} --seed 25
+chisel_calling ${INPUT} --seed 25
 exit $?
 ```
