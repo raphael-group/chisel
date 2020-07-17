@@ -25,6 +25,7 @@ During this stage, please remember to often update your version by pulling the l
     - [Virtualenv installation](#virtualenv)
 3. [Usage](#usage)
     - [Required data](#requireddata)
+    - [System requirements](#requirements)
     - [Commands](#commands)
     - [Demos](#demos)
     - [Reccomendations and quality control](#reccomendations)
@@ -51,20 +52,60 @@ The current software implementation provides different commands within `bin` to 
 ## Setup
 <a name="setup"></a>
 
-CHISEL is written in python 2.7, is based on standard python packages, and does not required any compilation but only two additional standard open-source softwares.
-To support CHISEL distribution, we report two automatic and easy installation processes for CHISEL and all the requirements, through package managers which keep everything up to date.
-The usage of package managers is the recommended installation process.
-The details are reported in the following sections:
-1. [Dependencies](#dependencies): required packages and additional software;
-2. [Conda installation](#conda): automatic installation through package manager conda;
-3. [Virtualenv installation](#virtualenv): automatic installation through python virtual environments;
-3. [Additional notes](#additionalnotes): additional and useful notes for possible issues and reccomendations.
+[CHISEL](https://bioconda.github.io/recipes/chisel/README.html) is distributed as a [bioconda](https://bioconda.github.io/) package.
 
-### Dependencies
-<a name="dependencies"></a>
+1. [Standard installation](#standard)
+2. [Full automatic installation](#automatic)
+3. [Custom installation](#custom)
+4. [Additional notes](#additionalnotes)
 
-CHISEL requires few standard python packages and two additional standard softwares.
-These requirements can be either manually installed by the user or automatically installed through the automatic installation processes (see below).
+### Standard installation
+<a name="standard"></a>
+
+The recommended installation method for CHISEL is using `conda`.
+First, install `conda`, a standard package manager, for example using the compact [Miniconda](https://docs.conda.io/en/latest/miniconda.html) or the complete [Anaconda](https://www.anaconda.com/).
+Moreover, `bioconda` [requires](https://bioconda.github.io/user/index.html) to set the following channels in this exact order:
+```shell
+conda config --add channels defaults
+conda config --add channels bioconda
+conda config --add channels conda-forge
+```
+
+Next, `chisel` can be installed with the following one-time command:
+```shell
+conda install chisel
+```
+
+This command installs `chisel` in the base conda environment, however it is generally recommended, especially in computing servers, to keep distinct packages indepedent.
+Therefore, it is preferable to use the following commands to install `chisel`:
+```shell
+conda create -n chisel chisel
+```
+
+In this case, `chisel` must be activate before every session with the following command
+```shell
+source activate chisel
+```
+
+Note that all the `conda` and `activate` commands above are located in `${CONDA_HOME}/bin/`.
+
+### Full automatic installation
+<a name="automatic"></a>
+
+An automatic BASH script that fully installs `conda` through Miniconda and installs `chisel` on it is provided in [install_full.sh](install_full.sh).
+Note that conda is installed in `${CHISEL_HOME}/conda` and the following command (fully output at the end of the installation) must be executed before executing `chisel` in every new session:
+```shell
+source ${CHISEL_HOME}/conda/bin/activate chisel
+```
+
+### Custom installation
+<a name="custom"></a>
+
+CHISEL is written in `python2.7` and requires few standard python packages and two additional standard softwares.
+Once all the requirements have been succesfully installed, `chisel` can be manually installed from `${CHISEL_HOME}` as
+```shell
+python setup.py install
+```
 
 #### > Python packages
 
@@ -80,88 +121,31 @@ CHISEL depends on the following standard python packages, which must be availabl
 
 #### > Additional software
 
-CHISEL also requires few standard additional softwares, which can be easily and locally installed following the corresponding instructions (see links).
+CHISEL also requires few standard additional softwares, which must be included in `PATH` (e.g. by executing `export PATH=${SAMTOOLS_HOME}/bin/:${PATH}`)
 
 | Software | Tested version | Comments |
 |----------|----------------|----------|
 | [AWK](https://en.wikipedia.org/wiki/AWK) | GNU Awk 4.0.2 | Scripting language available by default on most Unix-like OSs and with specific implementation available for any other OS |
 | [SAMtools and BCFtools](http://www.htslib.org/doc/)  | 1.9 | Suite of programs for interacting with high-throughput sequencing data |
 
-### Conda installation
-<a name="conda"></a>
-
-Conda provides one of the most common package and virtual-environment manager for python.
-If conda is not available in your system, you can easily obtain it by installing one of the two most-common distributions (NO administration access is required for the installation): [anaconda](https://www.anaconda.com/) or [miniconda](https://docs.conda.io/en/latest/miniconda.html).
-Once conda is installed in a directory `${CONDA-HOME}`, the following few commands represent an easy **one-time** process to install CHISEL in the home directory `${CHISEL-HOME}`.
-
-```shell
-$ git clone https://github.com/raphael-group/chisel ${CHISEL-HOME}/  # Clone the git repository into a specific directory `${CHISEL-HOME}`
-$ ${CONDA-HOME}/bin/conda create -n chisel -c bioconda -c anaconda -n chisel python=2.7 numpy=1.12 scipy=1.2.1 pandas=0.20.1 matplotlib=2.0.2 seaborn=0.7.1 samtools=1.9 bcftools=1.9 gawk # Install required packages within environment # Create a CHISEL-specific virtual environment with required packages
-$ source ${CONDA-HOME}/bin/activate chisel # Activate the CHISEL-specific virtual environment
-```
-
-User needs to activate the environment **anytime** before using any CHISEL command with the following:
-```shell
-$ source ${CONDA-HOME}/bin/activate chisel # Activate the CHISEL-specific virtual environment
-```
-
-Once any CHISEL usage is completed, user can exit the environment with the following:
-```shell
-$ source deactivate
-```
-
-### Virtualenv installation
-<a name="virtualenv"></a>
-
-Virtualenv is a python-integrated tool to create and manage python virtual environments; the virtuality is useful to keep each environment isolated from those of your OS and other environments, keeping packages with independent and correct versions without conflicts.
-If virtualenv is not already available on your system, user can easily install it following the instructions either [here](https://virtualenv.pypa.io/en/latest/) or [here](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/).
-The following few commands represent an easy **one-time** process to install CHISEL in the home directory `${CHISEL-HOME}`.
-
-```shell
-$ git clone https://github.com/raphael-group/chisel ${CHISEL-HOME}/  # Clone the git repository into a specific directory `${CHISEL-HOME}`
-$ virtualenv ${CHISEL-HOME}/env   # Create a CHISEL-specific virtual environment
-$ source ${CHISEL-HOME}/env/bin/activate  # Activate the CHISEL-specific virtual environment
-$ pip install numpy==1.16.1 scipy==1.2.1 pandas==0.20.1 matplotlib==2.0.2 seaborn==0.7.1 # Install required packages within environment
-$ deactivate
-```
-
-User needs to activate the environment **anytime** before using any CHISEL command with the following:
-```shell
-$ source ${PATH-TO-ENV}/chisel/bin/activate
-```
-Note that user also needs to add SAMtools and BCFtools to PATH (see additional notes below).
-
-Once any CHISEL usage is completed, user can exit the environment with the following:
-```shell
-$ deactivate
-```
-
 ### Additional notes:
 <a name="additionalnotes"></a>
 
-- To be able to run every CHISEL command without the need of specifying the prefix `${CHISEL-HOME}/bin/` at every use, simply add it to `$PATH` with the following command
+- To be to run the conda commands `conda` and `activate` without prefix, add their path full path to `PATH` by
 ```shell
-export PATH=${PATH}:${CHISEL-HOME}/bin/
+export PATH=${CONDA_HOME}/bin/:${PATH}
 ```
 
-- Substitute the directory variables `${CHISEL-HOME}` and `${PATH-TO-ENV}/chisel` with the corresponding preferred paths. Alternatively, the user can define the environmental variables before any use as follows:
-```shell
-$ export CHISEL-HOME=/path/to/chisel/
-$ export PATH-TO-ENV=/path/to/environments/
-```
-
-- The default installations of SAMtools and BCFtools (and awk in case this is not available by default) typically include the binaries in `${PATH}` such that they can be executed directly by calling `samtools` or `bcftools`. If this is not the case, user needs to provide the corresponding full paths to CHISEL commands when requested or can add the paths to `${PATH}` manually as follows:
-```shell
-$ export PATH=${PATH}:/path/to/samtools/bin/
-$ export PATH=${PATH}:/path/to/bcftools/bin/
-```
-
-- When using Windows OS please follows the corresponding commands described either [here](https://virtualenv.pypa.io/en/latest/) or [here](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/).
-
-- The same procedure can be applied using directly the OS python environment by only using the `pip` command to install the required packages and adding `--force-reinstall` to force reinstallation of packages when a different version is already installed.
+- `bioconda` [requires](https://bioconda.github.io/user/index.html) does not support Windows; however, Windows uses can use either [WSL](https://docs.microsoft.com/en-us/windows/wsl/) or the [custom installation](#custom).
 
 ## Usage
 <a name="usage"></a>
+
+1. [Required data](#requireddata)
+2. [System requirements](#requirements)
+3. [Commands](#commands)
+4. [Demos](#demos)
+5. [Reccomendations and quality control](#reccomendations)
 
 ### Required data
 <a name="requireddata"></a>
@@ -176,23 +160,32 @@ CHISEL requires 4 input data:
 
 4. A **VCF file with phased germline SNPs** present in the matched-normal sample. CHISEL only requires a VCF with the phase `0|1` or `1|0` within the record of heterozygous phased SNPs and any reference-based phasing method can be used. Here, we recommend a very easy two step procedure: (1) use BCFtools to call germline SNPs from the matched-normal sample (as described [here](http://samtools.github.io/bcftools/howtos/variant-calling.html)); (2) use Eagle2 through the [Michigan Imputation Server](https://imputationserver.sph.umich.edu/index.html#!pages/home) to phase germline SNPs with respect to the reference panel HRC. Alternatively, Eagle2 can be used [locally](https://data.broadinstitute.org/alkesgroup/Eagle/), and other methods as [SHAPEIT](http://mathgen.stats.ox.ac.uk/genetics_software/shapeit/shapeit.html) or other panels as 1000 Genomes Phase 3 can be applied, too. Note that HRC currently supports only reference `hg19`, therefore user can use [LiftoverVcf from Picard tools](http://broadinstitute.github.io/picard/) or similar methods to convert genomic coordinates to the required `hg19` build, when a different reference genome has been used to align sequencing reads.
 
-### Commands
+### System requirements
+<a name="requirements"></a>
+
+CHISEL extract sequencing reads from huge BAM files (>200GB) for millions of germline SNPs across thousands of single cells.
+To make this extensive computation efficient, CHISEL is highly parallelized and often split indpendent computations to parallel processes.
+Therefore, we reccommend to execute CHISE on multi-processing computing machines.
+The reccomended system requirements currently are:
+
+- CPU with >11 virtual cores
+- 64 GB of RAM
+
+
+### CHISEL Commands
 <a name="commands"></a>
 
 CHISEL offers different commands to run either the entire pipeline with all the steps or only some specific steps. In particular, the latter commands are useful when user wants to re-run some specific steps by varying some of the default parameters or for quality control (see below).
-Every command can be easily run as follows (note that prefix `${CHISEL-HOME}/bin/` is not needed if used used conda installation or added the prefix to `PATH` as suggested above)
-```shell
-python2.7 ${CHISEL-HOME}/bin/<command>
+Every command can be run directly when CHISEL has been correctly installed.
 ```
-where `${CHISEL-HOME}` is the CHISEL home directory and `<command>` is one of the available commands listed here below.
 
 | Command | Description | Required input | Output |
 |---------|-------------|----------------|--------|
-| [`chisel.py`](man/chisel.md) | Running the complete CHISEL pipeline | The 4 required input data | [Final results and plots](doc/chisel.md) |
-| [`chisel-calling.py`](man/chisel-calling.md) | Running from the inference of copy numbers | Computed RDRs and BAFs | [Final results and plots](doc/chisel-calling.md) |
-| [`chisel-cloning.py`](man/chisel-cloning.md) | Running from the identification of clones | Inferred copy numbers | [Final results and plots](doc/chisel-cloning.md) |
-| [`chisel-plotting.py`](man/chisel-plotting.md) | Running plot generation | Inferred copy numbers and clones | [Final plots](doc/chisel-plotting.md) |
-| [`chisel-pseudonormal.py`](man/chisel-pseudonormal.md) | Extracting diploid cells to form a pseudo matched-normal sample | A barcoded BAM file containing diploid cells and the corresponding reference genome | [A BAM file to be used as a matched-normal sample](doc/chisel-pseudonormal.md) |
+| [`chisel`](man/chisel.md) | Running the complete CHISEL pipeline | The 4 required input data | [Final results and plots](doc/chisel.md) |
+| [`chisel-calling`](man/chisel-calling.md) | Running from the inference of copy numbers | Computed RDRs and BAFs | [Final results and plots](doc/chisel-calling.md) |
+| [`chisel-cloning`](man/chisel-cloning.md) | Running from the identification of clones | Inferred copy numbers | [Final results and plots](doc/chisel-cloning.md) |
+| [`chisel-plotting`](man/chisel-plotting.md) | Running plot generation | Inferred copy numbers and clones | [Final plots](doc/chisel-plotting.md) |
+| [`chisel-pseudonormal`](man/chisel-pseudonormal.md) | Extracting diploid cells to form a pseudo matched-normal sample | A barcoded BAM file containing diploid cells and the corresponding reference genome | [A BAM file to be used as a matched-normal sample](doc/chisel-pseudonormal.md) |
 
 Click on the name of each command to obtain a description of all the available parameters.
 
