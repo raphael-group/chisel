@@ -5,11 +5,13 @@ The following CHISEL demo represents a guided example of the CHISEL command for 
 
 ## Requirements and set up
 
-The demo requires that CHISEL has been succesfully installed, such that the python environment called by the command `python2.7` has the required packages, and both `samtools` and `awk` are available in `${PATH}`.
-In addition, the command `chisel-pseudonormal.py` requires the command `grep`.
+The demo requires that CHISEL has been succesfully installed with conda. The demo includes the downloading of all the required files and will terminate in <20 minutes on machine with minimum requirements satisfied.
+
+We gurantee that the running directory in the same directory of the demo and we remove previous results.
 
 ```shell
-export CHISEL_HOME="../../" # This is CHISEL home by default, update if needed
+cd $( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )
+rm -rf rdr/ baf/ combo/ calls/ clones/ plots/
 :<<'```shell' # Ignore this line
 ```
 
@@ -56,6 +58,6 @@ Specifically, we are required to specify the reference genome `${REF}` and we us
 By default, temporary files and the sorted and indexed output BAM `pseudonormal.bam` will be generated in the current directory.
 
 ```shell
-python2.7 ${CHISEL_HOME}/bin/chisel-pseudonormal.py ${BAM} -r ${REF}
+chisel-pseudonormal ${BAM} -r ${REF}
 exit $?
 ```

@@ -1,13 +1,17 @@
 # Demo for WGS data from a cancer patient
 : ex: set ft=markdown ;:<<'```shell' #
 
-The following CHISEL demo represents a guided example of the CHISEL pipeline starting from the inferred copy numbers (typically the file `calls.tsv` in the folder `calls`) and identified clones (typically the file `mapping.tsv` in the folder `clones`) for tumor section E of breast cancer patient S0, and thus produces the corresponding plots. The demo represent a guided example for the command `chisel-plotting.py` which allows to re-run the plot generation and can be used to try different parameters to obtain the best format for the results.
+The following CHISEL demo represents a guided example of the CHISEL pipeline starting from the inferred copy numbers (typically the file `calls.tsv` in the folder `calls`) and identified clones (typically the file `mapping.tsv` in the folder `clones`) for tumor section E of breast cancer patient S0, and thus produces the corresponding plots. The demo represent a guided example for the command `chisel-plotting` which allows to re-run the plot generation and can be used to try different parameters to obtain the best format for the results.
 
 ## Requirements and set up
 
-The demo requires that CHISEL has been succesfully installed, such that the python environment called by the command `python2.7` has the required packages.
+The demo requires that CHISEL has been succesfully installed with conda. The demo includes the downloading of all the required files and will terminate in <20 minutes on machine with minimum requirements satisfied.
+
+We gurantee that the running directory in the same directory of the demo and we remove previous results.
+
 ```shell
-export CHISEL_HOME="../../" # This is CHISEL home by default, update if needed
+cd $( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )
+rm -rf rdr/ baf/ combo/ calls/ clones/ plots/
 :<<'```shell' # Ignore this line
 ```
 
@@ -43,6 +47,6 @@ export MAPP="data/mapping.tsv"
 We now run the command CHISEL command that starts from the inference of copy numbers from RDRs and BAFs.
 
 ```shell
-python2.7 ${CHISEL_HOME}/bin/chisel-plotting.py ${INPUT} -m ${MAPP}
+chisel-plotting ${INPUT} -m ${MAPP}
 exit $?
 ```
