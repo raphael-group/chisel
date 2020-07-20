@@ -152,7 +152,7 @@ export PATH=${CONDA_HOME}/bin/:${PATH}
 
 CHISEL requires 4 input data:
 
-1. A **single-cell barcoded BAM** file containing aligned DNA sequencing reads from single cells of a single patient. The BAM file must be indexed and sorted (see [SAMtools](http://www.htslib.org/workflow/#mapping_to_variant) and [GATK Best Practices](https://software.broadinstitute.org/gatk/best-practices/)). Reads must be labelled by a barcode, which is string `PREFIX:[A,C,G,T]+` composed of two parts: (1) a prefix `PREFIX`; and (2) the actual barcode `[A,C,G,T]+` which is a string of letters `A,C,G,T` of arbitrary length which uniquely identifies a single cell. Current CHISEL implementation requires the `PREFIX` to be `CB:Z:` according to the 10X Genomics [format](https://support.10xgenomics.com/single-cell-dna/software/pipelines/latest/output/bam). However, the upcoming version of CHISEL will support any PREFIX to accommodate any different technology. Note that the barcode `PREFIX:[A,C,G,T]+` can be either an independent tab-separated field of the SAM alignments or can be incorporated in the name of the sequencing read.
+1. A **single-cell barcoded BAM** file containing aligned DNA sequencing reads from single cells of a single patient. The BAM file must be indexed and sorted (see [SAMtools](http://www.htslib.org/workflow/#mapping_to_variant) and [GATK Best Practices](https://software.broadinstitute.org/gatk/best-practices/)). Reads must be labelled by a barcode, which is a string `PREFIX:[A,C,G,T]+` composed of two parts: (1) a prefix `PREFIX`; and (2) the actual barcode `[A,C,G,T]+` which is an arbitrary-long string of letters `A,C,G,T` uniquely identifiying a single cell. Current CHISEL implementation requires the `PREFIX` to be `CB:Z:` according to the 10X Genomics [format](https://support.10xgenomics.com/single-cell-dna/software/pipelines/latest/output/bam). However, the upcoming version of CHISEL will support any `PREFIX` to support any different single-cell technology. Note that the barcode `PREFIX:[A,C,G,T]+` can be either an independent tab-separated field of the SAM alignments or can be incorporated in the name of the sequencing reads.
 
 2. The **reference human genome** used to aligned the sequencing reads in the single-cell barcoded BAM. The most-used human reference genome are available at [GRC](https://www.ncbi.nlm.nih.gov/grc/human) or [UCSC](http://hgdownload.cse.ucsc.edu/downloads.html#human). Moreover, the reference genome `${REF}.fa` must be index by SAMtools (i.e. `samtools faidx ${REF}.fa`) and a dictionary must be created (`i.e. samtools dict ${REF}.fa > ${REF}.dict`) in the same folder as `${REF}`.
 
@@ -165,7 +165,8 @@ CHISEL requires 4 input data:
 
 CHISEL is highly parallelized in order to make efficient the extensive computations needed for counting sequencing reads from BAM files, often splitting independent computations to parallel processes. We recommend executing CHISEL on multi-processing computing machines. Note that CHISEL automatically uses the maximum number of available cores, however this can be controlled with option `-j` of every command. The minimum system requirements for running the available demos or running every CHISEL command from partial results currently are:
 - CPU with >2 virtual cores
-- >4GB of RAM
+- At least 4GB of RAM
+
 However, when the complete CHISEL pipeline is applied to huge BAM files (>200GB) for millions of germline SNPs across thousands of single cells, CHISEL requirements are limited by the existing requirements of SAMtools and BCFtools, requiring higher amounts of RAM (e.g. >100GB of RAM) and a higher number of parallel cores (e.g. >12 cores). In general, the higher the number of cores is with a sufficient amount of RAM,  the faster the execution will be.
 
 ### CHISEL Commands
@@ -191,7 +192,7 @@ Each demo is an exemplary and guided execution of a CHISEL command on available 
 
 | Demo | Description |
 |------|-------------|
-| [completeE](demos/completeE/demo-completeE.sh) | Demo of the complete CHISEL pipeline on tumor section E of breast cancer patient S0 |
+| [completeE](demos/completeE/demo-completeE.sh) | Demo of the complete CHISEL pipeline |
 | [callingE](demos/callingE/demo-callingE.sh) | Demo of `chisel-calling.py` command to re-run pipeline from the inference of copy numbers on tumor section E of breast cancer patient S0 |
 | [cloningE](demos/cloningE/demo-cloningE.sh) | Demo of `chisel-cloning.py` command to re-run pipeline from the identification of clones on tumor section E of breast cancer patient S0 |
 | [plottingE](demos/plottingE/demo-plottingE.sh) | Demo of `chisel-plotting.py` command to re-run plot generation on tumor section E of breast cancer patient S0 |
