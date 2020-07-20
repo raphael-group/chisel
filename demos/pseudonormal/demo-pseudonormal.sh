@@ -32,8 +32,8 @@ The demo auomatically downloads the required barcoded single-cell BAM file from 
 mkdir -p data
 
 # Downloading matched-normal BAM file as section A
-wget -N -c http://s3-us-west-2.amazonaws.com/10x.files/samples/cell-dna/1.0.0/breast_tissue_A_2k/breast_tissue_A_2k_possorted_bam.bam -P data/
-wget -N -c http://cf.10xgenomics.com/samples/cell-dna/1.0.0/breast_tissue_A_2k/breast_tissue_A_2k_possorted_bam.bam.bai -P data/
+curl -L http://s3-us-west-2.amazonaws.com/10x.files/samples/cell-dna/1.0.0/breast_tissue_A_2k/breast_tissue_A_2k_possorted_bam.bam > data/breast_tissue_A_2k_possorted_bam.bam
+curl -L http://cf.10xgenomics.com/samples/cell-dna/1.0.0/breast_tissue_A_2k/breast_tissue_A_2k_possorted_bam.bam.bai > data/breast_tissue_A_2k_possorted_bam.bam.bai
 export BAM="data/breast_tissue_A_2k_possorted_bam.bam"
 :<<'```shell' # Ignore this line
 ```
@@ -44,7 +44,7 @@ Last, the corresponding reference genome is downloaded and unpacked
 export REF="data/refdata-GRCh38-2.1.0/fasta/genome.fa"
 export DIC="data/refdata-GRCh38-2.1.0/fasta/genome.dict"
 if [[ ! -f "${REF}" || ! -f "${DIC}" ]]; then
-    wget -N -c http://cf.10xgenomics.com/supp/genome/refdata-GRCh38-2.1.0.tar.gz -P data/
+    curl -L http://cf.10xgenomics.com/supp/genome/refdata-GRCh38-2.1.0.tar.gz > data/refdata-GRCh38-2.1.0.tar.gz
     tar -xzvf data/refdata-GRCh38-2.1.0.tar.gz -C data/
     rm -f data/refdata-GRCh38-2.1.0.tar.gz
 fi
