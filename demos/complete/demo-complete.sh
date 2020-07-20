@@ -32,11 +32,13 @@ The demo auomatically downloads the required barcoded single-cell and matched-no
 mkdir -p data
 
 # Downloading tumor barcoded BAM file
+echo "Downloading tumor barcoded BAM file from Zenodo, please be patient as downloading time may vary."
 curl -L 'https://zenodo.org/record/3950299/files/cells.bam?download=1' > data/cells.bam
 curl -L 'https://zenodo.org/record/3950299/files/cells.bam.bai?download=1' > data/cells.bam.bai
 export TUM="data/cells.bam"
 
 # Downloading matched-normal BAM file
+echo "Downloading matched-normal BAM file from Zenodo, please be patient as downloading time may vary."
 curl -L 'https://zenodo.org/record/3950299/files/normal.bam?download=1' > data/normal.bam
 curl -L 'https://zenodo.org/record/3950299/files/normal.bam.bai?download=1' > data/normal.bam.bai
 export NOR="data/normal.bam"
@@ -46,6 +48,7 @@ export NOR="data/normal.bam"
 Next the corresponding reference genome is downloaded and unpacked
 
 ```shell
+echo "Downloading human reference genome, please be patient as downloading time may vary."
 curl -L https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz | gzip -d > data/hg19.fa
 samtools faidx data/hg19.fa
 samtools dict data/hg19.fa > data/hg19.dict
