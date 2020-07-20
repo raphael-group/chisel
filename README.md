@@ -192,7 +192,7 @@ Each demo is an exemplary and guided execution of a CHISEL command on available 
 
 | Demo | Description |
 |------|-------------|
-| [completeE](demos/completeE/demo-completeE.sh) | Demo of the complete CHISEL pipeline |
+| [complete](demos/complete/demo-complete.sh) | Demo of the complete CHISEL pipeline |
 | [callingE](demos/callingE/demo-callingE.sh) | Demo of `chisel-calling.py` command to re-run pipeline from the inference of copy numbers on tumor section E of breast cancer patient S0 |
 | [cloningE](demos/cloningE/demo-cloningE.sh) | Demo of `chisel-cloning.py` command to re-run pipeline from the identification of clones on tumor section E of breast cancer patient S0 |
 | [plottingE](demos/plottingE/demo-plottingE.sh) | Demo of `chisel-plotting.py` command to re-run plot generation on tumor section E of breast cancer patient S0 |
