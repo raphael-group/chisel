@@ -1,11 +1,11 @@
 # Demo for generating pseudo matched-normal sample
 : ex: set ft=markdown ;:<<'```shell' #
 
-The following CHISEL demo represents a guided example of the CHISEL command for generating a pseudo matched-normal sample starting from the barcoded [BAM file](https://support.10xgenomics.com/single-cell-dna/datasets/1.0.0/breast_tissue_A_2k) publicly available from 10X Genomics archive and obtained through 10X Chromium Single Cell CNV Solution for section A of a breast tumor. Simply run this file through BASH as a standard script to run the complete demo. The demo can also be considered as a guided example of a complete execution and is correspondingly commented.
+The following CHISEL demo represents a guided example of the CHISEL command for generating a pseudo matched-normal sample starting from an exemplary barcoded [BAM file](https://doi.org/10.5281/zenodo.3952985) publicly available. Simply run this file through BASH as a standard script to run the complete demo. The demo can also be considered as a guided example of a complete execution and is correspondingly commented.
 
 ## Requirements and set up
 
-The demo requires that CHISEL has been succesfully installed with conda. The demo includes the downloading of all the required files and will terminate in <20 minutes on machine with minimum requirements satisfied.
+The demo requires that CHISEL has been succesfully installed with conda. If the custom installation was used, please make sure that you can succesfully run the command `chisel_pseudonormal` as well as the required `samtools`, `bcftools`, and `awk`. The demo includes the downloading of all the required files and will terminate in <20 minutes on machine with minimum requirements satisfied.
 
 We gurantee that the running directory in the same directory of the demo and we remove previous results.
 
@@ -31,29 +31,29 @@ The demo auomatically downloads the required barcoded single-cell BAM file from 
 # Creating data folder
 mkdir -p data
 
-# Downloading matched-normal BAM file as section A
-curl -L http://s3-us-west-2.amazonaws.com/10x.files/samples/cell-dna/1.0.0/breast_tissue_A_2k/breast_tissue_A_2k_possorted_bam.bam > data/breast_tissue_A_2k_possorted_bam.bam
-curl -L http://cf.10xgenomics.com/samples/cell-dna/1.0.0/breast_tissue_A_2k/breast_tissue_A_2k_possorted_bam.bam.bai > data/breast_tissue_A_2k_possorted_bam.bam.bai
-export BAM="data/breast_tissue_A_2k_possorted_bam.bam"
+# Downloading tumor barcoded BAM file
+echo "Downloading tumor barcoded BAM file from Zenodo, please be patient as downloading time may vary."
+curl -L https://zenodo.org/record/3952985/files/cells.bam?download=1 > data/cells.bam
+curl -L https://zenodo.org/record/3952985/files/cells.bam.bai?download=1 > data/cells.bam.bai
+export BAM="data/cells.bam"
 :<<'```shell' # Ignore this line
 ```
 
 Last, the corresponding reference genome is downloaded and unpacked
 
 ```shell
-export REF="data/refdata-GRCh38-2.1.0/fasta/genome.fa"
-export DIC="data/refdata-GRCh38-2.1.0/fasta/genome.dict"
-if [[ ! -f "${REF}" || ! -f "${DIC}" ]]; then
-    curl -L http://cf.10xgenomics.com/supp/genome/refdata-GRCh38-2.1.0.tar.gz > data/refdata-GRCh38-2.1.0.tar.gz
-    tar -xzvf data/refdata-GRCh38-2.1.0.tar.gz -C data/
-    rm -f data/refdata-GRCh38-2.1.0.tar.gz
-fi
+echo "Downloading human reference genome, please be patient as downloading time may vary."
+curl -L https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz | gzip -d > data/hg19.fa
+samtools faidx data/hg19.fa
+samtools dict data/hg19.fa > data/hg19.dict
+export REF="data/hg19.fa"
+export DIC="data/hg19.dict"
 :<<'```shell' # Ignore this line
 ```
 
 ## Run CHISEL
 
-We now run the command `chisel-pseudonormal.py` of CHISEL for generating a pseudo mathched-normal sample by extracting the sequencing reads from diploid cells in the provided barcoded BAM file `${BAM}`.
+We now run the command `chisel_pseudonormal` of CHISEL for generating a pseudo mathched-normal sample by extracting the sequencing reads from diploid cells in the provided barcoded BAM file `${BAM}`.
 Specifically, we are required to specify the reference genome `${REF}` and we use the default values of all parameters.
 By default, temporary files and the sorted and indexed output BAM `pseudonormal.bam` will be generated in the current directory.
 
