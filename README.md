@@ -54,7 +54,7 @@ CHISEL provides different commands (in `bin`) to automatically execute the diffe
 <a name="quick"></a>
 ## Quick start
 
-The user can automatically install CHISEL and test the complete CHISEL pipeline on the available demo with the 4 following commands.
+To get started quickly, you can install CHISEL and test the complete CHISEL pipeline on example data using the 4 following commands.
 
 ```shell
 git clone https://github.com/raphael-group/chisel && cd chisel # Clone CHISEL and enters the directory
