@@ -58,6 +58,6 @@ Specifically, we are required to specify the reference genome `${REF}` and we us
 By default, temporary files and the sorted and indexed output BAM `pseudonormal.bam` will be generated in the current directory.
 
 ```shell
-chisel-pseudonormal ${BAM} -r ${REF}
+chisel_pseudonormal ${BAM} -r ${REF}
 exit $?
 ```
