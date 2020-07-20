@@ -34,7 +34,7 @@ cd ${CHISEL_HOME}
 curl -L ${MINICONDA} > miniconda.sh
 rm -rf ./conda/
 bash miniconda.sh -b -f -p ./conda/
-export CONDA_HOME=${CHISEL_HOME}/conda/bin/
+export CONDA_HOME=${CHISEL_HOME}/conda/bin
 
 # Installing chisel
 ${CONDA_HOME}/conda config --add channels defaults
