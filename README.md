@@ -76,7 +76,7 @@ Depending on your interest in using conda, there are three possible installation
 2. [Standard installation](#standard): uses an existing conda installation and installs CHISEL on it;
 3. [Custom installation](#custom): installs CHISEL from source without conda.
 
-Additional notes](#additionalnotes) and comments are reported at the end of this section.
+[Additional notes](#additionalnotes) and comments are reported at the end of this section.
 
 <a name="automatic"></a>
 ### Full automatic installation
