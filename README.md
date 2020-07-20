@@ -48,8 +48,7 @@ During this stage, please keep checking for updates.
 <a name="software"></a>
 ### Software
 
-The current implementation of CHISEL is written in `python2.7` and [CHISEL](https://bioconda.github.io/recipes/chisel/README.html) is distributed as a [bioconda](https://bioconda.github.io/) package.
-CHISEL provides different commands (in `bin`) to automatically execute the different features/pipelines of CHISEL. See details in [Usage](#usage).
+The current implementation of CHISEL is written in `python2.7` and [CHISEL](https://bioconda.github.io/recipes/chisel/README.html) is distributed as a [bioconda](https://bioconda.github.io/) package. CHISEL provides different commands (in `bin`) to automatically execute the different features/pipelines of CHISEL. See details in [Usage](#usage).
 
 <a name="quick"></a>
 ## Quick start
@@ -63,8 +62,7 @@ source conda/bin/activate chisel # Activate CHISEL, remember to run this command
 cd demos/complete/ && bash demo-complete.sh # Enter the directory of the complete demo and run it
 ```
 
-A successful execution of these commands will generate the final plots of the demo as PNG images in `chisel/demos/complete/plots/` and the [other outputs]
-Details of the outputs are described in [insert]
+A successful execution of these commands will generate the [final plots](https://github.com/raphael-group/chisel/blob/master/doc/chisel-plotting.md) of the demo as PNG images in `chisel/demos/complete/plots/`, the inferred allele- and haplotype-specific copy numbers in `chisel/demos/complete/calls/calls.tsv`, and the clones in `chisel/demos/complete/clones/mapping.tsv`. Further details of the temporary files and final outputs are described [here](https://github.com/raphael-group/chisel/blob/master/doc/chisel.md).
 
 <a name="setup"></a>
 ## Setup
