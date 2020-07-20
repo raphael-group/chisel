@@ -35,24 +35,24 @@ During this stage, please keep checking for updates.
     - [Current issues](#currentissues)
 6. [Contacts](#contacts)
 
-## Overview
 <a name="overview"></a>
+## Overview
 
-### Algorithm
 <a name="algorithm"></a>
+### Algorithm
 
 ![](doc/chisel-cartoon.png "CHISEL algorithm")
 
 **The CHISEL algorithm.** **(A)** CHISEL computes RDRs and BAFs in low-coverage (<0.05X per cell) single-cell DNA sequencing data (top left). Read counts from 2000 individual cells (rows) in 5Mb genomic bins (columns) across three chromosomes (grey rectangles in first row) are shown. For each bin in each cell, CHISEL computes the RDR (top) by normalizing the observed read counts. CHISEL computes the BAF in each bin and cell (bottom) by first performing referenced-based phasing of germline SNPs in 50kb haplotype blocks (magenta and green) and then phasing all these blocks jointly across all cells. **(B)** CHISEL clusters RDRs and BAFs globally along the genome and jointly across all cells resulting here in 5 clusters of genomic bins (red, blue, purple, yellow, and grey) with distinct copy-number states. **(C)** CHISEL infers a pair of allele-specific copy numbers for each cluster by determining whether the allele-specific copy numbers of the largest balanced (BAF~0.5) cluster are equal to *{1, 1}* (diploid), *{2, 2}* (tetraploid), or are higher ploidy. **(D)** CHISEL infers haplotype-specific copy numbers *(a, b)* by phasing the allele-specific copy numbers consistently across all cells. **(E)** CHISEL clusters tumor cells into clones according to their haplotype-specific copy numbers. Here, a diploid clone (light gray) and two tumor clones (red and blue) are obtained. A phylogenetic tree describes the evolution of these clones. Somatic single-nucleotide variants (SNVs) are derived from pseudo-bulk samples and placed on the branches of the tree.
 
-### Software
 <a name="software"></a>
+### Software
 
 The current implementation of CHISEL is on `python2.7` and [CHISEL](https://bioconda.github.io/recipes/chisel/README.html) is distributed as a [bioconda](https://bioconda.github.io/) package.
 CHISEL provides different commands (in `bin`) to automatically execute the different features/pipelines of CHISEL. See details in [Usage](#usage).
 
-## Quick start
 <a name="quick"></a>
+## Quick start
 
 The user can automatically install CHISEL and test the complete CHISEL pipeline on the available demo with the 4 following commands.
 A successful execution of these commands will generate the final plots of the demo as PNG images in `chisel/demos/complete/plots/`
@@ -64,8 +64,8 @@ source conda/bin/activate chisel # Activate CHISEL, remember to run this command
 cd demos/complete/ && bash demo-complete.sh # Enter the directory of the complete demo and run it
 ```
 
-## Setup
 <a name="setup"></a>
+## Setup
 
 [CHISEL](https://bioconda.github.io/recipes/chisel/README.html) is distributed as a [bioconda](https://bioconda.github.io/) package; thus, there are three major methods of installation, which are described below.
 The user can install CHISEL using the preferred installation method, and additional notes are reported at the end of this section.
@@ -75,8 +75,8 @@ The user can install CHISEL using the preferred installation method, and additio
 3. [Custom installation](#custom): installs CHISEL from source without conda;
 4. [Additional notes](#additionalnotes): additional comments and recommendations.
 
-### Full automatic installation
 <a name="automatic"></a>
+### Full automatic installation
 
 An automatic BASH script that fully installs `conda` through Miniconda and installs `chisel` on it is provided in [install_full.sh](install_full.sh). Simply run the following command from the CHISEL's home `${CHISEL_HOME}`.
 ```shell
@@ -88,8 +88,8 @@ Note that this procedures installs `conda` in `${CHISEL_HOME}/conda` and the fol
 source ${CHISEL_HOME}/conda/bin/activate chisel
 ```
 
-### Standard installation
 <a name="standard"></a>
+### Standard installation
 
 CHISEL can be installed using an existing installation of `conda` (e.g. either the compact [Miniconda](https://docs.conda.io/en/latest/miniconda.html) or the complete [Anaconda](https://www.anaconda.com/)) in two steps.
 First, `bioconda` [requires](https://bioconda.github.io/user/index.html) to set the following channels in this exact order:
@@ -117,8 +117,8 @@ source activate chisel
 
 Note that all the `conda` and `activate` commands above are located in `${CONDA_HOME}/bin/`.
 
-### Custom installation
 <a name="custom"></a>
+### Custom installation
 
 CHISEL is written in `python2.7` and requires few standard python packages and two additional standard tools.
 Once all the requirements have been successfully installed, `chisel` can be manually installed from `${CHISEL_HOME}` as
@@ -147,8 +147,8 @@ CHISEL also requires few standard additional tools, which must be included in `P
 | [AWK](https://en.wikipedia.org/wiki/AWK) | GNU Awk 4.0.2 | Scripting language available by default on most Unix-like OSs and with specific implementation available for any other OS |
 | [SAMtools and BCFtools](http://www.htslib.org/doc/)  | 1.9 | Suite of programs for interacting with high-throughput sequencing data |
 
-### Additional notes:
 <a name="additionalnotes"></a>
+### Additional notes:
 
 - To be to run the conda commands `conda` and `activate` without prefix, add their path full path to `PATH` by
 ```shell
@@ -157,8 +157,8 @@ export PATH=${CONDA_HOME}/bin/:${PATH}
 
 - `bioconda` [requires](https://bioconda.github.io/user/index.html) does not support Windows; however, Windows uses can use either [WSL](https://docs.microsoft.com/en-us/windows/wsl/) or the [custom installation](#custom).
 
-## Usage
 <a name="usage"></a>
+## Usage
 
 1. [Required data](#requireddata)
 2. [System requirements](#requirements)
@@ -166,8 +166,8 @@ export PATH=${CONDA_HOME}/bin/:${PATH}
 4. [Demos](#demos)
 5. [Reccomendations and quality control](#reccomendations)
 
-### Required data
 <a name="requireddata"></a>
+### Required data
 
 CHISEL requires 4 input data:
 
@@ -179,17 +179,17 @@ CHISEL requires 4 input data:
 
 4. A **VCF file with phased germline SNPs** present in the matched-normal sample. CHISEL only requires a VCF with the phase `0|1` or `1|0` within the record of heterozygous phased SNPs and any reference-based phasing method can be used. Here, we recommend a very easy two step procedure: (1) use BCFtools to call germline SNPs from the matched-normal sample (as described [here](http://samtools.github.io/bcftools/howtos/variant-calling.html)); (2) use Eagle2 through the [Michigan Imputation Server](https://imputationserver.sph.umich.edu/index.html#!pages/home) to phase germline SNPs with respect to the reference panel HRC. Alternatively, Eagle2 can be used [locally](https://data.broadinstitute.org/alkesgroup/Eagle/), and other methods as [SHAPEIT](http://mathgen.stats.ox.ac.uk/genetics_software/shapeit/shapeit.html) or other panels as 1000 Genomes Phase 3 can be applied, too. Note that HRC currently supports only reference `hg19`, therefore user can use [LiftoverVcf from Picard tools](http://broadinstitute.github.io/picard/) or similar methods to convert genomic coordinates to the required `hg19` build, when a different reference genome has been used to align sequencing reads. Note that phased germline SNPs can be also provided in `POS` format, i.e. tab-separated dataframe with field `CHROMOSOME  POSITION  PHASE` where phase is either `0|1` or `1|0`.
 
-### System requirements
 <a name="requirements"></a>
+### System requirements
 
-CHISEL is highly parallelized in order to make efficient the extensive computations needed for counting sequencing reads from BAM files, often splitting independent computations to parallel processes. We recommend executing CHISEL on multi-processing computing machines. Note that CHISEL automatically uses the maximum number of available cores, however this can be controlled with option `-j` of every command. The minimum system requirements for running the available demos or running every CHISEL command from partial results currently are:
-- CPU with >2 virtual cores
-- At least 4GB of RAM
+CHISEL is highly parallelized in order to make efficient the extensive computations needed for counting sequencing reads from BAM files, often splitting independent computations to parallel processes. We recommend executing CHISEL on multi-processing computing machines. The minimum system requirements that we have tested for running the demos or running every CHISEL command after BAM file processing are:
+- CPU with at least 2 virtual cores
+- 4GB of RAM
 
-However, when the complete CHISEL pipeline is applied to huge BAM files (>200GB) for millions of germline SNPs across thousands of single cells, CHISEL requirements are limited by the existing requirements of SAMtools and BCFtools, requiring higher amounts of RAM (e.g. >100GB of RAM) and a higher number of parallel cores (e.g. >12 cores). In general, the higher the number of cores is with a sufficient amount of RAM,  the faster the execution will be.
+However, when the complete CHISEL pipeline is applied to huge BAM files (>200GB) for millions of germline SNPs across thousands of single cells, CHISEL requirements are limited by the existing requirements of SAMtools and BCFtools.  We recommend a machine with larger RAM (>100GB of RAM) and a larger number of cores (e.g. >10 cores). In general, the higher the number of cores is with a sufficient amount of RAM,  the faster the execution will be.
 
-### CHISEL Commands
 <a name="commands"></a>
+### CHISEL Commands
 
 CHISEL offers different commands to run either the entire pipeline with all the steps or only some specific steps. In particular, the latter commands are useful when user wants to re-run some specific steps by varying some of the default parameters or for quality control (see below).
 Every command can be run directly when CHISEL has been correctly installed.
@@ -204,8 +204,8 @@ Every command can be run directly when CHISEL has been correctly installed.
 
 Click on the name of each command to obtain a description of all the available parameters.
 
-### Demos
 <a name="demos"></a>
+### Demos
 
 Each demo is an exemplary and guided execution of a CHISEL command on available data. The demos are meant to illustrate the complete CHISEL pipeline and the usage of each specific command. In particular, the specific commands allow the user to explore the results when varying the main parameters (without the need to re-execute the entire pipeline), allowing to deal with different features of distinct datasets and to obtain the best-quality results (see recommendations below). Each demo is simultaneously a guided description of the entire example and a BASH script which can be directly executed to run the complete demo. As such, the user can both read the guided description as a web page and run the same script to execute the demo. At this time the following demos are available (more demos will be available soon):
 
@@ -217,8 +217,8 @@ Each demo is an exemplary and guided execution of a CHISEL command on available 
 | [plottingE](demos/plottingE/demo-plottingE.sh) | Demo of `chisel-plotting.py` command to re-run plot generation on tumor section E of breast cancer patient S0 |
 | [pseudonormal](demos/pseudonormal/demo-pseudonormal.sh) | Demo of `chisel-pseudonormal.py` command to generate a pseudo matched-normal sample by extracting diploid cells from a barcoded BAM file |
 
-### Recommendations and quality control
 <a name="reccomendations"></a>
+### Recommendations and quality control
 
 The following recommendations guide the user in the process of quality control for the final results. In order to deal with datasets with different features, these recommendations help the user in investigating solutions obtained with different parameters. In particular, some of these guides are especially helpful when analyzing datasets with non-standard features and with noisy or high-variance sequencing data, e.g. due to low number of cells, different sequencing coverages, low number of phased germline SNPs.
 
@@ -228,11 +228,11 @@ The following recommendations guide the user in the process of quality control f
 | [Identification of clones](guides/clones.md) | Interpreting the identified clones and explore alternative solutions |
 | [Global clustering](guides/clustering.md) | Interpreting the global clustering of RDRs and BAFs, and exploring alternative solutions |
 
-## Development
 <a name="development"></a>
+## Development
 
-### Recent and important updates
 <a name="updates"></a>
+### Recent and important updates
 
 - **[20-Jul-2020]** CHISEL has been deposited and approved in [Bioconda](https://bioconda.github.io/recipes/chisel/README.html); check the new streamlined installation procedure.
 - **[22-Jan-2020]** This version introduced two important updates:
@@ -240,12 +240,12 @@ The following recommendations guide the user in the process of quality control f
     2. CHISEL now has a **sensitivity**, which can be varied through the command `chisel-cloning.py` to enable the accurate inference of cell ploidy even in the case of noisy or high-variance data (e.g. low number of cells with low coverage).
 - **[20-Jan-2020]** This version introduced the previously missing command `chisel-pseudonormal.py`. This command can be used to extract sequencing reads from diploid cells to form a pseudo matched-normal sample, which is required by the full CHISEL pipeline. A corresponding demo has also been introduced.
 
-### Current issues
 <a name="currentissues"></a>
+### Current issues
 
 CHISEL is in active development, please report any issue or question as this could help the development and improvement of CHISEL. Known issues with current version are reported here below.
 
-## Contacts
 <a name="contacts"></a>
+## Contacts
 
 CHISEL's repository is actively maintained by [Simone Zaccaria](https://simozacca.github.io/), currently a Postdoctoral Research Associate at Princeton University in the research group of prof. Ben Raphael.
