@@ -1,6 +1,6 @@
 # CHISEL <br/> <sub><u>C</u>opy-number <u>H</u>aplotype <u>I</u>nference in <u>S</u>ingle-cell by <u>E</u>volutionary <u>L</u>inks</sub> #
 
-CHISEL is an algorithm to infer allele- and haplotype-specififc copy numbers in individual cells from low-coverage single-cell DNA sequencing data.
+CHISEL is an algorithm to infer allele- and haplotype-specific copy numbers in individual cells from low-coverage single-cell DNA sequencing data.
 The full description of the algorithm and its application on published cancer datasets are described in
 
 [Simone Zaccaria and Ben Raphael, 2019](https://doi.org/10.1101/837195)
@@ -9,7 +9,7 @@ The results of CHISEL on the published low-coverage single-cell DNA sequencing d
 
 [CHISEL data](https://github.com/raphael-group/chisel-data)
 
-This repository includes detailed instructions for installation and requirements, demos with related tutorial of different CHISEL applitcations, a list of current issues, and contacts.
+This repository includes detailed instructions for installation and requirements, demos with related tutorial of different CHISEL applications, a list of current issues, and contacts.
 The CHISEL repository is currently in a preliminary release and improved versions are released frequently.
 During this stage, please keep checking for updates.
 
@@ -18,21 +18,22 @@ During this stage, please keep checking for updates.
 1. [Overview](#overview)
     - [Algorithm](#algorithm)
     - [Software](#software)
-2. [Setup](#setup)
+2. [Quick start](#quick)
+3. [Setup](#setup)
     - [Standard installation](#standard)
     - [Full automatic installation](#automatic)
     - [Custom installation](#custom)
     - [Additional notes](#additionalnotes)
-3. [Usage](#usage)
+4. [Usage](#usage)
     - [Required data](#requireddata)
     - [System requirements](#requirements)
     - [Commands](#commands)
     - [Demos](#demos)
-    - [Reccomendations and quality control](#reccomendations)
-4. [Development](#development)
+    - [Recommendations and quality control](#reccomendations)
+5. [Development](#development)
     - [Recent and important updates](#updates)
     - [Current issues](#currentissues)
-5. [Contacts](#contacts)
+6. [Contacts](#contacts)
 
 ## Overview
 <a name="overview"></a>
@@ -47,24 +48,51 @@ During this stage, please keep checking for updates.
 ### Software
 <a name="software"></a>
 
-The current implementation of CHISEL is on `python2.7` and provides different commands (in `bin`) to atuomatically execute the different features/pipelines of CHISEL. See details in [Usage](#usage).
+The current implementation of CHISEL is on `python2.7` and [CHISEL](https://bioconda.github.io/recipes/chisel/README.html) is distributed as a [bioconda](https://bioconda.github.io/) package.
+CHISEL provides different commands (in `bin`) to automatically execute the different features/pipelines of CHISEL. See details in [Usage](#usage).
+
+## Quick start
+<a name="quick"></a>
+
+The user can automatically install CHISEL and test the complete CHISEL pipeline on the available demo with the 4 following commands.
+A successful execution of these commands will generate the final plots of the demo as PNG images in `chisel/demos/complete/plots/`
+
+```shell
+git clone https://github.com/raphael-group/chisel && cd chisel # Clone CHISEL and enters the directory
+bash install_full.sh # Run the automatic installation, which installs conda and CHISEL on it
+source conda/bin/activate chisel # Activate CHISEL, remember to run this command before every new session of CHISEL
+cd demos/complete/ && bash demo-complete.sh # Enter the directory of the complete demo and run it
+```
 
 ## Setup
 <a name="setup"></a>
 
-[CHISEL](https://bioconda.github.io/recipes/chisel/README.html) is distributed as a [bioconda](https://bioconda.github.io/) package.
+[CHISEL](https://bioconda.github.io/recipes/chisel/README.html) is distributed as a [bioconda](https://bioconda.github.io/) package; thus, there are three major methods of installation, which are described below.
+The user can install CHISEL using the preferred installation method, and additional notes are reported at the end of this section.
 
-1. [Standard installation](#standard)
-2. [Full automatic installation](#automatic)
-3. [Custom installation](#custom)
-4. [Additional notes](#additionalnotes)
+1. [Full automatic installation](#automatic): creates a new conda installation with Miniconda and installs CHISEL on it;
+2. [Standard installation](#standard): uses an existing conda installation and installs CHISEL on it;
+3. [Custom installation](#custom): installs CHISEL from source without conda;
+4. [Additional notes](#additionalnotes): additional comments and recommendations.
+
+### Full automatic installation
+<a name="automatic"></a>
+
+An automatic BASH script that fully installs `conda` through Miniconda and installs `chisel` on it is provided in [install_full.sh](install_full.sh). Simply run the following command from the CHISEL's home `${CHISEL_HOME}`.
+```shell
+bash install_full.sh
+```
+
+Note that this procedures installs `conda` in `${CHISEL_HOME}/conda` and the following command (output at the end of the installation) must be executed before using `chisel` in every new session:
+```shell
+source ${CHISEL_HOME}/conda/bin/activate chisel
+```
 
 ### Standard installation
 <a name="standard"></a>
 
-The recommended installation method for CHISEL is using `conda`.
-First, install `conda`, a standard package manager, for example using the compact [Miniconda](https://docs.conda.io/en/latest/miniconda.html) or the complete [Anaconda](https://www.anaconda.com/).
-Moreover, `bioconda` [requires](https://bioconda.github.io/user/index.html) to set the following channels in this exact order:
+CHISEL can be installed using an existing installation of `conda` (e.g. either the compact [Miniconda](https://docs.conda.io/en/latest/miniconda.html) or the complete [Anaconda](https://www.anaconda.com/)) in two steps.
+First, `bioconda` [requires](https://bioconda.github.io/user/index.html) to set the following channels in this exact order:
 ```shell
 conda config --add channels defaults
 conda config --add channels bioconda
@@ -76,7 +104,7 @@ Next, `chisel` can be installed with the following one-time command:
 conda install chisel
 ```
 
-This command installs `chisel` in the base conda environment, however best practices generally recommend, especially in computing servers, to keep distinct packages indepedent.
+This command installs `chisel` in the base conda environment, however best practices generally recommend, especially in computing servers, to keep distinct packages independent.
 Therefore, it is preferable to use the following command to install `chisel`:
 ```shell
 conda create -n chisel chisel
@@ -89,20 +117,11 @@ source activate chisel
 
 Note that all the `conda` and `activate` commands above are located in `${CONDA_HOME}/bin/`.
 
-### Full automatic installation
-<a name="automatic"></a>
-
-An automatic BASH script that fully installs `conda` through Miniconda and installs `chisel` on it is provided in [install_full.sh](install_full.sh): simply run `bash install_full.sh` from the CHISEL's home `${CHISEL_HOME}`.
-Note that this procedures installs `conda` in `${CHISEL_HOME}/conda` and the following command (fully output at the end of the installation) must be executed before executing `chisel` in every new session:
-```shell
-source ${CHISEL_HOME}/conda/bin/activate chisel
-```
-
 ### Custom installation
 <a name="custom"></a>
 
-CHISEL is written in `python2.7` and requires few standard python packages and two additional standard softwares.
-Once all the requirements have been succesfully installed, `chisel` can be manually installed from `${CHISEL_HOME}` as
+CHISEL is written in `python2.7` and requires few standard python packages and two additional standard tools.
+Once all the requirements have been successfully installed, `chisel` can be manually installed from `${CHISEL_HOME}` as
 ```shell
 python setup.py install
 ```
@@ -121,7 +140,7 @@ CHISEL depends on the following standard python packages, which must be availabl
 
 #### > Additional software
 
-CHISEL also requires few standard additional softwares, which must be included in `PATH` (e.g. by executing `export PATH=${SAMTOOLS_HOME}/bin/:${PATH}`)
+CHISEL also requires few standard additional tools, which must be included in `PATH` (e.g. by executing `export PATH=${SAMTOOLS_HOME}/bin/:${PATH}`)
 
 | Software | Tested version | Comments |
 |----------|----------------|----------|
@@ -156,7 +175,7 @@ CHISEL requires 4 input data:
 
 2. The **reference human genome** used to align the sequencing reads in the single-cell barcoded BAM. The most-used human reference genome are available at [GRC](https://www.ncbi.nlm.nih.gov/grc/human) or [UCSC](http://hgdownload.cse.ucsc.edu/downloads.html#human). Moreover, the reference genome `${REF}.fa` must be index by SAMtools (i.e. `samtools faidx ${REF}.fa`) and a dictionary must be created (`i.e. samtools dict ${REF}.fa > ${REF}.dict`) in the same folder as `${REF}`.
 
-3. A **matched-normal BAM** file containing sequencing reads from a matched-normal sample from the same patient. When this sample is not available, user can use the corresponding CHISEL command `chisel-pseudonormal.py` to form a **pseudo** matched-normal sample by extracting diploid normal cells. Note that this approach is successfull only when normal diploid cells are present in the barcoded BAM file.
+3. A **matched-normal BAM** file containing sequencing reads from a matched-normal sample from the same patient. When this sample is not available, user can use the corresponding CHISEL command `chisel-pseudonormal.py` to form a **pseudo** matched-normal sample by extracting diploid normal cells. Note that this approach is successful only when normal diploid cells are present in the barcoded BAM file.
 
 4. A **VCF file with phased germline SNPs** present in the matched-normal sample. CHISEL only requires a VCF with the phase `0|1` or `1|0` within the record of heterozygous phased SNPs and any reference-based phasing method can be used. Here, we recommend a very easy two step procedure: (1) use BCFtools to call germline SNPs from the matched-normal sample (as described [here](http://samtools.github.io/bcftools/howtos/variant-calling.html)); (2) use Eagle2 through the [Michigan Imputation Server](https://imputationserver.sph.umich.edu/index.html#!pages/home) to phase germline SNPs with respect to the reference panel HRC. Alternatively, Eagle2 can be used [locally](https://data.broadinstitute.org/alkesgroup/Eagle/), and other methods as [SHAPEIT](http://mathgen.stats.ox.ac.uk/genetics_software/shapeit/shapeit.html) or other panels as 1000 Genomes Phase 3 can be applied, too. Note that HRC currently supports only reference `hg19`, therefore user can use [LiftoverVcf from Picard tools](http://broadinstitute.github.io/picard/) or similar methods to convert genomic coordinates to the required `hg19` build, when a different reference genome has been used to align sequencing reads. Note that phased germline SNPs can be also provided in `POS` format, i.e. tab-separated dataframe with field `CHROMOSOME  POSITION  PHASE` where phase is either `0|1` or `1|0`.
 
@@ -198,7 +217,7 @@ Each demo is an exemplary and guided execution of a CHISEL command on available 
 | [plottingE](demos/plottingE/demo-plottingE.sh) | Demo of `chisel-plotting.py` command to re-run plot generation on tumor section E of breast cancer patient S0 |
 | [pseudonormal](demos/pseudonormal/demo-pseudonormal.sh) | Demo of `chisel-pseudonormal.py` command to generate a pseudo matched-normal sample by extracting diploid cells from a barcoded BAM file |
 
-### Reccomendations and quality control
+### Recommendations and quality control
 <a name="reccomendations"></a>
 
 The following recommendations guide the user in the process of quality control for the final results. In order to deal with datasets with different features, these recommendations help the user in investigating solutions obtained with different parameters. In particular, some of these guides are especially helpful when analyzing datasets with non-standard features and with noisy or high-variance sequencing data, e.g. due to low number of cells, different sequencing coverages, low number of phased germline SNPs.
@@ -229,4 +248,4 @@ CHISEL is in active development, please report any issue or question as this cou
 ## Contacts
 <a name="contacts"></a>
 
-CHISEL's repository is actively maintained by [Simone Zaccaria](https://simozacca.github.io/), currently a Postodoctoral Research Associate at Princeton University in the research group of prof. Ben Raphael.
+CHISEL's repository is actively maintained by [Simone Zaccaria](https://simozacca.github.io/), currently a Postdoctoral Research Associate at Princeton University in the research group of prof. Ben Raphael.
