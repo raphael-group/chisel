@@ -48,14 +48,13 @@ During this stage, please keep checking for updates.
 <a name="software"></a>
 ### Software
 
-The current implementation of CHISEL is on `python2.7` and [CHISEL](https://bioconda.github.io/recipes/chisel/README.html) is distributed as a [bioconda](https://bioconda.github.io/) package.
+The current implementation of CHISEL is written in `python2.7` and [CHISEL](https://bioconda.github.io/recipes/chisel/README.html) is distributed as a [bioconda](https://bioconda.github.io/) package.
 CHISEL provides different commands (in `bin`) to automatically execute the different features/pipelines of CHISEL. See details in [Usage](#usage).
 
 <a name="quick"></a>
 ## Quick start
 
 The user can automatically install CHISEL and test the complete CHISEL pipeline on the available demo with the 4 following commands.
-A successful execution of these commands will generate the final plots of the demo as PNG images in `chisel/demos/complete/plots/`
 
 ```shell
 git clone https://github.com/raphael-group/chisel && cd chisel # Clone CHISEL and enters the directory
@@ -64,16 +63,20 @@ source conda/bin/activate chisel # Activate CHISEL, remember to run this command
 cd demos/complete/ && bash demo-complete.sh # Enter the directory of the complete demo and run it
 ```
 
+A successful execution of these commands will generate the final plots of the demo as PNG images in `chisel/demos/complete/plots/` and the [other outputs]
+Details of the outputs are described in [insert]
+
 <a name="setup"></a>
 ## Setup
 
-[CHISEL](https://bioconda.github.io/recipes/chisel/README.html) is distributed as a [bioconda](https://bioconda.github.io/) package; thus, there are three major methods of installation, which are described below.
-The user can install CHISEL using the preferred installation method, and additional notes are reported at the end of this section.
+[CHISEL](https://bioconda.github.io/recipes/chisel/README.html) is distributed as a [bioconda](https://bioconda.github.io/) package, and can be installed either from conda or directly from source.   
+Depending on your interest in using conda, there are three possible installation approaches for CHISEL.
 
 1. [Full automatic installation](#automatic): creates a new conda installation with Miniconda and installs CHISEL on it;
 2. [Standard installation](#standard): uses an existing conda installation and installs CHISEL on it;
-3. [Custom installation](#custom): installs CHISEL from source without conda;
-4. [Additional notes](#additionalnotes): additional comments and recommendations.
+3. [Custom installation](#custom): installs CHISEL from source without conda.
+
+Additional notes](#additionalnotes) and comments are reported at the end of this section.
 
 <a name="automatic"></a>
 ### Full automatic installation
