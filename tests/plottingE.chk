@@ -1,0 +1,55 @@
++ PS4=''
+:
+mkdir -p data
+export INPUT=data/calls.tsv
+INPUT=data/calls.tsv
+export MAPP=data/mapping.tsv
+MAPP=data/mapping.tsv
+:
+Parsing and checking arguments
+Arguments:
+	format : png
+	plotsize : 5,1.5
+	sample : 20
+	xmin : None
+	clonemap : data/mapping.tsv
+	nonoisy : False
+	gridsize : 12,6
+	ymax : None
+	clussize : 5,3
+	xmax : None
+	ymin : None
+	input : data/calls.tsv
+
+Setting directories
+Plotting
+Parsing and checking arguments
+Arguments:
+	format : png
+	plotsize : (5.0, 1.5)
+	sample : 20
+	xmin : None
+	clonemap : ../data/mapping.tsv
+	nonoisy : False
+	gridsize : (12.0, 6.0)
+	ymax : None
+	clussize : (5.0, 3.0)
+	xmax : None
+	ymin : None
+	input : ../data/calls.tsv
+Reading input
+Number of cells: 2075
+Number of bins: 570
+Setting style
+Reading clonemap
+Plotting RDR and mirrored BAF plots for 20 random cells in rbplot_mirrored.png
+Plotting clustered RDR plots for 20 random cells in crdr.png
+Plotting clustered-mirrored BAF plots for 20 random cells in cbaf.png
+Plotting total copy numbers in totalcn.png
+Plotting LOH in loh.png
+Plotting A-specific copy numbers in Aspecificcn.png
+Plotting B-specific copy numbers in Bspecificcn.png
+Plotting allele-specific copy numbers in allelecn.png
+Plotting haplotype-specific copy numbers in haplotypecn.png
+KTHKBYE!
+exit 0

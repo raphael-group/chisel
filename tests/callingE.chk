@@ -1,0 +1,117 @@
++ PS4=''
+:
+mkdir -p data
+export INPUT=data/combo.tsv
+INPUT=data/combo.tsv
+:
+Parsing and checking arguments
+Arguments:
+	upperk : 100
+	jobs : 56
+	sensitivity : 1.0
+	seed : 25
+	INPUT : data/combo.tsv
+	maxploidy : 4
+
+Setting directories
+Calling
+Parsing and checking arguments
+Arguments:
+	significativity : 0.02
+	sensitivity : 1.0
+	seed : 25
+	input : data/combo.tsv
+	LB : 0
+	scoring : False
+	e : 0.05
+	shift : 0.05
+	maxploidy : 4
+	j : 56
+	fastscaling : False
+	restarts : 200
+	lord : 1
+	UB : 100
+Reading combined RDRs and BAFs of barcoded cells
+Formatting RDRs and BAFs
+Clustering globally
+Computing for 100:
+Objective value for 100: 0.328880907635
+Computing for 50:
+Objective value for 50: 0.380881364939
+Computing for 75:
+Objective value for 75: 0.354660110754
+Computing for 62:
+Objective value for 62: 0.369479243234
+Computing for 56:
+Objective value for 56: 0.375508283812
+Computing for 53:
+Objective value for 53: 0.382415700949
+Computing for 54:
+Objective value for 54: 0.377394006258
+Computing for 53:
+Objective value for 53: 0.382415700949
+Computing for 54:
+Objective value for 54: 0.377394006258
+Estimating RDR and BAF of every cluster
+Selecting ploidies
+Number of cells for every ploidy' level:
+Cells with base ploidy 2: 401
+Cells with base ploidy 4: 1674
+Inferring copy numbers
+Phasing copy-number states along the genome
+Writing results
+Cloning
+Parsing and checking arguments
+Arguments:
+	minsize : 14
+	refinement : 0.0
+	seed : 25
+	maxdiff : 0.06
+	input : ./calls/calls.tsv
+	linkage : single
+Reading input
+Clustering cells in clones
+Selecting clones
+Number of identified clones: 6
+Refining clustering
+Number of discarded cells: 784
+Profiling clones
+Writing clone map
+Writing clone-corrected copy numbers in provided input
+Plotting
+Parsing and checking arguments
+Arguments:
+	format : png
+	plotsize : (5.0, 1.5)
+	sample : 20
+	xmin : None
+	clonemap : .././clones/mapping.tsv
+	nonoisy : False
+	gridsize : (12.0, 6.0)
+	ymax : None
+	clussize : (5.0, 3.0)
+	xmax : None
+	ymin : None
+	input : .././calls/calls.tsv
+Reading input
+Number of cells: 2075
+Number of bins: 570
+Setting style
+Reading clonemap
+Plotting RDR and mirrored BAF plots for 20 random cells in rbplot_mirrored.png
+Plotting clustered RDR plots for 20 random cells in crdr.png
+Plotting clustered-mirrored BAF plots for 20 random cells in cbaf.png
+Plotting total copy numbers in totalcn.png
+Plotting total copy numbers corrected by clones in totalcn-corrected.png
+Plotting LOH in loh.png
+Plotting LOH corrected by clones in loh-corrected.png
+Plotting A-specific copy numbers in Aspecificcn.png
+Plotting A-specific copy numbers corrected by clones in Aspecificcn-corrected.png
+Plotting B-specific copy numbers in Bspecificcn.png
+Plotting B-specific copy numbers corrected by clones in Bspecificcn-corrected.png
+Plotting allele-specific copy numbers in allelecn.png
+Plotting allele-specific copy numbers corrected by clones in allelecn-corrected.png
+Plotting haplotype-specific copy numbers in haplotypecn.png
+Plotting haplotype-specific copy numbers corrected by clones in haplotypecn-corrected.png
+KTHKBYE!
+exit 0

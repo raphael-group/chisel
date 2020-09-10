@@ -1,0 +1,199 @@
++ PS4=''
+:
+mkdir -p data
+echo 'Downloading tumor barcoded BAM file from Zenodo, please be patient as downloading time may vary.'
+Downloading tumor barcoded BAM file from Zenodo, please be patient as downloading time may vary.
+export TUM=data/cells.bam
+TUM=data/cells.bam
+echo 'Downloading matched-normal BAM file from Zenodo, please be patient as downloading time may vary.'
+Downloading matched-normal BAM file from Zenodo, please be patient as downloading time may vary.
+export NOR=data/normal.bam
+NOR=data/normal.bam
+:
+echo 'Downloading human reference genome, please be patient as downloading time may vary.'
+Downloading human reference genome, please be patient as downloading time may vary.
+export REF=data/hg19.fa
+REF=data/hg19.fa
+export DIC=data/hg19.dict
+DIC=data/hg19.dict
+:
+export PHA=data/phased.tsv
+PHA=data/phased.tsv
+:
+Parsing and checking arguments
+Arguments:
+	chromosomes : chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22
+	reference : data/hg19.fa
+	normal : data/normal.bam
+	blocksize : 50000
+	seed : 12
+	jobs : 56
+	listphased : data/phased.tsv
+	maxploidy : 4
+	minreads : 100000
+	binsize : 5000000
+	tumor : data/cells.bam
+	upperk : 100
+	bcftools : None
+
+Setting directories
+Computing RDRs
+Parsing and checking arguments
+Arguments:
+tumor : data/cells.bam
+minreads : 100000
+chrs : 
+normal : data/normal.bam
+list : None
+J : 56
+ref : data/hg19.fa
+bins : 5000000
+outdir : ./rdr
+Computing bins
+Counting reads on normal
+Counting reads on barcoded cells
+Evaluating set of found cells
+Computing total numbers of sequenced reads
+Selecting cells
+Number of selected cells: 100
+Writing the totals in ./rdr/total.tsv
+Estimating RDR
+KTHXBYE
+Computing BAFs
+Parsing and checking arguments
+Arguments:
+	tumor : data/cells.bam
+	gamma : 0.01
+	phased : data/phased.tsv
+	normal : data/normal.bam
+	list : ./rdr/total.tsv
+	J : 56
+	ref : data/hg19.fa
+	bcftools : bcftools
+Extracting chromosomes
+Chromosomes analyzed: chr6
+Total number of given phased positions: 95659
+Counting phased SNPs in matched normal
+Number of selected heterozygous SNPs: 93728
+Extracting SNP counts for all cells
+Reading cell list
+Writing A/B counts for selected phased SNPs across selected cells
+KTHXBYE
+Combining RDRs and BAFs
+Parsing and checking arguments
+Arguments:
+	j : 56
+	blocksize : 50000
+	seed : 12
+	maxerror : None
+	restarts : 100
+	minerror : 0.001
+	rdr : ./rdr/rdr.tsv
+	bootstrap : 100
+	baf : ./baf/baf.tsv
+	listofcells : ./rdr/total.tsv
+	significance : 0.05
+Read list of cells
+Reading RDR
+Reading BAF
+Combining
+Printing combined RDR and BAF
+Calling
+Parsing and checking arguments
+Arguments:
+	significativity : 0.02
+	sensitivity : 1.0
+	seed : 12
+	input : ./combo/combo.tsv
+	LB : 0
+	scoring : False
+	e : 0.05
+	shift : 0.05
+	maxploidy : 4
+	j : 56
+	fastscaling : False
+	restarts : 200
+	lord : 1
+	UB : 100
+Reading combined RDRs and BAFs of barcoded cells
+Formatting RDRs and BAFs
+Clustering globally
+Computing for 35:
+Objective value for 35: 0.0
+Computing for 17:
+Objective value for 17: 0.00597601109068
+Computing for 8:
+Objective value for 8: 0.0131765568746
+Computing for 4:
+Objective value for 4: 0.0184374208269
+Computing for 2:
+Objective value for 2: 0.10191549988
+Computing for 3:
+Objective value for 3: 0.0256275628979
+Computing for 2:
+Objective value for 2: 0.10191549988
+Computing for 3:
+Objective value for 3: 0.0256275628979
+Estimating RDR and BAF of every cluster
+Selecting ploidies
+Number of cells for every ploidy' level:
+Cells with base ploidy 2: 100
+Inferring copy numbers
+Phasing copy-number states along the genome
+Writing results
+Cloning
+Parsing and checking arguments
+Arguments:
+	minsize : 14
+	refinement : 0.0
+	seed : 12
+	maxdiff : 0.06
+	input : ./calls/calls.tsv
+	linkage : single
+Reading input
+Clustering cells in clones
+Selecting clones
+Number of identified clones: 2
+Refining clustering
+Number of discarded cells: 0
+Profiling clones
+Writing clone map
+Writing clone-corrected copy numbers in provided input
+Plotting
+Parsing and checking arguments
+Arguments:
+	format : png
+	plotsize : (5.0, 1.5)
+	sample : 20
+	xmin : None
+	clonemap : .././clones/mapping.tsv
+	nonoisy : False
+	gridsize : (12.0, 6.0)
+	ymax : None
+	clussize : (5.0, 3.0)
+	xmax : None
+	ymin : None
+	input : .././calls/calls.tsv
+Reading input
+Number of cells: 100
+Number of bins: 35
+Setting style
+Reading clonemap
+Plotting RDR and mirrored BAF plots for 20 random cells in rbplot_mirrored.png
+Plotting clustered RDR plots for 20 random cells in crdr.png
+Plotting clustered-mirrored BAF plots for 20 random cells in cbaf.png
+Plotting total copy numbers in totalcn.png
+Plotting total copy numbers corrected by clones in totalcn-corrected.png
+Plotting LOH in loh.png
+Plotting LOH corrected by clones in loh-corrected.png
+Plotting A-specific copy numbers in Aspecificcn.png
+Plotting A-specific copy numbers corrected by clones in Aspecificcn-corrected.png
+Plotting B-specific copy numbers in Bspecificcn.png
+Plotting B-specific copy numbers corrected by clones in Bspecificcn-corrected.png
+Plotting allele-specific copy numbers in allelecn.png
+Plotting allele-specific copy numbers corrected by clones in allelecn-corrected.png
+Plotting haplotype-specific copy numbers in haplotypecn.png
+Plotting haplotype-specific copy numbers corrected by clones in haplotypecn-corrected.png
+KTHKBYE!
+chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22
+exit 0

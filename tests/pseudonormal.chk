@@ -1,0 +1,40 @@
++ PS4=''
+:
+mkdir -p data
+echo 'Downloading tumor barcoded BAM file from Zenodo, please be patient as downloading time may vary.'
+Downloading tumor barcoded BAM file from Zenodo, please be patient as downloading time may vary.
+export BAM=data/cells.bam
+BAM=data/cells.bam
+:
+echo 'Downloading human reference genome, please be patient as downloading time may vary.'
+Downloading human reference genome, please be patient as downloading time may vary.
+export REF=data/hg19.fa
+REF=data/hg19.fa
+export DIC=data/hg19.dict
+DIC=data/hg19.dict
+:
+Parsing and checking arguments
+Arguments:
+	chromosomes : chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22
+	reference : data/hg19.fa
+	normal : pseudonormal.bam
+	jobs : 56
+	tmpdir : ./_TMP
+	minreads : 100000
+	binsize : 5000000
+	tumor : data/cells.bam
+	thres : 0.9
+
+Computing bins
+Counting reads on barcoded cells
+Computing total numbers of sequenced reads
+Selecting all cells to consider for the analysis
+Number of selected cells: 30
+Selecting diploid cells
+Number of identified diploid cells: 10
+Approximate sequencing coverage of pseudo matched-normal sample: 2.09471330866
+Extracting sequencing reads from selected diploid cells
+Merging and extracted sequencing reads and indexing the output pseduo matched-normal sample
+Removing temporary files
+KTHXBYE
+exit 0

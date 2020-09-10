@@ -1,0 +1,70 @@
++ PS4=''
+:
+mkdir -p data
+export INPUT=data/calls.tsv
+INPUT=data/calls.tsv
+:
+Parsing and checking arguments
+Arguments:
+	upperk : 100
+	minsize : 14
+	seed : 25
+	maxdiff : 0.06
+	INPUT : data/calls.tsv
+
+Setting directories
+Cloning
+Parsing and checking arguments
+Arguments:
+	minsize : 14
+	refinement : 0.0
+	seed : 25
+	maxdiff : 0.06
+	input : data/calls.tsv
+	linkage : single
+Reading input
+Clustering cells in clones
+Selecting clones
+Number of identified clones: 6
+Refining clustering
+Number of discarded cells: 689
+Profiling clones
+Writing clone map
+Writing clone-corrected copy numbers in provided input
+Plotting
+Parsing and checking arguments
+Arguments:
+	format : png
+	plotsize : (5.0, 1.5)
+	sample : 20
+	xmin : None
+	clonemap : .././clones/mapping.tsv
+	nonoisy : False
+	gridsize : (12.0, 6.0)
+	ymax : None
+	clussize : (5.0, 3.0)
+	xmax : None
+	ymin : None
+	input : ../data/calls.tsv
+Reading input
+Number of cells: 2075
+Number of bins: 570
+Setting style
+Reading clonemap
+Plotting RDR and mirrored BAF plots for 20 random cells in rbplot_mirrored.png
+Plotting clustered RDR plots for 20 random cells in crdr.png
+Plotting clustered-mirrored BAF plots for 20 random cells in cbaf.png
+Plotting total copy numbers in totalcn.png
+Plotting total copy numbers corrected by clones in totalcn-corrected.png
+Plotting LOH in loh.png
+Plotting LOH corrected by clones in loh-corrected.png
+Plotting A-specific copy numbers in Aspecificcn.png
+Plotting A-specific copy numbers corrected by clones in Aspecificcn-corrected.png
+Plotting B-specific copy numbers in Bspecificcn.png
+Plotting B-specific copy numbers corrected by clones in Bspecificcn-corrected.png
+Plotting allele-specific copy numbers in allelecn.png
+Plotting allele-specific copy numbers corrected by clones in allelecn-corrected.png
+Plotting haplotype-specific copy numbers in haplotypecn.png
+Plotting haplotype-specific copy numbers corrected by clones in haplotypecn-corrected.png
+KTHKBYE!
+exit 0
