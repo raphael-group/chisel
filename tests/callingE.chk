@@ -7,7 +7,6 @@ INPUT=data/combo.tsv
 Parsing and checking arguments
 Arguments:
 	upperk : 100
-	jobs : 56
 	sensitivity : 1.0
 	seed : 25
 	INPUT : data/combo.tsv
@@ -26,7 +25,6 @@ Arguments:
 	e : 0.05
 	shift : 0.05
 	maxploidy : 4
-	j : 56
 	fastscaling : False
 	restarts : 200
 	lord : 1

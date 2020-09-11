@@ -27,7 +27,6 @@ Arguments:
 	normal : data/normal.bam
 	blocksize : 50000
 	seed : 12
-	jobs : 56
 	listphased : data/phased.tsv
 	maxploidy : 4
 	minreads : 100000
@@ -45,7 +44,6 @@ minreads : 100000
 chrs : 
 normal : data/normal.bam
 list : None
-J : 56
 ref : data/hg19.fa
 bins : 5000000
 outdir : ./rdr
@@ -67,7 +65,6 @@ Arguments:
 	phased : data/phased.tsv
 	normal : data/normal.bam
 	list : ./rdr/total.tsv
-	J : 56
 	ref : data/hg19.fa
 	bcftools : bcftools
 Extracting chromosomes
@@ -82,7 +79,6 @@ KTHXBYE
 Combining RDRs and BAFs
 Parsing and checking arguments
 Arguments:
-	j : 56
 	blocksize : 50000
 	seed : 12
 	maxerror : None
@@ -110,7 +106,6 @@ Arguments:
 	e : 0.05
 	shift : 0.05
 	maxploidy : 4
-	j : 56
 	fastscaling : False
 	restarts : 200
 	lord : 1
