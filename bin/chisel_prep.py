@@ -5,9 +5,11 @@ import argparse
 import shlex
 import shutil
 import glob
+import re
 import subprocess as sp
 import multiprocessing as mp
 
+from collections import defaultdict
 from itertools import combinations_with_replacement
 from heapq import nlargest
 
@@ -23,7 +25,7 @@ from Utils import *
 def parse_args():
     description = "CHISEL command to create a barcoded BAM file from single-cell FASTQs, single-cell BAMs, or a `RG:Z:`-barcoded BAM files without `CB:Z:` field."
     parser = argparse.ArgumentParser(description=description)
-    parser.add_argument("INPUT", nargs='+', type=str, help="Input FASTQs, BAMs, or a single BAM file with different behaviors: ................................. (1) FASTQs -- specified in a directory DIR as `DIR/*.fastq` or `DIR/*.fastq.gz` -- will be barcoded and aligned into a barcoded BAM file; .............. (2) BAMs -- specified in a directory DIR as `DIR/*.bam` -- will be barcoded and aligned into a barcoded BAM file; ................................. (3) a single BAM file with barcodes in the field `RG:Z:` will be converted into a barcoded BAM file with the additional `CB:Z:` field.")
+    parser.add_argument("INPUT", nargs='+', type=str, help="Input FASTQs, BAMs, or TSV file with different behaviors: ................................. (1) FASTQs -- specified in a directory DIR as `DIR/*.fastq` or `DIR/*.fastq.gz` -- will be barcoded and aligned into a barcoded BAM file where sample name, lane and read mate are extracted from filenames; .............. (2) BAMs -- specified in a directory DIR as `DIR/*.bam` -- will be barcoded and aligned into a barcoded BAM file where the cell name coincide with the name of each BAM file; ................................. (3) a single BAM file with barcodes in the field `RG:Z:` will be converted into a barcoded BAM file with the additional `CB:Z:` field. ......(4) a TSV file specifying FASTQ files (4 columns specifying FILE, SAMPLE/CELL-NAME, LANE, and READ-MATE) or BAM files (1 or 2 columns with FILE and optional SAMPLE/CELL-NAME) where header, if present, must start with symbol `#`. .....Note that cells with the same name (and different LANE for FASTQs) will be assigned the same unique cell barcode (i.e. same cell); also FASTQs with two different reads will be considered paired-end.")
     parser.add_argument("-r","--reference", type=str, required=True, help="Reference genome")
     parser.add_argument("-x","--rundir", required=False, default='./', type=str, help="Running directory (default: current directory)")
     parser.add_argument("-o","--output", required=False, default='barcodedcells.bam', type=str, help="Output name in running directory (default: barcodedcells.bam)")    
@@ -33,28 +35,21 @@ def parse_args():
     parser.add_argument("--bcftools", required=False, default=None, type=str, help="Path to the directory to \"bcftools\" executable (default: in $PATH)")
     parser.add_argument("--samtools", required=False, default=None, type=str, help="Path to the directory to \"samtools\" executable (default: in $PATH)")
     parser.add_argument("--bwa", required=False, default=None, type=str, help="Path to the directory to \"bwa\" executable (default: in $PATH)")
+    parser.add_argument("--rexpname", required=False, default='(.*)_S.*_L.*_R[1|2]_001.fastq.*', type=str, help="Regulare expression to extract cell/sample name from input FASTQ filenames (default: `(.*)_S.*_L.*_R[1|2]_001.fastq.*`)")
+    parser.add_argument("--rexplane", required=False, default='.*_S.*_(L.*)_R[1|2]_001.fastq.*', type=str, help="Regulare expression to extract cell/sample name from input FASTQ filenames (default: `.*_S.*_(L.*)_R[1|2]_001.fastq.*`)")
+    parser.add_argument("--rexpread", required=False, default='.*_S.*_L.*_(R[1|2])_001.fastq.*', type=str, help="Regulare expression to extract cell/sample name from input FASTQ filenames (default: `.*_S.*_L.*_(R[1|2])_001.fastq.*`)")
     parser.add_argument("-j","--jobs", required=False, type=int, default=0, help="Number of parallele jobs to use (default: equal to number of available processors)")
     parser.add_argument("--seed", required=False, type=int, default=None, help="Random seed for replication (default: None)")
     args = parser.parse_args()
     
     if args.seed is not None:
         np.random.seed(args.seed)
-
-    def ispaired(L):
-        D = defaultdict(lambda : [])
-        map(lambda l : D[l[:-1]].append(l[-1]), L)
-        return all(D[d] == [1, 2] or D[d] == [1, 2] for d in D)
+        
+    inputs = map(os.path.abspath, args.INPUT.strip().split())
+    for inp in inputs:
+        if not os.path.isfile(inp):
+            raise ValueError("This input file does not exist: {}".format(inp))
     
-    inputs = args.INPUT.split()
-    if all(f[:-6] == '.fastq' for f in inputs):
-        mode = 'q2' if ispaired(map(lambda f : f[:-6], inputs)) else 'q1'
-    elif all(f[:-9] == '.fastq.gz' for f in inputs):
-        mode = 'z2' if ispaired(map(lambda f : f[:-9], inputs)) else 'z1'
-    elif all(f[:-4] == '.bam' for f in inputs):
-        mode = 'B' if len(inputs) == 1 else 'b'
-    else:
-        raise ValueError("Input files are of wrong format or mixed formats")    
-
     if not os.path.isdir(args.rundir):
         raise ValueError("Running directory does not exists: {}".format(args.rundir))
     if not os.path.isfile(args.reference):
@@ -82,16 +77,14 @@ def parse_args():
         bwa = "bwa"
     if which(bwa) is None:
         raise ValueError("bwa has not been found or is not executable!\n\nIf you are within a CHISEL conda environment ${ENV} you can install it with:\n\tconda install -c bioconda -n ${ENV} bwa\n\nOtherwise, please provide with the flag `--bwa` the full path to the directory containing bwa exacutable.")
-
-    if mode in ['z1', 'z2']:
-        if which('gzip') is None:
-            raise ValueError("gzip has not been found or is not executable but is required for provided FASTQ files!\n\nIf you are within a CHISEL conda environment ${ENV} you can install it with:\n\tconda install -n ${ENV} gzip\n\nOtherwise, please make it available in PATH.")
+    
+    if any(f[:-9] == '.fastq.gz' for f in inputs) and which('gzip') is None:
+        raise ValueError("gzip has not been found or is not executable but is required for provided FASTQ files!\n\nIf you are within a CHISEL conda environment ${ENV} you can install it with:\n\tconda install -n ${ENV} gzip\n\nOtherwise, please make it available in PATH.")
     
     output = os.path.basename(args.output if args.output[-4] == '.bam' else '{}.bam'.format(args.output))
-
+    
     return {
-        "mode" : mode,
-        "inputs" : map(os.path.abspath, inputs),
+        "inputs" : inputs,
         "rundir" : os.path.abspath(args.rundir),
         "reference" : os.path.abspath(args.reference),
         "noduplicates" : args.noduplicates,
@@ -100,8 +93,12 @@ def parse_args():
         "bcftools" : bcftools,
         "samtools" : samtools,
         "bwa" : bwa,
+        "rexpname" : args.rexpname,
+        "rexplane" : args.rexplane,
+        "rexpread" : args.rexpread,
         "jobs" : args.jobs,
-        "output" : os.path.join(os.path.abspath(args.rundir), output)
+        "output" : os.path.join(os.path.abspath(args.rundir), output),
+        'decom' : (lambda f : '<(gzip -d {})'.format(f) if f[:-3] == '.gz' else f)
     }
     
     
@@ -109,7 +106,6 @@ def main():
     log('Parsing and checking arguments', level='PROGRESS')
     args = parse_args()
     log('\n'.join(['Arguments:'] + ['\t{} : {}'.format(a, args[a]) for a in args]) + '\n', level='INFO')
-    log('The provided input has been identified as: {}'.format(print_mode(args['mode'])), level='INFO')
     
     log('Setting up', level='PROGRESS')
     tmpdir = os.path.join(args['rundir'], '_TMP_CHISEL_PREP')
@@ -117,21 +113,35 @@ def main():
         raise ValueError("Temporary directory {} already exists, please move or rename it!".format(tmpdir))
     os.mkdir(tmpdir)
     
-    if args['mode'] == 'q1':
-        run = run_q1
-    elif args['mode'] == 'q2':
-        run = run_q2
-    elif args['mode'] == 'z1':
-        run = run_z1
-    elif args['mode'] == 'z2':
-        run = run_z2
-    elif args['mode'] == 'b':
-        run = run_b
-    elif args['mode'] == 'B':
-        run = run_B
+    if len(args['inputs']) == 1 and args['inputs'][0][:-4] == '.tsv':
+        args['inputs'], info = read_table(args['inputs'][0])
     else:
-        assert False, "Unknown mode!"
-    barcoded, cells = run(args, tmpdir)
+        info = None
+
+    if all(f[:-6] == '.fastq' or f[:-9] == '.fastq.gz' for f in args['inputs']):
+        if info is None:
+            files, fastqinfo, ispaired = match_fastq(args['inputs'], args)
+        else:
+            files, fastqinfo, ispaired = make_fastqinfo(args['inputs'], info)
+        if ispaired:
+            log('Running in single-end FASTQ mode', level='PROGRESS')            
+        else:
+            log('Running in paired-end FASTQ mode', level='PROGRESS')
+        barcoded, cells = run_q(args, tmpdir, files, fastqinfo)
+        header = '#FILES\tSAMPLE/CELL-NAME\tLANE\tREAD\tCHOSEN-NAME\tBARCODE'
+        loginfo = map(lambda c : (','.join(c[0]), fastqinfo[c[0]]['sample'], fastqinfo[c[0]]['lane'], fastqinfo[c[0]]['read'], c[1], c[2]), cells)
+            
+    elif all(f[:-4] == '.bam' for f in args['inputs']):
+        barcoded, cells = run_B(args, tmpdir) if len(args['inputs']) == 1 else run_b(args, tmpdir, binfo=info)
+        if binfo is None:
+            header = '#FILE\tCHOSEN-NAME\tBARCODE'
+            loginfo = map(lambda c : (c[0], c[1], c[2]), cells)
+        else:
+            header = '#FILE\tSAMPLE/CELL-NAME\tCHOSEN-NAME\tBARCODE'
+            loginfo = map(lambda c : (c[0], info[c[0]], c[1], c[2]), cells)            
+        
+    else:
+        raise ValueError("Input files are of wrong format or mixed formats")
     
     log('Indexing and finalizing final barcoded BAM file', level='PROGRESS')
     indexing(args['samtools'], args['jobs'], tmpdir, barcoded, args['output'])
@@ -141,94 +151,88 @@ def main():
     stdout, stderr = sp.Popen(shlex.split(cmd), stdout=sp.PIPE, stderr=sp.PIPE).communicate()
     log('{}'.format(stdout), level='INFO')
     
+    floginfo = os.path.join(args['rundir'], 'info_barcodedcells.tsv')
+    log('Writing final summary of barcoded cells in {}'.format(floginfo), level='PROGRESS')
+    with open(floginfo, 'w') as o:
+        o.write('{}\n'.format(header))
+        for l in loginfo:
+            o.write('{}\n'.format('\t'.join(l)))
+
     if not args['keeptmpdir']:
         log('Cleaning remaining temporary files', level='PROGRESS')
         
     log('KTHXBYE', level='PROGRESS')
     
     
-def run_q1(args, tmpdir):
-    log('Running in single-end FASTQ mode', level='PROGRESS')
-    
-    par = {}
-    par['files'] = map(lambda f : (f, ), args['inputs'])
-    par['names'] = map(lambda f : os.path.basename(f[0])[:-6], par['files'])
-    par['barcodes'] = mkbarcodes(par['names'], args['barlength'])
-    par['tmpdir'] = tmpdir
-    par['ref'] = args['reference']
-    par['samtools'] = args['samtools']
-    par['bwa'] = args['bwa']
-    par['J'] = args['jobs']
-    if args['noduplicates']:
-        log('Alignment, barcoding and sorting is running for every cell', level='PROGRESS')
-        bams = align(**par)
+def read_table(file):
+    with open(file, 'r') as i:
+        read = [l.strip().split() for l in i if l[0] != '#' and len(l) > 1]
+    get_ext = (lambda s : 'b' if s[:-4] == '.bam' else ('q' if s[:-6] == '.fastq' or s[:-9] == '.fastq.gz' else None))
+    exts = set(get_ext(r[0]) for r in read)
+    if None in exts:
+        raise ValueError('Unknown format, different than .bam, .fastq, or .fastq.gz has been provided!')
+    elif {'b'} == exts:
+        inputs = map(lambda r : os.path.abspath(r[0]), read)
+        for inp in inputs:
+            if not os.path.isfile(inp):
+                raise ValueError("This input file does not exist: {}".format(inp))
+        return inputs, {os.path.abspath(r[0]) : r[1] if len(r) > 1 else os.path.abspath(r[0]) for r in read}
+    elif {'q'} == exts:
+        wrong = filter(lambda r : len(r) != 4, read)
+        if len(wrong) > 0:
+            raise ValueError('When FASTQ files are provided in a table, each row should have four tab-separated entries: FILE, SAMPLE/CELL-NAME, LANE, and READ!')
+        inputs = map(lambda r : os.path.abspath(r[0]), read)
+        for inp in inputs:
+            if not os.path.isfile(inp):
+                raise ValueError("This input file does not exist: {}".format(inp))
+        return inputs, {os.path.abspath(r[0]) : {'sample' : r[1], 'lane' : r[2], 'read' : r[3]} for r in read}
     else:
-        log('Alignment, barcoding, sorting, and marking duplicates is running for every cell', level='PROGRESS')
-        bams = align_marking(**par)
-    
-    log('Merging all cells', level='PROGRESS')
-    barcoded = merging(args['samtools'], bams, args['jobs'], tmpdir)
-    
-    return barcoded, list(zip(par['names'], par['barcodes']))
+        raise ValueError('The provided table contains files of mixed format (i.e. both BAM and FASTQ)!')
 
 
-def run_q2(args, tmpdir):
-    log('Running in paired-end FASTQ mode', level='PROGRESS')
-    
-    par = {}
-    par['files'] = pairing_files(args['inputs'], '.fastq')
-    par['names'] = map(lambda f : os.path.basename(f[0])[:-7], par['files'])
-    par['barcodes'] = mkbarcodes(par['names'], args['barlength'])
-    par['tmpdir'] = tmpdir
-    par['ref'] = args['reference']
-    par['samtools'] = args['samtools']
-    par['bwa'] = args['bwa']
-    par['J'] = args['jobs']
-    if args['noduplicates']:
-        log('Alignment, barcoding and sorting is running for every cell', level='PROGRESS')
-        bams = align(**par)
+def match_fastq(inputs, args):
+    mname = (lambda s : re.search(args['rexpname'], s))
+    mlane = (lambda s : re.search(args['rexplane'], s))
+    mread = (lambda s : re.search(args['rexpread'], s))
+    match = map(lambda f : (f, mname(f), mlane(f), mread(f)), inputs)
+    if all(None not in m for m in match):
+        fastqinfo = {m[0] : {'sample' : m[1].group(1), 'lane' : m[2].group(1), 'read' : m[3].group(1)} for m in match}
+        return make_fastqinfo(inputs, fastqinfo)
     else:
-        log('Alignment, barcoding, sorting, and marking duplicates is running for every cell', level='PROGRESS')
-        bams = align_marking(**par)
+        log('The filesnames of the provided FASTQ files do not match the format with given expressions and will be all considered as independent single-end FASTQs', level='WARN')
+        rmext = (lambda s : s[:-9] if s[:-9] == '.fastq.gz' else s[:-6])
+        fastqinfo = {args['decom'](m[0]) : {'sample' : rmext(m[0]), 'lane' : 'L001', 'read' : 'R1'} for m in match}
+        files = map(lambda f : (args['decom'](f), ), inputs)
+        return files, fastqinfo, False
     
-    log('Merging all cells', level='PROGRESS')
-    barcoded = merging(args['samtools'], bams, args['jobs'], tmpdir)
-    
-    return barcoded, list(zip(par['names'], par['barcodes']))
-
-
-def run_z1(args, tmpdir):
-    log('Running in single-end compressed FASTQ mode', level='PROGRESS')
-    
-    par = {}
-    par['files'] = map(lambda f : ('<(gzip -d {} )'.format(f), ), args['inputs'])
-    par['names'] = map(lambda f : os.path.basename(f[0].split()[2])[:-6], par['files'])
-    par['barcodes'] = mkbarcodes(par['names'], args['barlength'])
-    par['tmpdir'] = tmpdir
-    par['ref'] = args['reference']
-    par['samtools'] = args['samtools']
-    par['bwa'] = args['bwa']
-    par['J'] = args['jobs']
-    if args['noduplicates']:
-        log('Alignment, barcoding and sorting is running for every cell', level='PROGRESS')
-        bams = align(**par)
+        
+def make_fastqinfo(inputs, fastqinfo):
+    pairs = defaultdict(lambda : [])
+    map(lambda f : pairs[(fastqinfo[f]['sample'], fastqinfo[f]['lane'])].append(f), fastqinfo)
+    if all(len(pairs[p]) == 1 for p in pairs):
+        files = map(lambda f : (args['decom'](f), ), inputs)
+        fastqinfo = {args['decom'](f) : fastqinfo[f] for f in fastqinfo}
+        return files, fastqinfo, False
+    elif all(len(set(pairs[p])) == 2 and len(pairs[p]) == 2 for p in pairs):
+        files = map(lambda p : (args['decom'](pairs[p][0]), args['decom'](pairs[p][1])), pairs)
+        fastqinfo = {args['decom'](f) : fastqinfo[f] for f in fastqinfo}
+        assert set(files) == set(fastqinfo.keys())
+        return files, fastqinfo, True
     else:
-        log('Alignment, barcoding, sorting, and marking duplicates is running for every cell', level='PROGRESS')
-        bams = align_marking(**par)
+        for p in pairs:
+            if set(len(pairs[p])) < 2:
+                raise ValueError('Found more than TWO files with the same sample and lane but also identical reads!\n{}'.format(','.join(pairs[p])))
+            elif len(pairs[p]) > 2:
+                raise ValueError('Found more than TWO files with the same sample and lane, which cannot indicate paired-end reads!\n{}'.format(','.join(pairs[p])))
+            else:
+                assert False
     
-    log('Merging all cells', level='PROGRESS')
-    barcoded = merging(args['samtools'], bams, args['jobs'], tmpdir)
-    
-    return barcoded, list(zip(par['names'], par['barcodes']))
 
-
-def run_z2(args, tmpdir):
-    log('Running in paired-end compressed FASTQ mode', level='PROGRESS')
-    
+def run_q(args, tmpdir, files, fastqinfo):
     par = {}
-    par['files'] = map(lambda f : tuple(map(lambda p : '<(gzip -d {} )', f)), pairing_files(args['inputs'], '.fastq.gz'))
-    par['names'] = map(lambda f : os.path.basename(f[0].split()[2])[:-7], par['files'])
-    par['barcodes'] = mkbarcodes(par['names'], args['barlength'])
+    par['files'] = files
+    par['names'] = map(lambda f : fastqinfo[f[0]]['sample'], files)
+    par['barcodes'] = mkbarcodes(par['files'], args['barlength'], qinfo=fastqinfo)
     par['tmpdir'] = tmpdir
     par['ref'] = args['reference']
     par['samtools'] = args['samtools']
@@ -244,16 +248,19 @@ def run_z2(args, tmpdir):
     log('Merging all cells', level='PROGRESS')
     barcoded = merging(args['samtools'], bams, args['jobs'], tmpdir)
     
-    return barcoded, list(zip(par['names'], par['barcodes']))
+    return barcoded, list(zip(par['files'], par['names'], par['barcodes']))
 
 
-def run_b(args, tmpdir):
+def run_b(args, tmpdir, binfo=None):
     log('Running in multiple BAM files mode', level='PROGRESS')
     
     par = {}
     par['files'] = args['inputs']
-    par['names'] = map(lambda f : os.path.basename(f)[:-4], par['files'])
-    par['barcodes'] = mkbarcodes(par['names'], args['barlength'])
+    if binfo is None:
+        par['names'] = map(lambda f : os.path.basename(f)[:-4], par['files'])
+    else:
+        par['names'] = map(lambda f : binfo[f], par['files'])        
+    par['barcodes'] = mkbarcodes(par['files'], args['barlength'], binfo=binfo)
     par['tmpdir'] = tmpdir
     par['samtools'] = args['samtools']
     par['J'] = args['jobs']
@@ -267,7 +274,7 @@ def run_b(args, tmpdir):
     log('Merging all cells', level='PROGRESS')
     barcoded = merging(args['samtools'], bams, args['jobs'], tmpdir)
     
-    return barcoded, list(zip(par['names'], par['barcodes']))
+    return barcoded, list(zip(par['files'], par['names'], par['barcodes']))
 
 
 def run_B(args, tmpdir):
@@ -278,16 +285,29 @@ def run_B(args, tmpdir):
     cmd = '{} split -f \'{}\' -@ {} {}'.format(args['samtools'], sform, args['jobs'], args['inputs'][0])
     stdout, stderr = sp.Popen(shlex.split(cmd), stdour=sp.PIPE, stderr=sp.PIPE).communicate()
     
-    args['mode'] = 'b'
     args['input'] = map(os.path.abspath, glob.glob(os.path.join(tmpdir, '*.bam')))
     return run_b(args, tmpdir)
     
     
-def mkbarcodes(names, length):
+def mkbarcodes(files, length, qinfo=None, binfo=None):
     random_sample_iter = (lambda it, k : (x for _, x in nlargest(k, ((np.random.random(), x) for x in it))))
     combr = combinations_with_replacement
-    barcodes = random_sample_iter(combr(['A', 'T', 'C', 'G'], length), len(names))
-    return map(lambda b : ''.join(b), barcodes)
+    barcodes = random_sample_iter(combr(['A', 'T', 'C', 'G'], length), len(files))
+    barcodes = map(lambda b : ''.join(b), barcodes)
+    if qinfo is not None:
+        lanes = defaultdict(lambda : [])
+        map(lambda f : lanes[qinfo[f[0]]['sample']].append(f), files)
+        dup = [s for s in lanes if len(lanes[s]) != len(set(qinfo[f[0]]['lane'] for f in lanes[s]))]
+        if len(dup) > 0:
+            raise ValueError('Two or more of these files have the same sample name but also the same lane number:\n{}'.format('\n'.join([f for f in lanes[dup[0]]])))
+        assign = dict(zip(files, barcodes))
+        barcodes = map(lambda f : assign[lanes[qinfo[f[0]]['sample']][0]], files)
+    if binfo is not None:
+        lanes = defaultdict(lambda : [])
+        map(lambda f : lanes[binfo[f]].append(f), files)
+        assign = dict(zip(files, barcodes))
+        barcodes = map(lambda f : assign[lanes[binfo[f]][0]], files)        
+    return barcodes
     
     
 def align(files, names, barcodes, tmpdir, ref, bwa, samtools, J):
@@ -305,7 +325,7 @@ def align(files, names, barcodes, tmpdir, ref, bwa, samtools, J):
 def init_align(_tmpdir, _bwa, _ref, _samtools):
     global cmd_bwa, cmd_arg, cmd_sor, tmpdir
     cmd_bwa = '{} mem -M {} {}'.format(_bwa, _ref, '{}')
-    cmd_arg = '{} addreplacerg - -r \'ID:{}\' -r \'SM:{}\''.format(_samtools, '{}', '{}')
+    cmd_arg = '{} addreplacerg - -r \'ID:{}\' -r \'SM:{}\' -r \'PG:CHISEL_PREP\''.format(_samtools, '{}', '{}')
     cmd_sor = '{} sort - -b -o {} -T {}'.format(_samtools, '{}', '{}')
     tmpdir = _tmpdir
     
@@ -316,7 +336,7 @@ def aligning(job):
     curr_tmp = os.path.join(tmpdir, '_SORT_{}'.format(name))
     os.mkdir(curr_tmp)
     curr_cmd_bwa = cmd_bwa.format(' '.join(fil))
-    curr_cmd_arg = cmd_arg.format('CB:Z:{}'.format(barcode), '{}_CB:Z:{}'.format(name, barcode))
+    curr_cmd_arg = cmd_arg.format('CB:Z:{}'.format(barcode), '{}'.format(name))
     curr_cmd_sam = cmd_sor.format(bam, curr_tmp)
     pbwa = sp.Popen(shlex.split(curr_cmd_bwa), stdout=sp.PIPE, stderr=sp.PIPE)
     parg = sp.Popen(shlex.split(curr_cmd_arg), stdin=pbwa.stdout, stdout=sp.PIPE, stderr=sp.PIPE)
@@ -341,7 +361,7 @@ def init_align_marked(_tmpdir, _bwa, _ref, _samtools):
     cmd_bwa = '{} mem -M {} {}'.format(_bwa, _ref, '{}')
     cmd_nam = '{} sort - -n -T {}'.format(_samtools, '{}')
     cmd_fix = '{} fixmate -m - -'.format(_samtools)
-    cmd_arg = '{} addreplacerg - -r \'ID:{}\' -r \'SM:{}\''.format(_samtools, '{}', '{}')
+    cmd_arg = '{} addreplacerg - -r \'ID:{}\' -r \'SM:{}\' -r \'PG:CHISEL_PREP\''.format(_samtools, '{}', '{}')
     cmd_sor = '{} sort - -b -T {}'.format(_samtools, '{}')
     cmd_mar = '{} markdup -T {} - {}'.format(_samtools, '{}', '{}')
     tmpdir = _tmpdir
@@ -359,7 +379,7 @@ def aligning_marked(job):
     curr_cmd_bwa = cmd_bwa.format(' '.join(fil))
     curr_cmd_nam = cmd_nam.format(nam_tmp)
     curr_cmd_fix = cmd_fix
-    curr_cmd_arg = cmd_arg.format('CB:Z:{}'.format(barcode), '{}_CB:Z:{}'.format(name, barcode))
+    curr_cmd_arg = cmd_arg.format('CB:Z:{}'.format(barcode), '{}'.format(name))
     curr_cmd_sor = cmd_sor.format(sor_tmp)
     curr_cmd_mar = cmd_mar.format(mar_tmp, bam)
     pbwa = sp.Popen(shlex.split(curr_cmd_bwa), stdout=sp.PIPE, stderr=sp.PIPE)
@@ -385,14 +405,14 @@ def barcode(files, names, barcodes, tmpdir, samtools, J):
     
 def init_barcoding(_tmpdir, _samtools):
     global cmd_arg, tmpdir
-    cmd_arg = '{} addreplacerg {} -r \'ID:{}\' -r \'SM:{}\' -o {}'.format(_samtools, '{}', '{}', '{}', '{}')
+    cmd_arg = '{} addreplacerg {} -r \'ID:{}\' -r \'SM:{}\' -r \'PG:CHISEL_PREP\' -o {}'.format(_samtools, '{}', '{}', '{}', '{}')
     tmpdir = _tmpdir
     
     
 def barcoding(job):
     fil, name, barcode = job
     bam = os.path.join(tmpdir, '{}.bam'.format(name))
-    cmd = cmd_arg.format(fil, 'CB:Z:{}'.format(barcode), '{}_CB:Z:{}'.format(name, barcode), bam)
+    cmd = cmd_arg.format(fil, 'CB:Z:{}'.format(barcode), '{}'.format(name), bam)
     stdout, stderr = sp.Popen(shlex.split(cmd), stdout=sp.PIPE, stderr=sp.PIPE).communicate()
     return bam
 
@@ -413,7 +433,7 @@ def init_barcoding_marked(_tmpdir, _samtools):
     global cmd_nam, cmd_fix, cmd_arg, cmd_sor, cmd_mar, tmpdir
     cmd_nam = '{} sort {} -n -T {}'.format(_samtools, '{}', '{}')
     cmd_fix = '{} fixmate -m - -'.format(_samtools)
-    cmd_arg = '{} addreplacerg - -r \'ID:{}\' -r \'SM:{}\''.format(_samtools, '{}', '{}')
+    cmd_arg = '{} addreplacerg - -r \'ID:{}\' -r \'SM:{}\' -r \'PG:CHISEL_PREP\''.format(_samtools, '{}', '{}')
     cmd_sor = '{} sort - -b -T {}'.format(_samtools, '{}')
     cmd_mar = '{} markdup -T {} - {}'.format(_samtools, '{}', '{}')
     tmpdir = _tmpdir
@@ -430,7 +450,7 @@ def barcoding_marked(job):
     os.mkdir(mar_tmp)
     curr_cmd_nam = cmd_nam.format(fil, nam_tmp)
     curr_cmd_fix = cmd_fix
-    curr_cmd_arg = cmd_arg.format('CB:Z:{}'.format(barcode), '{}_CB:Z:{}'.format(name, barcode))
+    curr_cmd_arg = cmd_arg.format('CB:Z:{}'.format(barcode), '{}'.format(name))
     curr_cmd_sor = cmd_sor.format(sor_tmp)
     curr_cmd_mar = cmd_mar.format(mar_tmp, bam)
     pnam = sp.Popen(shlex.split(curr_cmd_nam), stdout=sp.PIPE, stderr=sp.PIPE)
@@ -457,32 +477,6 @@ def indexing(samtools, jobs, tmpdir, barcoded, output):
     stdout, stderr = sp.Popen(shlex.split(cmd), stdout=sp.PIPE, stderr=sp.PIPE).communicate()
     return
 
-    
-def print_mode(mode):
-    if mode == 'q1':
-        return 'Multiple single-ended FASTQ files!'
-    elif mode == 'q2':
-        return 'Multiple paired-ended FASTQ files!'
-    elif mode == 'z1':
-        return 'Multiple single-ended compressed FASTQ files!'
-    elif mode == 'z2':
-        return 'Multiple paired-ended compressed FASTQ files!'
-    elif mode == 'b':
-        return 'Multiple BAM files'
-    elif mode == 'B':
-        return 'Single BAM file'
-    else:
-        assert False, "Unknown mode!"
-        
-        
-def pairing_files(files, ext):
-    bases = map(lambda f : f[:-(1 + len(ext))], files)
-    first = map(lambda b : [f for f in files if '{}1{}'.format(b, ext) == f], bases)
-    assert all(len(f) == 1 for f in first), 'First end has not been found for {} files within:\n{}'.format(ext, files)
-    second = map(lambda b : [f for f in files if '{}2{}'.format(b, ext) == f], bases)
-    assert all(len(f) == 1 for f in second), 'Second end has not been found for {} files within:\n{}'.format(ext, files)
-    return list(zip(first, second))
-    
     
 if __name__ == '__main__':
     main()
