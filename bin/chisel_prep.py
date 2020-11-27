@@ -81,7 +81,7 @@ def parse_args():
     if any(f[:-9] == '.fastq.gz' for f in inputs) and which('gzip') is None:
         raise ValueError("gzip has not been found or is not executable but is required for provided FASTQ files!\n\nIf you are within a CHISEL conda environment ${ENV} you can install it with:\n\tconda install -n ${ENV} gzip\n\nOtherwise, please make it available in PATH.")
     
-    output = os.path.basename(args.output if args.output[-4] == '.bam' else '{}.bam'.format(args.output))
+    output = os.path.basename(args.output if args.output[-4:] == '.bam' else '{}.bam'.format(args.output))
     
     return {
         "inputs" : inputs,
@@ -98,14 +98,14 @@ def parse_args():
         "rexpread" : args.rexpread,
         "jobs" : args.jobs,
         "output" : os.path.join(os.path.abspath(args.rundir), output),
-        'decom' : (lambda f : '<(gzip -d {})'.format(f) if f[:-3] == '.gz' else f)
+        'decom' : (lambda f : '<(gzip -d {})'.format(f) if f[-3:] == '.gz' else f)
     }
     
     
 def main():
     log('Parsing and checking arguments', level='STEP')
     args = parse_args()
-    log('\n'.join(['Arguments:'] + ['\t{} : {}'.format(a, args[a]) for a in args]) + '\n', level='INFO')
+    log('\n'.join(['Arguments:'] + ['\t{} : {}'.format(a, args[a]) for a in args if a != 'inputs']) + '\n', level='INFO')
     
     log('Setting up', level='STEP')
     tmpdir = os.path.join(args['rundir'], '_TMP_CHISEL_PREP')
@@ -128,8 +128,8 @@ def main():
         else:
             log('Running in single-end FASTQ mode', level='STEP')
         barcoded, cells = run_q(args, tmpdir, files, fastqinfo)
-        header = '#FILES\tSAMPLE/CELL-NAME\tLANE\tREAD\tCHOSEN-NAME\tBARCODE'
-        loginfo = map(lambda c : (','.join(c[0]), fastqinfo[c[0][0]]['sample'], fastqinfo[c[0][0]]['lane'], fastqinfo[c[0][0]]['read'], c[1], c[2]), cells)
+        header = '#FILES\tSAMPLE/CELL-NAME\tLANE\tREADS\tCHOSEN-NAME\tBARCODE'
+        loginfo = map(lambda c : (','.join(c[0]), fastqinfo[c[0][0]]['sample'], fastqinfo[c[0][0]]['lane'], ','.join([fastqinfo[f]['read'] for f in c[0]]), c[1], c[2]), cells)
             
     elif all(f[-4:] == '.bam' for f in args['inputs']):
         barcoded, cells = run_B(args, tmpdir) if len(args['inputs']) == 1 else run_b(args, tmpdir, binfo=info)
@@ -152,11 +152,13 @@ def main():
     log('{}'.format(stdout), level='INFO')
     
     floginfo = os.path.join(args['rundir'], 'info_barcodedcells.tsv')
-    log('Writing final summary of barcoded cells in {}'.format(floginfo), level='STEP')
+    log('Writing final summary of barcoded cells', level='STEP')
+    log('Number of barcoded cells: {}'.format(len(set(c[-1] for c in cells))), level='INFO')
     with open(floginfo, 'w') as o:
         o.write('{}\n'.format(header))
         for l in loginfo:
             o.write('{}\n'.format('\t'.join(l)))
+    log('Final summary is written in {}'.format(floginfo), level='INFO')
 
     if not args['keeptmpdir']:
         log('Cleaning remaining temporary files', level='STEP')
@@ -210,6 +212,7 @@ def match_fastq(inputs, args):
 def make_fastqinfo(inputs, fastqinfo, args):
     pairs = defaultdict(lambda : [])
     map(lambda f : pairs[(fastqinfo[f]['sample'], fastqinfo[f]['lane'])].append(f), fastqinfo)
+    map(lambda p : pairs[p].sort(key=(lambda f : fastqinfo[f]['read'])), pairs)
     if all(len(pairs[p]) == 1 for p in pairs):
         files = map(lambda f : (args['decom'](f), ), inputs)
         fastqinfo = {args['decom'](f) : fastqinfo[f] for f in fastqinfo}
