@@ -78,11 +78,6 @@ def parse_args():
     if which(bwa) is None:
         raise ValueError("bwa has not been found or is not executable!\n\nIf you are within a CHISEL conda environment ${ENV} you can install it with:\n\tconda install -c bioconda -n ${ENV} bwa\n\nOtherwise, please provide with the flag `--bwa` the full path to the directory containing bwa exacutable.")
     
-    if any(f[:-9] == '.fastq.gz' for f in inputs) and which('gzip') is None:
-        raise ValueError("gzip has not been found or is not executable but is required for provided FASTQ files!\n\nIf you are within a CHISEL conda environment ${ENV} you can install it with:\n\tconda install -n ${ENV} gzip\n\nOtherwise, please make it available in PATH.")
-    
-    output = os.path.basename(args.output if args.output[-4:] == '.bam' else '{}.bam'.format(args.output))
-    
     return {
         "inputs" : inputs,
         "rundir" : os.path.abspath(args.rundir),
@@ -97,8 +92,7 @@ def parse_args():
         "rexplane" : args.rexplane,
         "rexpread" : args.rexpread,
         "jobs" : args.jobs,
-        "output" : os.path.join(os.path.abspath(args.rundir), output),
-        'decom' : (lambda f : '<(gzip -d {})'.format(f) if f[-3:] == '.gz' else f)
+        "output" : os.path.join(os.path.abspath(args.rundir), output)
     }
     
     
@@ -181,7 +175,7 @@ def read_table(file):
                 raise ValueError("This input file does not exist: {}".format(inp))
         return inputs, {os.path.abspath(r[0]) : r[1] if len(r) > 1 else os.path.abspath(r[0]) for r in read}
     elif {'q'} == exts:
-        wrong = filter(lambda r : len(r) != 4, read)
+        wrong = filter(lambda r : len(r) < 4, read)
         if len(wrong) > 0:
             raise ValueError('When FASTQ files are provided in a table, each row should have four tab-separated entries: FILE, SAMPLE/CELL-NAME, LANE, and READ!')
         inputs = map(lambda r : os.path.abspath(r[0]), read)
@@ -204,8 +198,8 @@ def match_fastq(inputs, args):
     else:
         log('The filesnames of the provided FASTQ files do not match the format with given expressions and will be all considered as independent single-end FASTQs', level='WARN')
         rmext = (lambda s : s[-9:] if s[-9:] == '.fastq.gz' else s[-6:])
-        fastqinfo = {args['decom'](m[0]) : {'sample' : rmext(m[0]), 'lane' : 'L001', 'read' : 'R1'} for m in match}
-        files = map(lambda f : (args['decom'](f), ), inputs)
+        fastqinfo = {m[0] : {'sample' : rmext(m[0]), 'lane' : 'L001', 'read' : 'R1'} for m in match}
+        files = map(lambda f : (f, ), inputs)
         return files, fastqinfo, False
     
         
@@ -214,12 +208,12 @@ def make_fastqinfo(inputs, fastqinfo, args):
     map(lambda f : pairs[(fastqinfo[f]['sample'], fastqinfo[f]['lane'])].append(f), fastqinfo)
     map(lambda p : pairs[p].sort(key=(lambda f : fastqinfo[f]['read'])), pairs)
     if all(len(pairs[p]) == 1 for p in pairs):
-        files = map(lambda f : (args['decom'](f), ), inputs)
-        fastqinfo = {args['decom'](f) : fastqinfo[f] for f in fastqinfo}
+        files = map(lambda f : (f, ), inputs)
+        fastqinfo = {f : fastqinfo[f] for f in fastqinfo}
         return files, fastqinfo, False
     elif all(len(set(pairs[p])) == 2 and len(pairs[p]) == 2 for p in pairs):
-        files = map(lambda p : (args['decom'](pairs[p][0]), args['decom'](pairs[p][1])), pairs)
-        fastqinfo = {args['decom'](f) : fastqinfo[f] for f in fastqinfo}
+        files = map(lambda p : (pairs[p][0], pairs[p][1]), pairs)
+        fastqinfo = {f : fastqinfo[f] for f in fastqinfo}
         assert set(f for p in files for f in p) == set(fastqinfo.keys())
         return files, fastqinfo, True
     else:
