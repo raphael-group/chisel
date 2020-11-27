@@ -336,7 +336,7 @@ def align(files, names, barcodes, lanes, tmpdir, ref, bwa, samtools, J):
 def init_align(_tmpdir, _bwa, _ref, _samtools):
     global cmd_bwa, cmd_arg, cmd_sor, tmpdir
     cmd_bwa = '{} mem -M {} {}'.format(_bwa, _ref, '{}')
-    cmd_arg = '{} addreplacerg - -r \'ID:{}\' -r \'SM:{}\' -r \'FO:{}\' -r \'PG:CHISEL_PREP\' -Osam'.format(_samtools, '{}', '{}')
+    cmd_arg = '{} addreplacerg - -r \'ID:{}\' -r \'SM:{}\' -r \'FO:{}\' -r \'PG:CHISEL_PREP\' -Osam'.format(_samtools, '{}', '{}', '{}')
     cmd_sor = '{} sort - -Obam -o {} -T {}'.format(_samtools, '{}', '{}')
     tmpdir = _tmpdir
     
@@ -372,7 +372,7 @@ def init_align_marked(_tmpdir, _bwa, _ref, _samtools):
     cmd_bwa = '{} mem -M {} {}'.format(_bwa, _ref, '{}')
     cmd_nam = '{} sort - -n -T {} -Osam'.format(_samtools, '{}')
     cmd_fix = '{} fixmate -m - - -Osam'.format(_samtools)
-    cmd_arg = '{} addreplacerg - -r \'ID:{}\' -r \'SM:{}\' -r \'FO:{}\' -r \'PG:CHISEL_PREP\' -Osam'.format(_samtools, '{}', '{}')
+    cmd_arg = '{} addreplacerg - -r \'ID:{}\' -r \'SM:{}\' -r \'FO:{}\' -r \'PG:CHISEL_PREP\' -Osam'.format(_samtools, '{}', '{}', '{}')
     cmd_sor = '{} sort - -T {} -Osam'.format(_samtools, '{}')
     cmd_mar = '{} markdup -T {} - {} -Obam'.format(_samtools, '{}', '{}')
     tmpdir = _tmpdir
@@ -417,7 +417,7 @@ def barcode(files, names, barcodes, lanes, tmpdir, samtools, J):
     
 def init_barcoding(_tmpdir, _samtools):
     global cmd_arg, tmpdir
-    cmd_arg = '{} addreplacerg {} -r \'ID:{}\' -r \'SM:{}\' -r \'FO:{}\' -r \'PG:CHISEL_PREP\' -o {}'.format(_samtools, '{}', '{}', '{}', '{}')
+    cmd_arg = '{} addreplacerg {} -r \'ID:{}\' -r \'SM:{}\' -r \'FO:{}\' -r \'PG:CHISEL_PREP\' -o {}'.format(_samtools, '{}', '{}', '{}', '{}', '{}')
     tmpdir = _tmpdir
     
     
@@ -445,7 +445,7 @@ def init_barcoding_marked(_tmpdir, _samtools):
     global cmd_nam, cmd_fix, cmd_arg, cmd_sor, cmd_mar, tmpdir
     cmd_nam = '{} sort {} -n -T {} -Osam'.format(_samtools, '{}', '{}')
     cmd_fix = '{} fixmate -m - - -Osam'.format(_samtools)
-    cmd_arg = '{} addreplacerg - -r \'ID:{}\' -r \'SM:{}\' -r \'FO:{}\' -r \'PG:CHISEL_PREP\' -Osam'.format(_samtools, '{}', '{}')
+    cmd_arg = '{} addreplacerg - -r \'ID:{}\' -r \'SM:{}\' -r \'FO:{}\' -r \'PG:CHISEL_PREP\' -Osam'.format(_samtools, '{}', '{}', '{}')
     cmd_sor = '{} sort - -T {} -Osam'.format(_samtools, '{}')
     cmd_mar = '{} markdup -T {} - {} -Obam'.format(_samtools, '{}', '{}')
     tmpdir = _tmpdir
