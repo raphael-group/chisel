@@ -124,17 +124,15 @@ def main():
         else:
             log('Running in single-end FASTQ mode', level='STEP')
         barcoded, cells = run_q(args, tmpdir, files, fastqinfo)
-        header = '#FILES\tSAMPLE/CELL-NAME\tLANE\tREADS\tCHOSEN-NAME\tBARCODE'
-        loginfo = map(lambda c : (','.join(c[0]), fastqinfo[c[0][0]]['sample'], fastqinfo[c[0][0]]['lane'], ','.join([fastqinfo[f]['read'] for f in c[0]]), c[1], c[2]), cells)
+        header = '#FILES\tCELL\tLANE\tREADS\tBARCODE'
+        loginfo = map(lambda c : (','.join(c[0]), fastqinfo[c[0][0]]['sample'], fastqinfo[c[0][0]]['lane'], ','.join([fastqinfo[f]['read'] for f in c[0]]), c[2]), cells)
             
     elif all(f[-4:] == '.bam' for f in args['inputs']):
+        if info is None:
+            info = make_baminfo(args['inputs'])
         barcoded, cells = run_B(args, tmpdir) if len(args['inputs']) == 1 else run_b(args, tmpdir, binfo=info)
-        if binfo is None:
-            header = '#FILE\tCHOSEN-NAME\tBARCODE'
-            loginfo = map(lambda c : (c[0], c[1], c[2]), cells)
-        else:
-            header = '#FILE\tSAMPLE/CELL-NAME\tCHOSEN-NAME\tBARCODE'
-            loginfo = map(lambda c : (c[0], info[c[0]], c[1], c[2]), cells)            
+        header = '#FILE\tCELL\tLANE\tBARCODE'
+        loginfo = map(lambda c : (c[0], info[c[0]]['sample'], info[c[0]]['lane'], c[2]), cells)  
         
     else:
         raise ValueError("Input files are of wrong format or mixed formats")
@@ -175,7 +173,11 @@ def read_table(file):
         for inp in inputs:
             if not os.path.isfile(inp):
                 raise ValueError("This input file does not exist: {}".format(inp))
-        return inputs, {os.path.abspath(r[0]) : r[1] if len(r) > 1 else os.path.abspath(r[0]) for r in read}
+        binfo = {os.path.abspath(r[0]) : r[1] if len(r) > 1 else os.path.abspath(r[0]) for r in read}
+        lanes = defaultdict(lambda : [])
+        map(lambda f : lanes[binfo[f]].append((f, len(lanes[binfo[f]]))), binfo)
+        lanes = {s : dict(lanes[s]) for s in lanes}
+        return inputs, {f : {'sample' : binfo[f], 'lane' : lanes[binfo[f]][f]} for f in binfo}
     elif {'q'} == exts:
         wrong = filter(lambda r : len(r) < 4, read)
         if len(wrong) > 0:
@@ -226,12 +228,21 @@ def make_fastqinfo(inputs, fastqinfo, args):
                 raise ValueError('Found more than TWO files with the same sample and lane, which cannot indicate paired-end reads!\n{}'.format(','.join(pairs[p])))
             else:
                 assert False
+                
+                
+def make_baminfo(inputs):
+    binfo = {os.path.abspath(f) : os.path.basename(f) for f in inputs}
+    lanes = defaultdict(lambda : [])
+    map(lambda f : lanes[binfo[f]].append((f, len(lanes[binfo[f]]))), binfo)
+    lanes = {s : dict(lanes[s]) for s in lanes}
+    return {f : {'sample' : binfo[f], 'lane' : lanes[binfo[f]][f]} for f in binfo}
     
 
 def run_q(args, tmpdir, files, fastqinfo):
     par = {}
     par['files'] = files
     par['names'] = map(lambda f : fastqinfo[f[0]]['sample'], files)
+    par['lanes'] = map(lambda f : fastqinfo[f[0]]['lane'], files)
     par['barcodes'] = mkbarcodes(par['files'], args['barlength'], qinfo=fastqinfo)
     par['tmpdir'] = tmpdir
     par['ref'] = args['reference']
@@ -251,15 +262,13 @@ def run_q(args, tmpdir, files, fastqinfo):
     return barcoded, list(zip(par['files'], par['names'], par['barcodes']))
 
 
-def run_b(args, tmpdir, binfo=None):
+def run_b(args, tmpdir, binfo):
     log('Running in multiple BAM files mode', level='STEP')
     
     par = {}
     par['files'] = args['inputs']
-    if binfo is None:
-        par['names'] = map(lambda f : os.path.basename(f)[:-4], par['files'])
-    else:
-        par['names'] = map(lambda f : binfo[f], par['files'])        
+    par['names'] = map(lambda f : binfo[f]['sample'], par['files'])
+    par['lanes'] = map(lambda f : binfo[f]['lane'], par['files'])
     par['barcodes'] = mkbarcodes(par['files'], args['barlength'], binfo=binfo)
     par['tmpdir'] = tmpdir
     par['samtools'] = args['samtools']
@@ -286,7 +295,9 @@ def run_B(args, tmpdir):
     stdout, stderr = sp.Popen(shlex.split(cmd), stdour=sp.PIPE, stderr=sp.PIPE).communicate()
     
     args['input'] = map(os.path.abspath, glob.glob(os.path.join(tmpdir, '*.bam')))
-    return run_b(args, tmpdir)
+    getname = (lambda f : os.path.splitext(os.path.basename(f))[0])
+    binfo = {f : {'sample' : getname(f), 'lane' : 'L001'} for f in args['input']}
+    return run_b(args, tmpdir, binfo)
     
     
 def mkbarcodes(files, length, qinfo=None, binfo=None):
@@ -310,8 +321,8 @@ def mkbarcodes(files, length, qinfo=None, binfo=None):
     return barcodes
     
     
-def align(files, names, barcodes, tmpdir, ref, bwa, samtools, J):
-    jobs = zip(files, names, barcodes)
+def align(files, names, barcodes, lanes, tmpdir, ref, bwa, samtools, J):
+    jobs = zip(files, names, barcodes, lanes)
     bar = ProgressBar(total=len(files), length=30, verbose=False)
     initargs = (tmpdir, bwa, ref, samtools)
     pool = mp.Pool(processes=min(J, len(names)), initializer=init_align, initargs=initargs)
@@ -331,9 +342,9 @@ def init_align(_tmpdir, _bwa, _ref, _samtools):
     
     
 def aligning(job):
-    fil, name, barcode = job
-    bam = os.path.join(tmpdir, '{}.bam'.format(name))
-    curr_tmp = os.path.join(tmpdir, '_SORT_{}'.format(name))
+    fil, name, barcode, lane = job
+    bam = os.path.join(tmpdir, '{}_{}.bam'.format(name, lane))
+    curr_tmp = os.path.join(tmpdir, '_SORT_{}_{}'.format(name, lane))
     os.mkdir(curr_tmp)
     curr_cmd_bwa = cmd_bwa.format(' '.join(fil))
     curr_cmd_arg = cmd_arg.format('CB:Z:{}'.format(barcode), '{}'.format(name))
@@ -341,11 +352,11 @@ def aligning(job):
     pbwa = sp.Popen(shlex.split(curr_cmd_bwa), stdout=sp.PIPE, stderr=sp.PIPE)
     parg = sp.Popen(shlex.split(curr_cmd_arg), stdin=pbwa.stdout, stdout=sp.PIPE, stderr=sp.PIPE)
     stdout, stderr = sp.Popen(shlex.split(curr_cmd_sam), stdin=parg.stdout, stdout=sp.PIPE, stderr=sp.PIPE).communicate()
-    return name, bam
+    return '{}_{}'.format(name, lane), bam
 
 
-def align_marked(files, names, barcodes, tmpdir, ref, bwa, samtools, J):
-    jobs = zip(files, names, barcodes)
+def align_marked(files, names, barcodes, lanes, tmpdir, ref, bwa, samtools, J):
+    jobs = zip(files, names, barcodes, lanes)
     bar = ProgressBar(total=len(files), length=30, verbose=False)
     initargs = (tmpdir, bwa, ref, samtools)
     pool = mp.Pool(processes=min(J, len(names)), initializer=init_align_marked, initargs=initargs)
@@ -368,13 +379,13 @@ def init_align_marked(_tmpdir, _bwa, _ref, _samtools):
     
     
 def aligning_marked(job):
-    fil, name, barcode = job
-    bam = os.path.join(tmpdir, '{}.bam'.format(name))
-    nam_tmp = os.path.join(tmpdir, '_NAME_{}'.format(name))
+    fil, name, barcode, lane = job
+    bam = os.path.join(tmpdir, '{}_{}.bam'.format(name, lane))
+    nam_tmp = os.path.join(tmpdir, '_NAME_{}_{}'.format(name, lane))
     os.mkdir(nam_tmp)
-    sor_tmp = os.path.join(tmpdir, '_SORT_{}'.format(name))
+    sor_tmp = os.path.join(tmpdir, '_SORT_{}_{}'.format(name, lane))
     os.mkdir(sor_tmp)
-    mar_tmp = os.path.join(tmpdir, '_MARK_{}'.format(name))
+    mar_tmp = os.path.join(tmpdir, '_MARK_{}_{}'.format(name, lane))
     os.mkdir(mar_tmp)
     curr_cmd_bwa = cmd_bwa.format(' '.join(fil))
     curr_cmd_nam = cmd_nam.format(nam_tmp)
@@ -389,11 +400,11 @@ def aligning_marked(job):
     psor = sp.Popen(shlex.split(curr_cmd_sor), stdin=parg.stdout, stdout=sp.PIPE, stderr=sp.PIPE)    
     stdout, stderr = sp.Popen(shlex.split(curr_cmd_mar), stdin=psor.stdout, stdout=sp.PIPE, stderr=sp.PIPE).communicate()
     print stdout, stderr
-    return name, bam
+    return '{}_{}'.format(name, lane), bam
 
 
-def barcode(files, names, barcodes, tmpdir, samtools, J):
-    jobs = zip(files, names, barcodes)
+def barcode(files, names, barcodes, lanes, tmpdir, samtools, J):
+    jobs = zip(files, names, barcodes, lanes)
     bar = ProgressBar(total=len(files), length=30, verbose=False)
     initargs = (tmpdir, samtools)
     pool = mp.Pool(processes=min(J, len(names)), initializer=init_barcoding, initargs=initargs)
@@ -411,15 +422,15 @@ def init_barcoding(_tmpdir, _samtools):
     
     
 def barcoding(job):
-    fil, name, barcode = job
-    bam = os.path.join(tmpdir, '{}.bam'.format(name))
+    fil, name, barcode, lane = job
+    bam = os.path.join(tmpdir, '{}_{}.bam'.format(name, lane))
     cmd = cmd_arg.format(fil, 'CB:Z:{}'.format(barcode), '{}'.format(name), bam)
     stdout, stderr = sp.Popen(shlex.split(cmd), stdout=sp.PIPE, stderr=sp.PIPE).communicate()
     return name, bam
 
 
-def barcode_marked(files, names, barcodes, tmpdir, samtools, J):
-    jobs = zip(files, names, barcodes)
+def barcode_marked(files, names, barcodes, lanes, tmpdir, samtools, J):
+    jobs = zip(files, names, barcodes, lanes)
     bar = ProgressBar(total=len(files), length=30, verbose=False)
     initargs = (tmpdir, samtools)
     pool = mp.Pool(processes=min(J, len(names)), initializer=init_barcoding_marked, initargs=initargs)
@@ -441,13 +452,13 @@ def init_barcoding_marked(_tmpdir, _samtools):
     
     
 def barcoding_marked(job):
-    fil, name, barcode = job
-    bam = os.path.join(tmpdir, '{}.bam'.format(name))
-    nam_tmp = os.path.join(tmpdir, '_NAME_{}'.format(name))
+    fil, name, barcode, lane = job
+    bam = os.path.join(tmpdir, '{}_{}.bam'.format(name, lane))
+    nam_tmp = os.path.join(tmpdir, '_NAME_{}_{}'.format(name, lane))
     os.mkdir(nam_tmp)
-    sor_tmp = os.path.join(tmpdir, '_SORT_{}'.format(name))
+    sor_tmp = os.path.join(tmpdir, '_SORT_{}_{}'.format(name, lane))
     os.mkdir(sor_tmp)
-    mar_tmp = os.path.join(tmpdir, '_MARK_{}'.format(name))
+    mar_tmp = os.path.join(tmpdir, '_MARK_{}_{}'.format(name, lane))
     os.mkdir(mar_tmp)
     curr_cmd_nam = cmd_nam.format(fil, nam_tmp)
     curr_cmd_fix = cmd_fix
