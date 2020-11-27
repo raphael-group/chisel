@@ -336,7 +336,7 @@ def align(files, names, barcodes, lanes, tmpdir, ref, bwa, samtools, J):
 def init_align(_tmpdir, _bwa, _ref, _samtools):
     global cmd_bwa, cmd_arg, cmd_sor, tmpdir
     cmd_bwa = '{} mem -M {} {}'.format(_bwa, _ref, '{}')
-    cmd_arg = '{} addreplacerg - -r \'ID:{}\' -r \'SM:{}\' -r \'PG:CHISEL_PREP\' -Osam'.format(_samtools, '{}', '{}')
+    cmd_arg = '{} addreplacerg - -r \'ID:{}\' -r \'SM:{}\' -r \'FO:{}\' -r \'PG:CHISEL_PREP\' -Osam'.format(_samtools, '{}', '{}')
     cmd_sor = '{} sort - -Obam -o {} -T {}'.format(_samtools, '{}', '{}')
     tmpdir = _tmpdir
     
@@ -347,7 +347,7 @@ def aligning(job):
     curr_tmp = os.path.join(tmpdir, '_SORT_{}_{}'.format(name, lane))
     os.mkdir(curr_tmp)
     curr_cmd_bwa = cmd_bwa.format(' '.join(fil))
-    curr_cmd_arg = cmd_arg.format('CB:Z:{}'.format(barcode), '{}'.format(name))
+    curr_cmd_arg = cmd_arg.format('CB:Z:{}-{}'.format(barcode, lane), '{}'.format(name), '{}'.format(lane))
     curr_cmd_sam = cmd_sor.format(bam, curr_tmp)
     pbwa = sp.Popen(shlex.split(curr_cmd_bwa), stdout=sp.PIPE, stderr=sp.PIPE)
     parg = sp.Popen(shlex.split(curr_cmd_arg), stdin=pbwa.stdout, stdout=sp.PIPE, stderr=sp.PIPE)
@@ -372,7 +372,7 @@ def init_align_marked(_tmpdir, _bwa, _ref, _samtools):
     cmd_bwa = '{} mem -M {} {}'.format(_bwa, _ref, '{}')
     cmd_nam = '{} sort - -n -T {} -Osam'.format(_samtools, '{}')
     cmd_fix = '{} fixmate -m - - -Osam'.format(_samtools)
-    cmd_arg = '{} addreplacerg - -r \'ID:{}\' -r \'SM:{}\' -r \'PG:CHISEL_PREP\' -Osam'.format(_samtools, '{}', '{}')
+    cmd_arg = '{} addreplacerg - -r \'ID:{}\' -r \'SM:{}\' -r \'FO:{}\' -r \'PG:CHISEL_PREP\' -Osam'.format(_samtools, '{}', '{}')
     cmd_sor = '{} sort - -T {} -Osam'.format(_samtools, '{}')
     cmd_mar = '{} markdup -T {} - {} -Obam'.format(_samtools, '{}', '{}')
     tmpdir = _tmpdir
@@ -390,7 +390,7 @@ def aligning_marked(job):
     curr_cmd_bwa = cmd_bwa.format(' '.join(fil))
     curr_cmd_nam = cmd_nam.format(nam_tmp)
     curr_cmd_fix = cmd_fix
-    curr_cmd_arg = cmd_arg.format('CB:Z:{}'.format(barcode), '{}'.format(name))
+    curr_cmd_arg = cmd_arg.format('CB:Z:{}-{}'.format(barcode, lane), '{}'.format(name), '{}'.format(lane))
     curr_cmd_sor = cmd_sor.format(sor_tmp)
     curr_cmd_mar = cmd_mar.format(mar_tmp, bam)
     pbwa = sp.Popen(shlex.split(curr_cmd_bwa), stdout=sp.PIPE, stderr=sp.PIPE)
@@ -417,14 +417,14 @@ def barcode(files, names, barcodes, lanes, tmpdir, samtools, J):
     
 def init_barcoding(_tmpdir, _samtools):
     global cmd_arg, tmpdir
-    cmd_arg = '{} addreplacerg {} -r \'ID:{}\' -r \'SM:{}\' -r \'PG:CHISEL_PREP\' -o {}'.format(_samtools, '{}', '{}', '{}', '{}')
+    cmd_arg = '{} addreplacerg {} -r \'ID:{}\' -r \'SM:{}\' -r \'FO:{}\' -r \'PG:CHISEL_PREP\' -o {}'.format(_samtools, '{}', '{}', '{}', '{}')
     tmpdir = _tmpdir
     
     
 def barcoding(job):
     fil, name, barcode, lane = job
     bam = os.path.join(tmpdir, '{}_{}.bam'.format(name, lane))
-    cmd = cmd_arg.format(fil, 'CB:Z:{}'.format(barcode), '{}'.format(name), bam)
+    cmd = cmd_arg.format(fil, 'CB:Z:{}-{}'.format(barcode, lane), '{}'.format(name), '{}'.format(lane), bam)
     stdout, stderr = sp.Popen(shlex.split(cmd), stdout=sp.PIPE, stderr=sp.PIPE).communicate()
     return name, bam
 
@@ -445,7 +445,7 @@ def init_barcoding_marked(_tmpdir, _samtools):
     global cmd_nam, cmd_fix, cmd_arg, cmd_sor, cmd_mar, tmpdir
     cmd_nam = '{} sort {} -n -T {} -Osam'.format(_samtools, '{}', '{}')
     cmd_fix = '{} fixmate -m - - -Osam'.format(_samtools)
-    cmd_arg = '{} addreplacerg - -r \'ID:{}\' -r \'SM:{}\' -r \'PG:CHISEL_PREP\' -Osam'.format(_samtools, '{}', '{}')
+    cmd_arg = '{} addreplacerg - -r \'ID:{}\' -r \'SM:{}\' -r \'FO:{}\' -r \'PG:CHISEL_PREP\' -Osam'.format(_samtools, '{}', '{}')
     cmd_sor = '{} sort - -T {} -Osam'.format(_samtools, '{}')
     cmd_mar = '{} markdup -T {} - {} -Obam'.format(_samtools, '{}', '{}')
     tmpdir = _tmpdir
@@ -462,7 +462,7 @@ def barcoding_marked(job):
     os.mkdir(mar_tmp)
     curr_cmd_nam = cmd_nam.format(fil, nam_tmp)
     curr_cmd_fix = cmd_fix
-    curr_cmd_arg = cmd_arg.format('CB:Z:{}'.format(barcode), '{}'.format(name))
+    curr_cmd_arg = cmd_arg.format('CB:Z:{}-{}'.format(barcode, lane), '{}'.format(name), '{}'.format(lane))
     curr_cmd_sor = cmd_sor.format(sor_tmp)
     curr_cmd_mar = cmd_mar.format(mar_tmp, bam)
     pnam = sp.Popen(shlex.split(curr_cmd_nam), stdout=sp.PIPE, stderr=sp.PIPE)
