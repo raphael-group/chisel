@@ -108,6 +108,10 @@ def main():
     if os.path.exists(tmpdir):
         raise ValueError("Temporary directory {} already exists, please move or rename it!".format(tmpdir))
     os.mkdir(tmpdir)
+    errdir = os.path.join(args['rundir'], '_ERR_CHISEL_PREP')
+    if os.path.exists(errdir):
+        raise ValueError("Temporary error directory {} already exists, please move or rename it!".format(errdir))
+    os.mkdir(errdir)
     
     if len(args['inputs']) == 1 and args['inputs'][0][:-4] == '.tsv':
         args['inputs'], info = read_table(args['inputs'][0])
@@ -123,14 +127,14 @@ def main():
             log('Running in paired-end FASTQ mode', level='STEP')
         else:
             log('Running in single-end FASTQ mode', level='STEP')
-        barcoded, cells = run_q(args, tmpdir, files, fastqinfo)
+        barcoded, cells = run_q(args, tmpdir, errdir, files, fastqinfo)
         header = '#FILES\tCELL\tLANE\tREADS\tBARCODE'
         loginfo = map(lambda c : (','.join(c[0]), fastqinfo[c[0][0]]['sample'], fastqinfo[c[0][0]]['lane'], ','.join([fastqinfo[f]['read'] for f in c[0]]), c[2]), cells)
             
     elif all(f[-4:] == '.bam' for f in args['inputs']):
         if info is None:
             info = make_baminfo(args['inputs'])
-        barcoded, cells = run_B(args, tmpdir) if len(args['inputs']) == 1 else run_b(args, tmpdir, binfo=info)
+        barcoded, cells = run_B(args, tmpdir, errdir) if len(args['inputs']) == 1 else run_b(args, tmpdir, errdir, binfo=info)
         header = '#FILE\tCELL\tLANE\tBARCODE'
         loginfo = map(lambda c : (c[0], info[c[0]]['sample'], info[c[0]]['lane'], c[2]), cells)  
         
@@ -138,7 +142,7 @@ def main():
         raise ValueError("Input files are of wrong format or mixed formats")
     
     log('Indexing and finalizing final barcoded BAM file', level='STEP')
-    indexing(args['samtools'], args['jobs'], tmpdir, barcoded, args['output'])
+    indexing(args['samtools'], args['jobs'], tmpdir, errdir, barcoded, args['output'])
     
     log('Retrieving stats about the resulting barcoded BAM file', level='STEP')
     cmd = '{} flagstat -@ {} {}'.format(args['samtools'], args['jobs'], args['output'])
@@ -157,6 +161,7 @@ def main():
     if not args['keeptmpdir']:
         log('Cleaning remaining temporary files', level='STEP')
         shutil.rmtree(tmpdir)
+        shutil.rmtree(errdir)
         
     log('KTHXBYE', level='STEP')
     
@@ -238,13 +243,14 @@ def make_baminfo(inputs):
     return {f : {'sample' : binfo[f], 'lane' : lanes[binfo[f]][f]} for f in binfo}
     
 
-def run_q(args, tmpdir, files, fastqinfo):
+def run_q(args, tmpdir, errdir, files, fastqinfo):
     par = {}
     par['files'] = files
     par['names'] = map(lambda f : fastqinfo[f[0]]['sample'], files)
     par['lanes'] = map(lambda f : fastqinfo[f[0]]['lane'], files)
     par['barcodes'] = mkbarcodes(par['files'], args['barlength'], qinfo=fastqinfo)
     par['tmpdir'] = tmpdir
+    par['errdir'] = errdir
     par['ref'] = args['reference']
     par['samtools'] = args['samtools']
     par['bwa'] = args['bwa']
@@ -257,12 +263,12 @@ def run_q(args, tmpdir, files, fastqinfo):
         bams = align_marked(**par)
     
     log('Merging all cells', level='STEP')
-    barcoded = merging(args['samtools'], bams, args['jobs'], tmpdir)
+    barcoded = merging(args['samtools'], bams, args['jobs'], tmpdir, errdir)
     
     return barcoded, list(zip(par['files'], par['names'], par['barcodes']))
 
 
-def run_b(args, tmpdir, binfo):
+def run_b(args, tmpdir, errdir, binfo):
     log('Running in multiple BAM files mode', level='STEP')
     
     par = {}
@@ -271,6 +277,7 @@ def run_b(args, tmpdir, binfo):
     par['lanes'] = map(lambda f : binfo[f]['lane'], par['files'])
     par['barcodes'] = mkbarcodes(par['files'], args['barlength'], binfo=binfo)
     par['tmpdir'] = tmpdir
+    par['errdir'] = errdir
     par['samtools'] = args['samtools']
     par['J'] = args['jobs']
     if args['noduplicates']:
@@ -281,12 +288,12 @@ def run_b(args, tmpdir, binfo):
         bams = barcode_marked(**par)
     
     log('Merging all cells', level='STEP')
-    barcoded = merging(args['samtools'], bams, args['jobs'], tmpdir)
+    barcoded = merging(args['samtools'], bams, args['jobs'], tmpdir, errdir)
     
     return barcoded, list(zip(par['files'], par['names'], par['barcodes']))
 
 
-def run_B(args, tmpdir):
+def run_B(args, tmpdir, errdir):
     log('Running in single BAM file mode', level='STEP')
     
     log('Splitting reads in BAM file by RG tag', level='STEP')
@@ -297,7 +304,7 @@ def run_B(args, tmpdir):
     args['input'] = map(os.path.abspath, glob.glob(os.path.join(tmpdir, '*.bam')))
     getname = (lambda f : os.path.splitext(os.path.basename(f))[0])
     binfo = {f : {'sample' : getname(f), 'lane' : 'L001'} for f in args['input']}
-    return run_b(args, tmpdir, binfo)
+    return run_b(args, tmpdir, errdir, binfo)
     
     
 def mkbarcodes(files, length, qinfo=None, binfo=None):
@@ -321,24 +328,25 @@ def mkbarcodes(files, length, qinfo=None, binfo=None):
     return barcodes
     
     
-def align(files, names, barcodes, lanes, tmpdir, ref, bwa, samtools, J):
+def align(files, names, barcodes, lanes, tmpdir, errdir, ref, bwa, samtools, J):
     jobs = zip(files, names, barcodes, lanes)
     bar = ProgressBar(total=len(files), length=30, verbose=False)
-    initargs = (tmpdir, bwa, ref, samtools)
+    initargs = (tmpdir, errdir, bwa, ref, samtools)
     pool = mp.Pool(processes=min(J, len(names)), initializer=init_align, initargs=initargs)
-    progress = (lambda e : bar.progress(advance=True, msg="{}".format(e)))
-    bams = [b for e, b in pool.imap_unordered(aligning, jobs) if progress(e)]
+    progress = (lambda e, c : bar.progress(advance=True, msg="{}".format(e)) if c==0 else error(e, errdir))
+    bams = [b for e, b, c in pool.imap_unordered(aligning, jobs) if progress(e, c)]
     pool.close()
     pool.join()
     return bams
     
     
-def init_align(_tmpdir, _bwa, _ref, _samtools):
-    global cmd_bwa, cmd_arg, cmd_sor, tmpdir
+def init_align(_tmpdir, _errdir, _bwa, _ref, _samtools):
+    global cmd_bwa, cmd_arg, cmd_sor, tmpdir, errdir
     cmd_bwa = '{} mem -M {} {}'.format(_bwa, _ref, '{}')
     cmd_arg = '{} addreplacerg - -r \'ID:{}\' -r \'SM:{}\' -r \'FO:{}\' -r \'PG:CHISEL_PREP\' -Osam'.format(_samtools, '{}', '{}', '{}')
     cmd_sor = '{} sort - -Obam -o {} -T {}'.format(_samtools, '{}', '{}')
     tmpdir = _tmpdir
+    errdir = _errdir
     
     
 def aligning(job):
@@ -352,23 +360,27 @@ def aligning(job):
     pbwa = sp.Popen(shlex.split(curr_cmd_bwa), stdout=sp.PIPE, stderr=sp.PIPE)
     parg = sp.Popen(shlex.split(curr_cmd_arg), stdin=pbwa.stdout, stdout=sp.PIPE, stderr=sp.PIPE)
     stdout, stderr = sp.Popen(shlex.split(curr_cmd_sam), stdin=parg.stdout, stdout=sp.PIPE, stderr=sp.PIPE).communicate()
+    with open(os.path.join(errdir, '{}_{}.log'.format(name, lane))) as o:
+        o.write('#### BWA ####\n{}\n'.format(pbwa.stderr))
+        o.write('#### SAMTOOLS ADDREPLACERG ####\n{}\n'.format(parg.stderr))
+        o.write('#### SAMTOOLS SORT ####\n{}\n'.format(stderr))
     return '{}_{}'.format(name, lane), bam
 
 
-def align_marked(files, names, barcodes, lanes, tmpdir, ref, bwa, samtools, J):
+def align_marked(files, names, barcodes, lanes, tmpdir, errdir, ref, bwa, samtools, J):
     jobs = zip(files, names, barcodes, lanes)
     bar = ProgressBar(total=len(files), length=30, verbose=False)
-    initargs = (tmpdir, bwa, ref, samtools)
+    initargs = (tmpdir, errdir, bwa, ref, samtools)
     pool = mp.Pool(processes=min(J, len(names)), initializer=init_align_marked, initargs=initargs)
-    progress = (lambda e : bar.progress(advance=True, msg="{}".format(e)))
-    bams = [b for e, b in pool.imap_unordered(aligning_marked, jobs) if progress(e)]
+    progress = (lambda e, c : bar.progress(advance=True, msg="{}".format(e)) if c==0 else error(e, errdir))
+    bams = [b for e, b, c in pool.imap_unordered(aligning, jobs) if progress(e, c)]
     pool.close()
     pool.join()
     return bams
     
     
-def init_align_marked(_tmpdir, _bwa, _ref, _samtools):
-    global cmd_bwa, cmd_nam, cmd_fix, cmd_arg, cmd_sor, cmd_mar, tmpdir
+def init_align_marked(_tmpdir, _errdir, _bwa, _ref, _samtools):
+    global cmd_bwa, cmd_nam, cmd_fix, cmd_arg, cmd_sor, cmd_mar, tmpdir, errdir
     cmd_bwa = '{} mem -M {} {}'.format(_bwa, _ref, '{}')
     cmd_nam = '{} sort - -n -T {} -Osam'.format(_samtools, '{}')
     cmd_fix = '{} fixmate -m - - -Osam'.format(_samtools)
@@ -376,6 +388,7 @@ def init_align_marked(_tmpdir, _bwa, _ref, _samtools):
     cmd_sor = '{} sort - -T {} -Osam'.format(_samtools, '{}')
     cmd_mar = '{} markdup -T {} - {} -Obam'.format(_samtools, '{}', '{}')
     tmpdir = _tmpdir
+    errdir = _errdir
     
     
 def aligning_marked(job):
@@ -399,26 +412,33 @@ def aligning_marked(job):
     parg = sp.Popen(shlex.split(curr_cmd_arg), stdin=pfix.stdout, stdout=sp.PIPE, stderr=sp.PIPE)
     psor = sp.Popen(shlex.split(curr_cmd_sor), stdin=parg.stdout, stdout=sp.PIPE, stderr=sp.PIPE)    
     stdout, stderr = sp.Popen(shlex.split(curr_cmd_mar), stdin=psor.stdout, stdout=sp.PIPE, stderr=sp.PIPE).communicate()
-    print stdout, stderr
+    with open(os.path.join(errdir, '{}_{}.log'.format(name, lane))) as o:
+        o.write('#### BWA ####\n{}\n'.format(pbwa.stderr))
+        o.write('#### SAMTOOLS SORT BY NAME ####\n{}\n'.format(pnam.stderr))
+        o.write('#### SAMTOOLS FIXMATE ####\n{}\n'.format(pfix.stderr))
+        o.write('#### SAMTOOLS ADDREPLACERG ####\n{}\n'.format(parg.stderr))
+        o.write('#### SAMTOOLS SORT ####\n{}\n'.format(psor.stderr))
+        o.write('#### SAMTOOLS MARKDUP ####\n{}\n{}\n'.format(stderr, stdout))
     return '{}_{}'.format(name, lane), bam
 
 
-def barcode(files, names, barcodes, lanes, tmpdir, samtools, J):
+def barcode(files, names, barcodes, lanes, tmpdir, errdir, samtools, J):
     jobs = zip(files, names, barcodes, lanes)
     bar = ProgressBar(total=len(files), length=30, verbose=False)
-    initargs = (tmpdir, samtools)
+    initargs = (tmpdir, errdir, samtools)
     pool = mp.Pool(processes=min(J, len(names)), initializer=init_barcoding, initargs=initargs)
-    progress = (lambda e : bar.progress(advance=True, msg="{}".format(e)))
-    bams = [b for e, b in pool.imap_unordered(barcoding, jobs) if progress(e)]
+    progress = (lambda e, c : bar.progress(advance=True, msg="{}".format(e)) if c==0 else error(e, errdir))
+    bams = [b for e, b, c in pool.imap_unordered(aligning, jobs) if progress(e, c)]
     pool.close()
     pool.join()
     return bams
     
     
-def init_barcoding(_tmpdir, _samtools):
-    global cmd_arg, tmpdir
+def init_barcoding(_tmpdir, _errdir, _samtools):
+    global cmd_arg, tmpdir, errdir
     cmd_arg = '{} addreplacerg {} -r \'ID:{}\' -r \'SM:{}\' -r \'FO:{}\' -r \'PG:CHISEL_PREP\' -o {}'.format(_samtools, '{}', '{}', '{}', '{}', '{}')
     tmpdir = _tmpdir
+    errdir = _errdir
     
     
 def barcoding(job):
@@ -426,29 +446,32 @@ def barcoding(job):
     bam = os.path.join(tmpdir, '{}_{}.bam'.format(name, lane))
     cmd = cmd_arg.format(fil, 'CB:Z:{}-{}'.format(barcode, lane), '{}'.format(name), '{}'.format(lane), bam)
     stdout, stderr = sp.Popen(shlex.split(cmd), stdout=sp.PIPE, stderr=sp.PIPE).communicate()
+    with open(os.path.join(errdir, '{}_{}.log'.format(name, lane))) as o:
+        o.write('#### SAMTOOLS ADDREPLACERG ####\n{}\n{}\n'.format(stderr, stdout))
     return name, bam
 
 
-def barcode_marked(files, names, barcodes, lanes, tmpdir, samtools, J):
+def barcode_marked(files, names, barcodes, lanes, tmpdir, errdir, samtools, J):
     jobs = zip(files, names, barcodes, lanes)
     bar = ProgressBar(total=len(files), length=30, verbose=False)
-    initargs = (tmpdir, samtools)
+    initargs = (tmpdir, errdir, samtools)
     pool = mp.Pool(processes=min(J, len(names)), initializer=init_barcoding_marked, initargs=initargs)
-    progress = (lambda e : bar.progress(advance=True, msg="{}".format(e)))
-    bams = [b for e, b in pool.imap_unordered(barcoding_marked, jobs) if progress(e)]
+    progress = (lambda e, c : bar.progress(advance=True, msg="{}".format(e)) if c==0 else error(e, errdir))
+    bams = [b for e, b, c in pool.imap_unordered(aligning, jobs) if progress(e, c)]
     pool.close()
     pool.join()
     return bams
     
     
-def init_barcoding_marked(_tmpdir, _samtools):
-    global cmd_nam, cmd_fix, cmd_arg, cmd_sor, cmd_mar, tmpdir
+def init_barcoding_marked(_tmpdir, _errdir, _samtools):
+    global cmd_nam, cmd_fix, cmd_arg, cmd_sor, cmd_mar, tmpdir, errdir
     cmd_nam = '{} sort {} -n -T {} -Osam'.format(_samtools, '{}', '{}')
     cmd_fix = '{} fixmate -m - - -Osam'.format(_samtools)
     cmd_arg = '{} addreplacerg - -r \'ID:{}\' -r \'SM:{}\' -r \'FO:{}\' -r \'PG:CHISEL_PREP\' -Osam'.format(_samtools, '{}', '{}', '{}')
     cmd_sor = '{} sort - -T {} -Osam'.format(_samtools, '{}')
     cmd_mar = '{} markdup -T {} - {} -Obam'.format(_samtools, '{}', '{}')
     tmpdir = _tmpdir
+    errdir = _errdir
     
     
 def barcoding_marked(job):
@@ -470,24 +493,40 @@ def barcoding_marked(job):
     parg = sp.Popen(shlex.split(curr_cmd_arg), stdin=pfix.stdout, stdout=sp.PIPE, stderr=sp.PIPE)
     psor = sp.Popen(shlex.split(curr_cmd_sor), stdin=parg.stdout, stdout=sp.PIPE, stderr=sp.PIPE)    
     stdout, stderr = sp.Popen(shlex.split(curr_cmd_mar), stdin=psor.stdout, stdout=sp.PIPE, stderr=sp.PIPE).communicate()
+    with open(os.path.join(errdir, '{}_{}.log'.format(name, lane))) as o:
+        o.write('#### SAMTOOLS SORT BY NAME ####\n{}\n'.format(pnam.stderr))
+        o.write('#### SAMTOOLS FIXMATE ####\n{}\n'.format(pfix.stderr))
+        o.write('#### SAMTOOLS ADDREPLACERG ####\n{}\n'.format(parg.stderr))
+        o.write('#### SAMTOOLS SORT ####\n{}\n'.format(psor.stderr))
+        o.write('#### SAMTOOLS MARKDUP ####\n{}\n{}\n'.format(stderr, stdout))
     return name, bam
 
 
-def merging(samtools, bams, jobs, tmpdir):
+def merging(samtools, bams, jobs, tmpdir, errdir):
     barcoded = os.path.join(tmpdir, 'barcodedcells.bam')
     cellbams = os.path.join(tmpdir, 'cellbams.tsv')
     with open(cellbams, 'w') as o:
         o.write('\n'.join(bams))
     cmd = '{} merge {} -b {} -@ {}'.format(samtools, barcoded, cellbams, jobs)
-    stdout, stderr = sp.Popen(shlex.split(cmd), stdout=sp.PIPE, stderr=sp.PIPE).communicate()
+    proc = sp.Popen(shlex.split(cmd), stdout=sp.PIPE, stderr=sp.PIPE)
+    stdout, stderr = proc.communicate()
+    if proc.returncode != 0:
+        raise ValueError('Merging failed with messages:\n{}\n{}\n'.format(stdout, stderr))
     return barcoded
 
 
-def indexing(samtools, jobs, tmpdir, barcoded, output):
+def indexing(samtools, jobs, tmpdir, errdir, barcoded, output):
     shutil.move(barcoded, output)
     cmd = '{} index {} -@ {}'.format(samtools, output, jobs)
-    stdout, stderr = sp.Popen(shlex.split(cmd), stdout=sp.PIPE, stderr=sp.PIPE).communicate()
+    proc = sp.Popen(shlex.split(cmd), stdout=sp.PIPE, stderr=sp.PIPE)
+    stdout, stderr = proc.communicate()
+    if proc.returncode != 0:
+        raise ValueError('Indexing failed with messages:\n{}\n{}\n'.format(stdout, stderr))
     return
+
+
+def error_code(e, errdir):
+    raise ValueError('Commands failed for {}, check the errors in the corresponding log file in:\n{}'.format(e, errdir))
 
     
 if __name__ == '__main__':
