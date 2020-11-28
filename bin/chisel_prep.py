@@ -9,8 +9,8 @@ import re
 import subprocess as sp
 import multiprocessing as mp
 
+from itertools import product
 from collections import defaultdict
-from itertools import combinations_with_replacement
 from heapq import nlargest
 
 import numpy as np
@@ -302,9 +302,9 @@ def run_B(args, tmpdir):
     
 def mkbarcodes(files, length, qinfo=None, binfo=None):
     random_sample_iter = (lambda it, k : (x for _, x in nlargest(k, ((np.random.random(), x) for x in it))))
-    combr = combinations_with_replacement
-    barcodes = random_sample_iter(combr(['A', 'T', 'C', 'G'], length), len(files))
+    barcodes = random_sample_iter(product(['A', 'T', 'C', 'G'], repeat=length), len(files))
     barcodes = map(lambda b : ''.join(b), barcodes)
+    assert len(barcodes) == len(files), '{} != {}'.format(len(files), len(barcodes))
     if qinfo is not None:
         lanes = defaultdict(lambda : [])
         map(lambda f : lanes[qinfo[f[0]]['sample']].append(f), files)
