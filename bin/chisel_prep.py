@@ -145,7 +145,7 @@ def main():
     stdout, stderr = sp.Popen(shlex.split(cmd), stdout=sp.PIPE, stderr=sp.PIPE).communicate()
     log('{}'.format(stdout), level='INFO')
     
-    floginfo = os.path.join(args['rundir'], 'info_barcodedcells.tsv')
+    floginfo = os.path.join(args['rundir'], '{}.info.tsv'.format(args['output'][-4:]))
     log('Writing final summary of barcoded cells', level='STEP')
     log('Number of barcoded cells: {}'.format(len(set(c[-1] for c in cells))), level='INFO')
     with open(floginfo, 'w') as o:
@@ -326,7 +326,7 @@ def align(files, names, barcodes, lanes, tmpdir, ref, bwa, samtools, J):
     bar = ProgressBar(total=len(files), length=30, verbose=False)
     initargs = (tmpdir, bwa, ref, samtools)
     pool = mp.Pool(processes=min(J, len(names)), initializer=init_align, initargs=initargs)
-    progress = (lambda e : bar.progress(advance=True, msg="Processed cell {}".format(e)))
+    progress = (lambda e : bar.progress(advance=True, msg="{}".format(e)))
     bams = [b for e, b in pool.imap_unordered(aligning, jobs) if progress(e)]
     pool.close()
     pool.join()
@@ -360,7 +360,7 @@ def align_marked(files, names, barcodes, lanes, tmpdir, ref, bwa, samtools, J):
     bar = ProgressBar(total=len(files), length=30, verbose=False)
     initargs = (tmpdir, bwa, ref, samtools)
     pool = mp.Pool(processes=min(J, len(names)), initializer=init_align_marked, initargs=initargs)
-    progress = (lambda e : bar.progress(advance=True, msg="Processed cell {}".format(e)))
+    progress = (lambda e : bar.progress(advance=True, msg="{}".format(e)))
     bams = [b for e, b in pool.imap_unordered(aligning_marked, jobs) if progress(e)]
     pool.close()
     pool.join()
@@ -408,7 +408,7 @@ def barcode(files, names, barcodes, lanes, tmpdir, samtools, J):
     bar = ProgressBar(total=len(files), length=30, verbose=False)
     initargs = (tmpdir, samtools)
     pool = mp.Pool(processes=min(J, len(names)), initializer=init_barcoding, initargs=initargs)
-    progress = (lambda e : bar.progress(advance=True, msg="Processed cell {}".format(e)))
+    progress = (lambda e : bar.progress(advance=True, msg="{}".format(e)))
     bams = [b for e, b in pool.imap_unordered(barcoding, jobs) if progress(e)]
     pool.close()
     pool.join()
@@ -434,7 +434,7 @@ def barcode_marked(files, names, barcodes, lanes, tmpdir, samtools, J):
     bar = ProgressBar(total=len(files), length=30, verbose=False)
     initargs = (tmpdir, samtools)
     pool = mp.Pool(processes=min(J, len(names)), initializer=init_barcoding_marked, initargs=initargs)
-    progress = (lambda e : bar.progress(advance=True, msg="Processed cell {}".format(e)))
+    progress = (lambda e : bar.progress(advance=True, msg="{}".format(e)))
     bams = [b for e, b in pool.imap_unordered(barcoding_marked, jobs) if progress(e)]
     pool.close()
     pool.join()
