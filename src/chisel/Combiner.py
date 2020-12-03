@@ -18,7 +18,7 @@ import scipy.stats
 from Utils import *
 
 
-def parse_args():
+def parse_args(args):
     description = "Compute RDR from barcoded single-cell sequencing data."
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("-r","--rdr", required=True, type=str, help="RDR file")
@@ -32,7 +32,7 @@ def parse_args():
     parser.add_argument("-E", "--minerror", required=False, type=float, default=0.001, help="Minimum shift error for identification of BAF = 0.5 (default: 0.001)")
     parser.add_argument("-l", "--listofcells", required=False, type=str, default=None, help="List of cells to include (default: None)")
     parser.add_argument("-s", "--seed", required=False, type=int, default=None, help="Random seed for replication (default: None)")
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     if not os.path.isfile(args.rdr):
         raise ValueError("RDR file does not exist!")
@@ -87,9 +87,9 @@ def parse_args():
     }
 
 
-def main():
+def main(args=None, stdout_file=None):
     log('Parsing and checking arguments')
-    args = parse_args()
+    args = parse_args(args)
     log('\n'.join(['Arguments:'] + ['\t{} : {}'.format(a, args[a]) for a in args]), level='INFO')
 
     cells = None
@@ -106,13 +106,23 @@ def main():
     log('Combining')
     rb = combo(rdr, cA, cB, bulk, args)
 
+    if stdout_file is not None:
+        stdout_f = open(stdout_file, 'w')
+
     log('Printing combined RDR and BAF')
     baf = (lambda A, B : (float(B) / float(A+B)) if A+B > 0 else 0.5)
     gen = ((c, b, e) for c in sorted(rb, key=orderchrs) for b in sorted(rb[c], key=(lambda x : x[0])) for e in sorted(rb[c][b]))
     for c, b, e in gen:
         formb = (lambda c, b, e : [rb[c][b][e]['BAF'][0], rb[c][b][e]['BAF'][1], baf(*rb[c][b][e]['BAF'])])
         formr = (lambda c, b, e : [rb[c][b][e]['normalcount'], rb[c][b][e]['readcount'], rb[c][b][e]['RDR']])
-        print '\t'.join(map(str, [c, b[0], b[1], e] + formr(c, b, e) + formb(c, b, e)))            
+        line = '\t'.join(map(str, [c, b[0], b[1], e] + formr(c, b, e) + formb(c, b, e)))
+        if stdout_file is not None:
+            stdout_f.write(line + '\n')
+        else:
+            print line
+
+    if stdout_file is not None:
+        stdout_f.close()
 
 
 def read_rdr(f, cells):

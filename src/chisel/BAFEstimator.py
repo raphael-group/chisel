@@ -14,7 +14,7 @@ from scipy.stats import beta
 from Utils import *
 
 
-def parse_args():
+def parse_args(args):
     description = "Compute RDR from barcoded single-cell sequencing data."
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("-t","--tumor", required=True, type=str, help="BAM file for matched normal sample")
@@ -26,7 +26,7 @@ def parse_args():
     parser.add_argument("-j","--jobs", required=False, type=int, default=0, help="Number of parallele jobs to use (default: equal to number of available processors)")
     parser.add_argument("-c","--listcells", type=str, required=False, default=None, help="File where first column contains all the cells to consider (default: not used)")
     parser.add_argument("--rundir", type=str, required=False, default='./', help="Running directory (default: ./)")
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     if not os.path.isfile(args.tumor):
         raise ValueError("Specified tumor does not exist!")
@@ -72,9 +72,9 @@ def parse_args():
     }
 
 
-def main():
+def main(args=None, stdout_file=None):
     log('Parsing and checking arguments')
-    args = parse_args()
+    args = parse_args(args)
     log('\n'.join(['Arguments:'] + ['\t{} : {}'.format(a, args[a]) for a in args]), level='INFO')
 
     log('Extracting chromosomes')
@@ -105,7 +105,15 @@ def main():
         rec = (lambda c, o : (form(c, o, s, abc[c][o][s][snps[c][o]['REFALT'][0]], abc[c][o][s][snps[c][o]['REFALT'][1]]) for s in sorted(abc[c][o]) if s in cells))
     else:
         rec = (lambda c, o : (form(c, o, s, abc[c][o][s][snps[c][o]['REFALT'][0]], abc[c][o][s][snps[c][o]['REFALT'][1]]) for s in sorted(abc[c][o])))
-    print '\n'.join([r for c in sorted(snps, key=orderchrs) for o in sorted(snps[c]) for r in rec(c, o)])
+
+    lines = '\n'.join([r for c in sorted(snps, key=orderchrs) for o in sorted(snps[c]) for r in rec(c, o)])
+
+    if stdout_file is not None:
+        stdout_f = open(stdout_file, 'w')
+        stdout_f.write(lines)
+        stdout_f.close()
+    else:
+        print lines
 
     log('KTHXBYE')
 

@@ -1,13 +1,11 @@
 #!/usr/bin/env python2.7
 
-import sys, os
+import os
 import argparse
+import chisel
 
-src = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, 'src')
-if not os.path.isdir(src):
-    raise ValueError("src directory not found in parent directory of bin i.e. {}, is anything been moved?".format(src))
-sys.path.append(src)
-from Utils import *
+src = os.path.dirname(chisel.__file__)
+from ..Utils import *
 
 
 def parse_args():

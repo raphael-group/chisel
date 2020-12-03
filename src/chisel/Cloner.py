@@ -18,7 +18,7 @@ import scipy.cluster.hierarchy as hier
 from Utils import *
 
 
-def parse_args():
+def parse_args(args):
     description = "Infer clones as subpopulations of cells with the same complement of CNAs and outputs a file with the mapping of every cell to the corresponding clone."
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("INPUT", type=str, help="Input file with RDR, BAF, and inferred copy numbers.")
@@ -27,7 +27,7 @@ def parse_args():
     parser.add_argument("-s", "--minsize", required=False, type=int, default=14, help="Minimum size of subpopultation to define a clone (default: 14)")
     parser.add_argument("-l", "--linkage", required=False, type=str, default='single', help="Linkage method to use for the hierarchical clustering (default: single, it must be a valid linkage method available in SciPy when using a non-euclidean distance, i.e. 'single', 'complete', 'average', 'weighted')")
     parser.add_argument("--seed", required=False, type=int, default=None, help="Random seed for replication (default: none)")
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     if not os.path.isfile(args.INPUT):
         raise ValueError('ERROR: input file does not exist!')
@@ -57,9 +57,9 @@ def parse_args():
     }
 
 
-def main():
+def main(args=None, stdout_file=None):
     log('Parsing and checking arguments')
-    args = parse_args()
+    args = parse_args(args)
     log('\n'.join(['Arguments:'] + ['\t{} : {}'.format(a, args[a]) for a in args]), level='INFO')
 
     log('Reading input')
@@ -80,9 +80,15 @@ def main():
     profiles = profiling(cns, clus)
     
     log('Writing clone map')
-    print '\t'.join(['#CELL', 'CLUSTER', 'CLONE'])
-    for c in cells:
-        print '\t'.join(map(str, [c, clus[c], 'Clone{}'.format(clones[c]) if c in clones else 'None']))
+    header = '\t'.join(['#CELL', 'CLUSTER', 'CLONE'])
+    if stdout_file is not None:
+        with open(stdout_file, 'w') as f:
+            f.write(header + '\n')
+            for c in cells:
+                f.write('\t'.join(map(str, [c, clus[c], 'Clone{}'.format(clones[c]) if c in clones else 'None'])) + '\n')
+    else:
+        for c in cells:
+            print '\t'.join(map(str, [c, clus[c], 'Clone{}'.format(clones[c]) if c in clones else 'None']))
 
     log('Writing clone-corrected copy numbers in provided input')
     ftmp = args['input'] + '_TMP'
