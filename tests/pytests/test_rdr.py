@@ -3,21 +3,17 @@ import hashlib
 import tempfile
 from chisel.RDREstimator import main
 
-this_dir = os.path.dirname(__file__)
-DATA_FOLDER = os.path.join(this_dir, 'data')
 
-
-def test_rdr():
+def test_rdr(input_folder):
     with tempfile.NamedTemporaryFile('w') as f:
         main(args=[
-            '-n', os.path.join(DATA_FOLDER, 'normal.bam'),
-            '-t', os.path.join(DATA_FOLDER, 'cells.bam'),
-            '-r', os.path.join(DATA_FOLDER, 'hg19.fa'),
+            '-n', os.path.join(input_folder, 'normal.bam'),
+            '-t', os.path.join(input_folder, 'cells.bam'),
+            '-r', os.path.join(input_folder, 'hg19.fa'),
             '-b', '5Mb',
             '-m', '100000',
             '-c', 'chr6',
-            '-j', '1',
-            '-s', '/home/vineetb/.conda/envs/chisel/bin/samtools'
+            '-j', '1'
         ], stdout_file=f.name)
 
         assert hashlib.md5(open(f.name, 'rb').read()).hexdigest() == \
