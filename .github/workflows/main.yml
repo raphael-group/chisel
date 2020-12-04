@@ -52,6 +52,11 @@ jobs:
           (cd bcftools-1.7 && ./configure && make)
           echo $(realpath bcftools-1.7) >> $GITHUB_PATH
 
+      - name: Download and index hg19.fa
+        run: |
+          wget https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz --directory-prefix=${TEST_DIRECTORY}
+          (cd ${TEST_DIRECTORY} && gunzip hg19.fa.gz && samtools faidx hg19.fa && samtools dict hg19.fa > hg19.dict)
+
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
