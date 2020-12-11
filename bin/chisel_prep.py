@@ -15,7 +15,6 @@ from collections import defaultdict
 from heapq import nlargest
 
 import numpy as np
-from numpy.lib.utils import info
 
 src = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, 'src')
 if not os.path.isdir(src):
@@ -464,7 +463,7 @@ def barcoding(job):
     with open(rlog, 'w') as earg:
         parg = sp.Popen(shlex.split(curr_cmd_arg), stdout=sp.PIPE, stderr=earg)
         rcodes = map(lambda p : p.wait(), [parg])
-    return '{}_{}'.format(name, lane), bam, check_rcodes(rcodes, [rlog], cmd=curr_cmd_arg)
+    return '{}_{}'.format(name, lane), bam, check_rcodes(rcodes, [rlog])
 
 
 def barcode_marked(files, names, barcodes, lanes, tmpdir, errdir, samtools, J):
