@@ -15,6 +15,7 @@ from collections import defaultdict
 from heapq import nlargest
 
 import numpy as np
+from numpy.lib.utils import info
 
 src = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, 'src')
 if not os.path.isdir(src):
@@ -142,7 +143,7 @@ def main():
     elif all(f[-4:] == '.bam' for f in args['inputs']):
         if info is None:
             info = make_baminfo(args['inputs'])
-        barcoded, cells = run_B(args, tmpdir, errdir) if len(args['inputs']) == 1 else run_b(args, tmpdir, errdir, info)
+        barcoded, cells, info = run_B(args, tmpdir, errdir) if len(args['inputs']) == 1 else run_b(args, tmpdir, errdir, info)
         header = '#CELL\tREPETITION\tBARCODE\tFILE'
         cells = sorted(cells, key=(lambda c : (c[2], info[c[0]]['reps'])))
         loginfo = map(lambda c : (info[c[0]]['cell'], info[c[0]]['reps'], c[2], c[0]), cells)
@@ -304,7 +305,7 @@ def run_b(args, tmpdir, errdir, binfo):
     log('Merging all cells', level='STEP')
     barcoded = merging(args['samtools'], bams, args['jobs'], tmpdir, errdir)
     
-    return barcoded, list(zip(par['files'], par['names'], par['barcodes']))
+    return barcoded, list(zip(par['files'], par['names'], par['barcodes'])), binfo
 
 
 def run_B(args, tmpdir, errdir):
@@ -313,14 +314,14 @@ def run_B(args, tmpdir, errdir):
     log('Splitting reads in BAM file by RG tag', level='STEP')
     sform = os.path.join(tmpdir, '%!.bam')
     cmd = '{} split -f \'{}\' -@ {} {}'.format(args['samtools'], sform, args['jobs'], args['inputs'][0])
-    proc = sp.Popen(shlex.split(cmd), stdour=sp.PIPE, stderr=sp.PIPE)
+    proc = sp.Popen(shlex.split(cmd), stdout=sp.PIPE, stderr=sp.PIPE)
     stdout, stderr = proc.communicate()
     if proc.returncode != 0:
         raise ValueError(error('Merging failed with messages:\n{}\n{}\n'.format(stdout, stderr)))
     
-    args['input'] = map(os.path.abspath, glob.glob(os.path.join(tmpdir, '*.bam')))
+    args['inputs'] = map(os.path.abspath, glob.glob(os.path.join(tmpdir, '*.bam')))
     getname = (lambda f : os.path.splitext(os.path.basename(f))[0])
-    binfo = {f : {'cell' : getname(f), 'reps' : 0} for f in args['input']}
+    binfo = {f : {'cell' : getname(f), 'reps' : 0} for f in args['inputs']}
     return run_b(args, tmpdir, errdir, binfo)
     
     
@@ -344,7 +345,7 @@ def align(files, names, barcodes, lanes, tmpdir, errdir, ref, bwa, samtools, J):
     bar = ProgressBar(total=len(files), length=30, verbose=False)
     initargs = (tmpdir, errdir, bwa, ref, samtools)
     pool = mp.Pool(processes=min(J, len(names)), initializer=init_align, initargs=initargs)
-    progress = (lambda e, c : bar.progress(advance=True, msg="{}".format(e)) if c==0 else error_code(e, errdir))
+    progress = (lambda e, c : bar.progress(advance=True, msg="{}".format(e)) if c is None else error_code(e, c, errdir))
     bams = [b for e, b, c in pool.imap_unordered(aligning, jobs) if progress(e, c)]
     pool.close()
     pool.join()
@@ -441,7 +442,7 @@ def barcode(files, names, barcodes, lanes, tmpdir, errdir, samtools, J):
     bar = ProgressBar(total=len(files), length=30, verbose=False)
     initargs = (tmpdir, errdir, samtools)
     pool = mp.Pool(processes=min(J, len(names)), initializer=init_barcoding, initargs=initargs)
-    progress = (lambda e, c : bar.progress(advance=True, msg="{}".format(e)) if c==0 else error_code(e, errdir))
+    progress = (lambda e, c : bar.progress(advance=True, msg="{}".format(e)) if c is None else error_code(e, c, errdir))
     bams = [b for e, b, c in pool.imap_unordered(barcoding, jobs) if progress(e, c)]
     pool.close()
     pool.join()
@@ -463,7 +464,7 @@ def barcoding(job):
     with open(rlog, 'w') as earg:
         parg = sp.Popen(shlex.split(curr_cmd_arg), stdout=sp.PIPE, stderr=earg)
         rcodes = map(lambda p : p.wait(), [parg])
-    return '{}_{}'.format(name, lane), bam, check_rcodes(rcodes, [rlog])
+    return '{}_{}'.format(name, lane), bam, check_rcodes(rcodes, [rlog], cmd=curr_cmd_arg)
 
 
 def barcode_marked(files, names, barcodes, lanes, tmpdir, errdir, samtools, J):
@@ -471,7 +472,7 @@ def barcode_marked(files, names, barcodes, lanes, tmpdir, errdir, samtools, J):
     bar = ProgressBar(total=len(files), length=30, verbose=False)
     initargs = (tmpdir, errdir, samtools)
     pool = mp.Pool(processes=min(J, len(names)), initializer=init_barcoding_marked, initargs=initargs)
-    progress = (lambda e, c : bar.progress(advance=True, msg="{}".format(e)) if c==0 else error_code(e, errdir))
+    progress = (lambda e, c : bar.progress(advance=True, msg="{}".format(e)) if c is None else error_code(e, c, errdir))
     bams = [b for e, b, c in pool.imap_unordered(barcoding_marked, jobs) if progress(e, c)]
     pool.close()
     pool.join()
@@ -545,13 +546,19 @@ def error_code(e, c, errdir):
     raise ValueError(error('Commands failed for {} with error:\n{}\nCheck the errors in the corresponding log files in:\n{}'.format(e, c, errdir)))
 
 
-def check_rcodes(rcodes, logs):
+def check_rcodes(rcodes, logs, cmd=None):
+    res = ''
     for code, log in zip(rcodes, logs):
         if code != 0:
+            if cmd is not None:
+                return cmd
             with open(log, 'r') as i:
-                return '\n'.join(i.readlines())
-    map(lambda f : os.remove(f), logs)
-    return None
+                res += 'From {}:\n'.format(log) + '\n'.join(i.readlines()) + '\n'  
+    if res == '':
+        map(lambda f : os.remove(f), logs)
+        return None
+    else:
+        return res
 
 
 if __name__ == '__main__':
