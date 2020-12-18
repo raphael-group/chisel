@@ -24,20 +24,37 @@ from Utils import *
 
 
 def parse_args():
-    description = "CHISEL command to create a barcoded BAM file from single-cell FASTQs, single-cell BAMs, or a `RG:Z:`-barcoded BAM files without `CB:Z:` field."
+    description = '''CHISEL command to create a barcoded BAM file from single-cell FASTQs (or gz-compressed FASTQs), single-cell BAMs, or a
+        `RG:Z:`-barcoded BAM files without `CB:Z:` tags. When single-cell FASTQs or BAMs are provided
+        a CELL name is assigned to each file (through either filename or table) and the same cell barcode will be assigned to all corresponding reads, but
+        a different RG tag as they are considered as different repetitions of sequencing of the same cell. Specifically, when a table of inputs is not provied,
+        for FASTQs each CELL name is extracted from the filename through the provided regular expression (default matches Illumina standard format), for BAMs
+        basename is used as CELL name. When single-cell FASTQs are provided a READ value is also assigned to each file (through either filename or table) and 
+        files with the same filename when removing READ values are considered as pairs of sequencing read mates.
+        Input files, CELL names, and possible READ values can be provided through a table of inputs.'''
     parser = argparse.ArgumentParser(description=description)
-    parser.add_argument("INPUT", nargs='+', type=str, help="Input FASTQs, BAMs, or TSV file with different behaviors: ................................. (1) FASTQs -- specified in a directory DIR as `DIR/*.fastq` or `DIR/*.fastq.gz` -- will be barcoded and aligned into a barcoded BAM file where sample name, lane and read mate are extracted from filenames; .............. (2) BAMs -- specified in a directory DIR as `DIR/*.bam` -- will be barcoded and aligned into a barcoded BAM file where the cell name coincide with the name of each BAM file; ................................. (3) a single BAM file with barcodes in the field `RG:Z:` will be converted into a barcoded BAM file with the additional `CB:Z:` field. ......(4) a TSV file specifying FASTQ files (4 columns specifying FILE, SAMPLE/CELL-NAME, LANE, and READ-MATE) or BAM files (1 or 2 columns with FILE and optional SAMPLE/CELL-NAME) where header, if present, must start with symbol `#`. .....Note that cells with the same name (and different LANE for FASTQs) will be assigned the same unique cell barcode (i.e. same cell); also FASTQs with two different reads will be considered paired-end.")
-    parser.add_argument("-r","--reference", type=str, required=False, help="Reference genome")
+    parser.add_argument("INPUT", nargs='+', type=str, help='''Input FASTQs, BAMs, or TSV file with different behaviors: ......................................... 
+    (1) FASTQs -- specified in a directory DIR as `DIR/*.fastq` or `DIR/*.fastq.gz` -- will be barcoded and aligned with (optionally) marked duplicates into a barcoded BAM file;
+    .................................
+    (2) BAMs -- specified in a directory DIR as `DIR/*.bam` -- will be barcoded and aligned with (optionally) marked duplicates into a barcoded BAM file; 
+    ..............................................
+    (3) a single BAM file with unique cells names in the field `RG:Z:` will be converted into a barcoded BAM file with the additional `CB:Z:` tag; 
+    ..............
+    (4) a tab-separated table of inputs (TSV with optional header starting with `#`) with two columns: the first column is an input file (FASTQ or BAM) and the
+    second column is the corresponding cell name. When FASTQs are provided, a third column can be optionally specified to indicate the read name in paired-end
+    sequencing, e.g., indicating either R1 or R2 for the first or second mate of paired-end reads, respectively. If a third column is not present, FASTQs are
+    assumed to be from single-end sequencing.''')
+    parser.add_argument("-r","--reference", type=str, required=False, help="Reference genome, which is mandatory in FASTQ mode (default: None)")
     parser.add_argument("-x","--rundir", required=False, default='./', type=str, help="Running directory (default: current directory)")
     parser.add_argument("-o","--output", required=False, default='barcodedcells.bam', type=str, help="Output name in running directory (default: barcodedcells.bam)")    
+    parser.add_argument("--rexpname", required=False, default='(.*)_S.*_L00.*_R[1|2]_001.fastq.*', type=str, help="Regulare expression to extract cell name from input FASTQ filenames (default: `(.*)_S.*_L.*_R[1|2]_001.fastq.*`)")
+    parser.add_argument("--rexpread", required=False, default='.*_S.*_L00.*_(R[1|2])_001.fastq.*', type=str, help="Regulare expression to extract cell name from input FASTQ filenames (default: `.*_S.*_L.*_(R[1|2])_001.fastq.*`)")
     parser.add_argument("--noduplicates", required=False, default=False, action='store_true', help="Do not perform marking duplicates and recalibration with Picard tools (default: False)")
     parser.add_argument("--keeptmpdir", required=False, default=False, action='store_true', help="Do not erase temporary directory (default: False)")
     parser.add_argument("--barcodelength", required=False, type=int, default=12, help="Length of barcodes (default: 12)")
     parser.add_argument("--bcftools", required=False, default=None, type=str, help="Path to the directory to \"bcftools\" executable (default: in $PATH)")
     parser.add_argument("--samtools", required=False, default=None, type=str, help="Path to the directory to \"samtools\" executable (default: in $PATH)")
     parser.add_argument("--bwa", required=False, default=None, type=str, help="Path to the directory to \"bwa\" executable (default: in $PATH)")
-    parser.add_argument("--rexpname", required=False, default='(.*)_S.*_L00.*_R[1|2]_001.fastq.*', type=str, help="Regulare expression to extract cell/sample name from input FASTQ filenames (default: `(.*)_S.*_L.*_R[1|2]_001.fastq.*`)")
-    parser.add_argument("--rexpread", required=False, default='.*_S.*_L00.*_(R[1|2])_001.fastq.*', type=str, help="Regulare expression to extract cell/sample name from input FASTQ filenames (default: `.*_S.*_L.*_(R[1|2])_001.fastq.*`)")
     parser.add_argument("-j","--jobs", required=False, type=int, default=0, help="Number of parallele jobs to use (default: equal to number of available processors)")
     parser.add_argument("--seed", required=False, type=int, default=None, help="Random seed for replication (default: None)")
     args = parser.parse_args()
@@ -47,7 +64,7 @@ def parse_args():
         
     inputs = map(os.path.abspath, filter(lambda f : len(f) > 1, args.INPUT))
     for inp in inputs:
-        if not os.path.isfile(inp):
+        if not (os.path.exists(inp) and not os.path.isdir(inp)):
             raise ValueError(error("This input file does not exist: {}".format(inp)))
     
     if not os.path.isdir(args.rundir):
@@ -116,7 +133,11 @@ def main():
         raise ValueError(error("Temporary error directory {} already exists, please move or rename it!".format(errdir)))
     os.mkdir(errdir)
     
-    if len(args['inputs']) == 1 and args['inputs'][0][:-4] == '.tsv':
+    if len(args['inputs']) == 1 and args['inputs'][0][-4:] != '.bam'\
+                                and args['inputs'][0][-6:] != '.fastq'\
+                                and args['inputs'][0][-9:] != '.fastq.gz'\
+                                and args['inputs'][0][-3:] != '.gz':
+        log('Reading provided table of inputs', level='STEP')
         args['inputs'], info = read_table(args['inputs'][0])
     else:
         info = None
@@ -135,17 +156,17 @@ def main():
         else:
             log('Running in single-end FASTQ mode', level='STEP')
         barcoded, cells = run_q(args, tmpdir, errdir, files, fastqinfo)
-        header = '#CELL\tREPETITION\tREADS\tBARCODE\tFILES'
+        header = '#CELL\tBARCODE\tREPETITION\tREADS\tFILES'
         cells = sorted(cells, key=(lambda c : (c[2], fastqinfo[c[0][0]]['reps'])))
-        loginfo = map(lambda c : (fastqinfo[c[0][0]]['cell'], fastqinfo[c[0][0]]['reps'], ','.join([fastqinfo[f]['read'] for f in c[0]]), c[2], ','.join(c[0])), cells)
+        loginfo = map(lambda c : (fastqinfo[c[0][0]]['cell'], c[2], fastqinfo[c[0][0]]['reps'], ','.join([fastqinfo[f]['read'] for f in c[0]]), ','.join(c[0])), cells)
             
     elif all(f[-4:] == '.bam' for f in args['inputs']):
         if info is None:
             info = make_baminfo(args['inputs'])
         barcoded, cells, info = run_B(args, tmpdir, errdir) if len(args['inputs']) == 1 else run_b(args, tmpdir, errdir, info)
-        header = '#CELL\tREPETITION\tBARCODE\tFILE'
+        header = '#CELL\tBARCODE\tREPETITION\tFILE'
         cells = sorted(cells, key=(lambda c : (c[2], info[c[0]]['reps'])))
-        loginfo = map(lambda c : (info[c[0]]['cell'], info[c[0]]['reps'], c[2], c[0]), cells)
+        loginfo = map(lambda c : (info[c[0]]['cell'], c[2], info[c[0]]['reps'], c[0]), cells)
         
     else:
         raise ValueError(error("Input files are of wrong format or mixed formats"))
@@ -376,7 +397,7 @@ def aligning(job):
         parg = sp.Popen(shlex.split(curr_cmd_arg), stdin=pbwa.stdout, stdout=sp.PIPE, stderr=earg)
         psor = sp.Popen(shlex.split(curr_cmd_sor), stdin=parg.stdout, stdout=sp.PIPE, stderr=osor)
         rcodes = map(lambda p : p.wait(), [pbwa, parg, psor])
-    return '{}_{}'.format(name, lane), bam, check_rcodes(rcodes, [blog, rlog, olog])
+    return '{}_{}'.format(name, lane), bam, check_rcodes(rcodes, [blog, rlog, olog], [curr_tmp])
 
 
 def align_marked(files, names, barcodes, lanes, tmpdir, errdir, ref, bwa, samtools, J):
@@ -433,7 +454,7 @@ def aligning_marked(job):
             psor = sp.Popen(shlex.split(curr_cmd_sor), stdin=parg.stdout, stdout=sp.PIPE, stderr=osor)
             pmar = sp.Popen(shlex.split(curr_cmd_mar), stdin=psor.stdout, stdout=sp.PIPE, stderr=emar)
             rcodes = map(lambda p : p.wait(), [pbwa, pnam, pfix, parg, psor, pmar])
-    return '{}_{}'.format(name, lane), bam, check_rcodes(rcodes, [blog, nlog, flog, rlog, olog, mlog])
+    return '{}_{}'.format(name, lane), bam, check_rcodes(rcodes, [blog, nlog, flog, rlog, olog, mlog], [nam_tmp, sor_tmp, mar_tmp])
 
 
 def barcode(files, names, barcodes, lanes, tmpdir, errdir, samtools, J):
@@ -515,7 +536,7 @@ def barcoding_marked(job):
         psor = sp.Popen(shlex.split(curr_cmd_sor), stdin=parg.stdout, stdout=sp.PIPE, stderr=osor)    
         pmar = sp.Popen(shlex.split(curr_cmd_mar), stdin=psor.stdout, stdout=sp.PIPE, stderr=emar)
         rcodes = map(lambda p : p.wait(), [pnam, pfix, parg, psor, pmar])
-    return '{}_{}'.format(name, lane), bam, check_rcodes(rcodes, [nlog, flog, rlog, olog, mlog])
+    return '{}_{}'.format(name, lane), bam, check_rcodes(rcodes, [nlog, flog, rlog, olog, mlog], [nam_tmp, sor_tmp, mar_tmp])
 
 
 def merging(samtools, bams, jobs, tmpdir, errdir):
@@ -545,7 +566,7 @@ def error_code(e, c, errdir):
     raise ValueError(error('Commands failed for {} with error:\n{}\nCheck the errors in the corresponding log files in:\n{}'.format(e, c, errdir)))
 
 
-def check_rcodes(rcodes, logs, cmd=None):
+def check_rcodes(rcodes, logs, tdir, cmd=None):
     res = ''
     for code, log in zip(rcodes, logs):
         if code != 0:
@@ -555,6 +576,7 @@ def check_rcodes(rcodes, logs, cmd=None):
                 res += 'From {}:\n'.format(log) + '\n'.join(i.readlines()) + '\n'  
     if res == '':
         map(lambda f : os.remove(f), logs)
+        map(lambda d : shutil.rmtree(d), tdir)
         return None
     else:
         return res
