@@ -72,9 +72,10 @@ def main():
     clones = selecting(clus, args['minsize'])
     log('Number of identified clones: {}'.format(len(set(clones.values()))), level='INFO')
 
-    log('Refining clustering')
-    clones, clus = refining(cns, clus, clones, args['refinement'])
-    log('Number of discarded cells: {}'.format(len(set(cells) - set(clones.keys()))), level='INFO')
+    if len(clones) > 0 and args['refinement'] > 0.0:
+        log('Refining clustering')
+        clones, clus = refining(cns, clus, clones, args['refinement'])
+    log('Number of discarded cells: {} over {} in total'.format(len(set(cells) - set(clones.keys())), len(set(cells))), level='INFO')
 
     log('Profiling clones')
     profiles = profiling(cns, clus)
@@ -149,8 +150,9 @@ def refining(cns, clus, chosen, maxdiff):
 
 def profiling(cns, clus):
     clones = set(clus.values())
-    safeargmax = (lambda C : argmax(C) if len(C) > 0 else (1, 1))
-    getcn = (lambda g, i : safeargmax(Counter([cns[g][c] for c in clus if clus[c] == i])))
+    mapclo = {i : filter(lambda e : clus[e] == i, clus.keys()) for i in clones}
+    assert all(len(mapclo[i]) > 0 for i in mapclo), 'Found cluster assignment with no corresponding cell'
+    getcn = (lambda g, i : argmax(Counter([cns[g][e] for e in mapclo[i]])))
     return {g : {i : getcn(g, i) for i in clones} for g in cns}    
 
 

@@ -22,7 +22,7 @@ def parse_args():
     parser.add_argument("-x","--rundir", required=False, default='./', type=str, help="Running directory (default: current directory)")
     parser.add_argument("-f", "--maxdiff", required=False, type=float, default=0.06, help="Maximum haplotype-specific distance between the genome of cells in the same clone (default: 0.06, when -1 is chosen the maximum cluster method of SciPy is used)")
     parser.add_argument("-s", "--minsize", required=False, type=int, default=14, help="Minimum number of cells in a subpopulation to define a clone (default: 14)")
-    parser.add_argument("-K","--upperk", required=False, type=int, default=100, help="Maximum number of bin clusters (default: 100, use 0 to consider maximum number of clusters)")
+    parser.add_argument("-r", "--refinement", required=False, type=float, default=None, help="Maximum difference to assign noisy cells to the closest clone (default: 0.0, note that 1.0 can be used to force the assigment of all cells)")
     parser.add_argument("--seed", required=False, type=int, default=None, help="Random seed for replication (default: None)")
     args = parser.parse_args()
 
@@ -36,15 +36,13 @@ def parse_args():
         raise ValueError("Maximum distance must be in [0, 1] or equal to -1!")
     if args.minsize < 0:
         raise ValueError("Minimum number of cells in a clone must be positive!")
-    if args.upperk < 1:
-        raise ValueError("The maximum number of clusters must be positive!")
 
     return {
         "INPUT" : args.INPUT,
         "rundir" : args.rundir,
         "maxdiff" : args.maxdiff,
         "minsize" : args.minsize,
-        "upperk" : args.upperk,
+        "refinement" : args.refinement,
         "seed" : args.seed
     }
 
@@ -65,6 +63,8 @@ def main():
     log('Cloning', level='PROGRESS')
     cmd = 'python2.7 {} {} -f {} -s {}'
     cmd = cmd.format(get_comp('Cloner.py'), args['INPUT'], args['maxdiff'], args['minsize'])
+    if args['refinement'] is not None:
+        cmd += " -r {}".format(args['refinement'])
     if args['seed'] is not None:
         cmd += " --seed {}".format(args['seed'])
     runcmd(cmd, dclo, out='mapping.tsv')
