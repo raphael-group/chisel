@@ -23,7 +23,7 @@ def kclustering(data, restarts, threshold, seed=None, lord=1, j=1, LB=1, UB=None
     error, center, pdist, cdist = getord(lord)
     if len(set(len(p) for p in data)) != 1:
         raise ValueError('All points must have the same length')
-    if seed:
+    if seed is not None:
         np.random.seed(seed)
     
     points = np.array(data)
@@ -108,7 +108,7 @@ def kclustering_fixed(points, K, restarts, TERROR, PAIRWISE, lord=1, j=1):
     initargs = (points.shape[0], points.shape[1], K, lord, TERROR, shared_points, shared_pairwise, shared_clus)
     pool = Pool(processes=min(j, restarts), initializer=init_kclustering, initargs=initargs)
     progress = (lambda obj, it : bar.progress(advance=True, msg="Found clustering with obj: {} [Iterations: {}]".format(obj, it)))
-    best = min(((obj, idx) for obj, idx, it in pool.imap_unordered(run_kclustering, jobs) if progress(obj, it)), key=(lambda x : x[0]))
+    best = min(((obj, idx) for obj, idx, it in pool.imap_unordered(run_kclustering, jobs) if progress(obj, it)), key=(lambda x : (x[0], x[1])))
     pool.close()
     pool.join()
     return best[0], shared_clus[best[1]]
@@ -156,7 +156,6 @@ def run_kclustering(job):
     ## Utils
     np.random.seed(seed)
     randint = np.random.randint
-    choice = np.random.choice
     lookup = (lambda i, j : PAIRWISE[indices_to_condensed(i, j, N)])
 
     ## Initialization
