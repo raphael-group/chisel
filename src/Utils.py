@@ -3,7 +3,6 @@
 import os, sys
 import sys
 import datetime
-import random
 import subprocess as sp
 import multiprocessing as mp
 import shlex

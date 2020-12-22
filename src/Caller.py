@@ -63,7 +63,6 @@ def parse_args():
     if args.seed and args.seed < 0:
         raise ValueError("Random seed must be positive or zero!")
     else:
-        random.seed(args.seed)
         np.random.seed(args.seed)
 
     return {

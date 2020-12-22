@@ -3,7 +3,6 @@
 import os, sys
 import argparse
 import math
-import random
 import ctypes
 import warnings
 
@@ -204,5 +203,5 @@ def weighted_ichoice(weights):
         r = np.random.rand()
         return np.searchsorted(cs, r)
     else:
-        return random.choice(list(enumerate(weights)))[0]
+        return np.random.choice(np.arange(len(weights)), size=1)[0]
 
