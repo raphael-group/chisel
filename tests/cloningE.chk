@@ -6,8 +6,8 @@ INPUT=data/calls.tsv
 :
 Parsing and checking arguments
 Arguments:
-	upperk : 100
 	minsize : 14
+	refinement : None
 	seed : 25
 	maxdiff : 0.06
 	INPUT : data/calls.tsv
@@ -27,7 +27,7 @@ Clustering cells in clones
 Selecting clones
 Number of identified clones: 6
 Refining clustering
-Number of discarded cells: 689
+Number of discarded cells: 689 over 2075 in total
 Profiling clones
 Writing clone map
 Writing clone-corrected copy numbers in provided input

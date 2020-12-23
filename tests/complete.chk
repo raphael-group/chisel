@@ -150,7 +150,7 @@ Clustering cells in clones
 Selecting clones
 Number of identified clones: 2
 Refining clustering
-Number of discarded cells: 0
+Number of discarded cells: 0 over 100 in total
 Profiling clones
 Writing clone map
 Writing clone-corrected copy numbers in provided input

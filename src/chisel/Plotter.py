@@ -43,6 +43,7 @@ def parse_args():
     parser.add_argument("--xmin", required=False, type=float, default=None, help="Minimum x-axis value (default: None)")
     parser.add_argument("--ymax", required=False, type=float, default=None, help="Maximum x-axis value (default: None)")
     parser.add_argument("--ymin", required=False, type=float, default=None, help="Minimum x-axis value (default: None)")
+    parser.add_argument("--seed", required=False, type=int, default=None, help="Random seed for replication (default: none)")
     args = parser.parse_args()
 
     if not os.path.isfile(args.INPUT):
@@ -53,6 +54,10 @@ def parse_args():
         raise ValueError('ERROR: figure format must be either pdf or png!')
     if args.sample < 1:
         raise ValueError('ERROR: number of sampled cells must be positive!')
+    if args.seed and args.seed < 0:
+        raise ValueError("Random seed must be positive or zero!")
+    else:
+        np.random.seed(args.seed)
 
     def get_size(s):
         p = s.split(',')
@@ -92,6 +97,10 @@ def main():
     if args['clonemap']:
         log('Reading clonemap')
         index, clones, selected = clonemap_to_index(args['clonemap'], cells)
+        if all(selected[e] == 'None' for e in selected):
+            log('Cell will be re-clustered as no clone has been previously identified', level='WARN')
+            index, clones = clustering_tot(bins, pos, cells)
+            selected = dict(clones)
     else:
         log('Clustering cells')
         index, clones = clustering_tot(bins, pos, cells)
@@ -416,7 +425,7 @@ def states(bins, pos, cells, index=None, clones=None, selected=None, args=None, 
     df['CN states'] = df.apply(lambda r : smap[r['Value']], axis=1)
     table = pd.pivot_table(df, values='CN states', columns=['Genome'], index=['Cell'], aggfunc='first')
     title = 'Copy-number states'
-    found = set(r['CN states'] for i, r in df.iterrows())
+    #found = set(df['CN states'] for i, r in df.iterrows())
     palette = {}
     palette.update({(0, 0) : 'darkblue'})
     palette.update({(1, 0) : 'lightblue'})
@@ -425,7 +434,7 @@ def states(bins, pos, cells, index=None, clones=None, selected=None, args=None, 
     palette.update({(2, 2) : 'navajowhite', (3, 1) : 'orange', (4, 0) : 'darkorange'})
     palette.update({(3, 2) : 'salmon', (4, 1) : 'red', (5, 0) : 'darkred'})
     palette.update({(3, 3) : 'plum', (4, 2) : 'orchid', (5, 1) : 'purple', (6, 0) : 'indigo'})
-    colors = [palette[c] for x, c in enumerate(avail) if x in found]
+    colors = [palette[c] for c in found]
     cmap = LinearSegmentedColormap.from_list('multi-level', colors, len(colors))
     draw(table, bins, pos, cells, index, mapc, palette=cmap, center=None, method='single', metric='cityblock', title=title, out=out, args=args)
 
