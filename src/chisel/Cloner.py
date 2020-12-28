@@ -86,6 +86,7 @@ def main(args=None, stdout_file=None):
             for c in cells:
                 f.write('\t'.join(map(str, [c, clus[c], 'Clone{}'.format(clones[c]) if c in clones else 'None'])) + '\n')
     else:
+        print header
         for c in cells:
             print '\t'.join(map(str, [c, clus[c], 'Clone{}'.format(clones[c]) if c in clones else 'None']))
 

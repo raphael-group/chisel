@@ -33,7 +33,7 @@ check () {
 
 ```shell
 mkdir X/
-sed 's/^chisel/python2.7 ..\/..\/bin\/chisel.py/g' ../demos/complete/demo-complete.sh > X/demo-complete.sh
+cp ../demos/complete/demo-complete.sh X/demo-complete.sh
 curl -L https://github.com/raphael-group/chisel-data/raw/master/tests/complete.tar.gz | tar -xvz
 check complete.chk <(bash X/demo-complete.sh |& grep -v -e "Progress:" -e "UserWarning" -e "--:--:--" -e "chisel" -e "curl" -e "Speed" -e "gzip" -e "samtools" -e "rundir" -e "j " -e "J " -e "jobs" |& sed 's/\x1b\[[0-9;]*m//g' |& sed -u 's/\[[^]]*\]//g') "complete"
 for F in complete/*.png; do check ${F} X/plots/$(basename ${F}) "complete"; done
@@ -47,7 +47,7 @@ rm -rf X/ complete/
 
 ```shell
 mkdir X/
-sed 's/^chisel_calling/python2.7 ..\/..\/bin\/chisel_calling.py/g' ../demos/callingE/demo-callingE.sh > X/demo-callingE.sh
+cp ../demos/callingE/demo-callingE.sh X/demo-callingE.sh
 curl -L https://github.com/raphael-group/chisel-data/raw/master/tests/callingE.tar.gz | tar -xvz
 check callingE.chk <(bash X/demo-callingE.sh |& grep -v -e "Progress:" -e "UserWarning" -e "--:--:--" -e "chisel" -e "curl" -e "Speed" -e "gzip" -e "samtools" -e "rundir" -e "j " -e "J " -e "jobs" |& sed 's/\x1b\[[0-9;]*m//g' |& sed -u 's/\[[^]]*\]//g') "callingE"
 for F in callingE/*.png; do check ${F} X/plots/$(basename ${F}) "callingE"; done
@@ -61,7 +61,7 @@ rm -rf X/ callingE/
 
 ```shell
 mkdir X/
-sed 's/^chisel_cloning/python2.7 ..\/..\/bin\/chisel_cloning.py/g' ../demos/cloningE/demo-cloningE.sh > X/demo-cloningE.sh
+cp ../demos/cloningE/demo-cloningE.sh X/demo-cloningE.sh
 curl -L https://github.com/raphael-group/chisel-data/raw/master/tests/cloningE.tar.gz | tar -xvz
 check cloningE.chk <(bash X/demo-cloningE.sh |& grep -v -e "Progress:" -e "UserWarning" -e "--:--:--" -e "chisel" -e "curl" -e "Speed" -e "gzip" -e "samtools" -e "rundir" -e "j " -e "J " -e "jobs" |& sed 's/\x1b\[[0-9;]*m//g' |& sed -u 's/\[[^]]*\]//g') "cloningE"
 for F in cloningE/*.png; do check ${F} X/plots/$(basename ${F}) "cloningE"; done
@@ -74,7 +74,7 @@ rm -rf X/ cloningE/
 
 ```shell
 mkdir X/
-sed 's/^chisel_plotting/python2.7 ..\/..\/bin\/chisel_plotting.py/g' ../demos/plottingE/demo-plottingE.sh > X/demo-plottingE.sh
+cp ../demos/plottingE/demo-plottingE.sh X/demo-plottingE.sh
 curl -L https://github.com/raphael-group/chisel-data/raw/master/tests/plottingE.tar.gz | tar -xvz
 check plottingE.chk <(bash X/demo-plottingE.sh |& grep -v -e "Progress:" -e "UserWarning" -e "--:--:--" -e "chisel" -e "curl" -e "Speed" -e "gzip" -e "samtools" -e "rundir" -e "j " -e "J " -e "jobs" |& sed 's/\x1b\[[0-9;]*m//g' |& sed -u 's/\[[^]]*\]//g') "plottingE"
 for F in plottingE/*.png; do check ${F} X/plots/$(basename ${F}) "plottingE"; done
@@ -86,7 +86,7 @@ rm -rf X/ plottingE/
 
 ```shell
 mkdir X/
-sed 's/^chisel_pseudonormal/python2.7 ..\/..\/bin\/chisel_pseudonormal.py/g' ../demos/pseudonormal/demo-pseudonormal.sh > X/demo-pseudonormal.sh
+cp ../demos/pseudonormal/demo-pseudonormal.sh X/demo-pseudonormal.sh
 curl -L https://github.com/raphael-group/chisel-data/raw/master/tests/pseudonormal.tar.gz | tar -xvz
 check pseudonormal.chk <(bash X/demo-pseudonormal.sh |& grep -v -e "Progress:" -e "UserWarning" -e "--:--:--" -e "chisel" -e "curl" -e "Speed" -e "gzip" -e "samtools" -e "rundir" -e "j " -e "J " -e "jobs" |& sed 's/\x1b\[[0-9;]*m//g' |& sed -u 's/\[[^]]*\]//g') "pseudonormal"
 check pseudonormal/diploid.tsv X/diploid.tsv "pseudonormal"

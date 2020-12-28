@@ -17,8 +17,8 @@ REF=data/hg19.fa
 export DIC=data/hg19.dict
 DIC=data/hg19.dict
 :
-export PHA=data/phased.tsv
-PHA=data/phased.tsv
+export PHA=data/phases.tsv
+PHA=data/phases.tsv
 :
 Parsing and checking arguments
 Arguments:
@@ -27,7 +27,7 @@ Arguments:
 	normal : data/normal.bam
 	blocksize : 50000
 	seed : 12
-	listphased : data/phased.tsv
+	listphased : data/phases.tsv
 	maxploidy : 4
 	minreads : 100000
 	binsize : 5000000
@@ -62,7 +62,7 @@ Parsing and checking arguments
 Arguments:
 	tumor : data/cells.bam
 	gamma : 0.01
-	phased : data/phased.tsv
+	phased : data/phases.tsv
 	normal : data/normal.bam
 	list : ./rdr/total.tsv
 	ref : data/hg19.fa
