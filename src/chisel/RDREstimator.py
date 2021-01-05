@@ -11,7 +11,7 @@ from collections import Counter
 from Utils import *
 
 
-def parse_args():
+def parse_args(args):
     description = "Compute RDR from barcoded single-cell sequencing data."
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("-t","--tumor", required=True, type=str, help="Barcoded BAM file")
@@ -24,7 +24,7 @@ def parse_args():
     parser.add_argument("-l","--cellslist", type=str, required=False, default=None, help="List of cells to select (default: None)")
     parser.add_argument("-c", "--chromosomes", type=str, required=False, default=' '.join(['chr{}'.format(i) for i in range(1, 23)]), help="Space-separeted list of chromosomes between apices (default: \"chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22\")")
     parser.add_argument("--outdir", required=False, default='./', type=str, help="Running directory where to write the list of selected cells (default: current directory)")
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     if not os.path.isfile(args.tumor):
         raise ValueError("Specified tumor does not exist!")
@@ -78,9 +78,9 @@ def parse_args():
     }
 
 
-def main():
+def main(args=None, stdout_file=None):
     log('Parsing and checking arguments')
-    args = parse_args()
+    args = parse_args(args)
     log('\n'.join(['Arguments:'] + ['{} : {}'.format(a, args[a]) for a in args]), level='INFO')
 
     log('Computing bins')
@@ -123,10 +123,20 @@ def main():
     ratio = (lambda c, b, e : (float(counts[c][b][e]) / float(counts[c][b]['normal'])) if counts[c][b]['normal'] > 0 else 0.0)
     rec = (lambda c, b, e, rdr : '{}\t{}\{}\t{}'.format(c, b, e, rdr))
 
+    if stdout_file is not None:
+        stdout_f = open(stdout_file, 'w')
+
     for c in sorted(counts, key=orderchrs):
         for b in sorted(counts[c], key=(lambda x : x[0])):
             for e in sorted(set(counts[c][b].keys()) & cells):
-                print '\t'.join(map(str, [c, b[0], b[1], e, counts[c][b]['normal'], counts[c][b][e], ratio(c, b, e) * scale[e]]))
+                line = '\t'.join(map(str, [c, b[0], b[1], e, counts[c][b]['normal'], counts[c][b][e], ratio(c, b, e) * scale[e]]))
+                if stdout_file is not None:
+                    stdout_f.write(line + '\n')
+                else:
+                    print line
+
+    if stdout_file is not None:
+        stdout_f.close()
 
     log('KTHXBYE')
 

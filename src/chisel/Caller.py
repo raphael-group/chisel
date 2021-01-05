@@ -18,7 +18,7 @@ from Clusterizer import *
 from Combiner import EM
 
 
-def parse_args():
+def parse_args(args):
     description = "Inferring allele- and haplotype-specific copy number in single cells from estimated RDRs and BAFs."
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("INPUT", type=str, help="Input file with combined RDR and BAF per bin and per cell")
@@ -35,7 +35,7 @@ def parse_args():
     parser.add_argument("--fastscaling", required=False, default=False, action='store_true', help="Consider average BAF of clusters instead of EM (default: False, using it is generally safe and significantly increases speed)")
     #parser.add_argument("--scoring", required=False, default=False, action='store_true', help=" (default: equal to number of available processors)")
     parser.add_argument("--seed", required=False, type=int, default=None, help="Random seed for replication (default: none)")
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     if not os.path.isfile(args.INPUT):
         raise ValueError("Input file does not exist: {}".format(args.INPUT))
@@ -84,9 +84,9 @@ def parse_args():
     }
 
 
-def main():
+def main(args=None, stdout_file=None):
     log('Parsing and checking arguments')
-    args = parse_args()
+    args = parse_args(args)
     log('\n'.join(['Arguments:'] + ['\t{} : {}'.format(a, args[a]) for a in args]), level='INFO')
 
     log('Reading combined RDRs and BAFs of barcoded cells')
@@ -127,9 +127,16 @@ def main():
     form_clus = (lambda b, e : [int(members[mapb[b]]), '{}|{}'.format(*copynumbers[b][e])])
     form = (lambda b, e : '\t'.join(map(str, [b[0], b[1], b[2], e] + form_bins(b, e) + form_clus(b, e))))
     gen = (form(b, e) for b in sorted(bins, key=order) for e in sorted(cells))
-    print '\t'.join(['#CHR', 'START', 'END', 'CELL', 'NORM_COUNT', 'COUNT', 'RDR', 'A_COUNT', 'B_COUNT', 'BAF', 'CLUSTER', 'CN_STATE'])
-    for g in gen:
-        print g
+    header = '\t'.join(['#CHR', 'START', 'END', 'CELL', 'NORM_COUNT', 'COUNT', 'RDR', 'A_COUNT', 'B_COUNT', 'BAF', 'CLUSTER', 'CN_STATE'])
+
+    if stdout_file is not None:
+        with open(stdout_file, 'w') as f:
+            f.write(header + '\n')
+            f.write('\n'.join(gen))
+    else:
+        print header
+        for g in gen:
+            print g
 
 
 def read_combo(f):

@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
 
-import sys, os
+import os
 import argparse
 import shlex, shutil
 import multiprocessing as mp
@@ -11,12 +11,11 @@ from collections import Counter
 
 import numpy as np
 
-src = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, 'src')
-if not os.path.isdir(src):
-    raise ValueError("src directory not found in parent directory of bin i.e. {}, is anything been moved?".format(src))
-sys.path.append(src)
-from Utils import *
-from RDREstimator import *
+import chisel
+
+src = os.path.dirname(chisel.__file__)
+from ..Utils import *
+from ..RDREstimator import *
 
 
 def parse_args():

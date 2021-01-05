@@ -4,31 +4,25 @@ from setuptools import setup
 
 setuptools.setup(
     name='chisel',
-    version='0.0.4',
+    version='0.0.5',
     python_requires='==2.7.*',
-    scripts=['bin/chisel.py', 
-             'bin/chisel_calling.py',
-             'bin/chisel_cloning.py',
-             'bin/chisel_plotting.py',
-             'bin/chisel_pseudonormal.py'],
+    packages=['chisel', 'chisel.bin'],
+    package_dir={'': 'src'},
     author='Simone Zaccaria',
     author_email='zaccaria@princeton.edu',
     description='Copy-number Haplotype Inference in Single-cell by Evolutionary Links',
     long_description='https://github.com/raphael-group/chisel',
 #    long_description_content_type='text/markdown',
     url='https://github.com/ENCODE-DCC/caper',
-    packages=setuptools.find_packages(exclude=['conda',
-                                               'demos', 
-                                               'doc', 
-                                               'demos', 
-                                               'guides', 
-                                               'man']),
     install_requires=[
         'numpy>=1.16.1',
         'scipy>=1.2.1',
         'pandas',
         'seaborn>=0.7.1'
     ],
+    extras_require={
+        'dev': ['pytest', 'mock']
+    },
     license='BSD',
     platforms=["Linux", "MacOs", "Windows"],
     classifiers=[
@@ -47,9 +41,9 @@ setuptools.setup(
         'single-cell',
         'DNA',
         'copy-number'],
-    entry_points={'console_scripts': ['chisel=bin.chisel:main', 
-                                      'chisel_calling=bin.chisel_calling:main',
-                                      'chisel_cloning=bin.chisel_cloning:main',
-                                      'chisel_plotting=bin.chisel_plotting:main',
-                                      'chisel_pseudonormal=bin.chisel_pseudonormal:main']}
+    entry_points={'console_scripts': ['chisel=chisel.bin.chisel_main:main',
+                                      'chisel_calling=chisel.bin.chisel_calling:main',
+                                      'chisel_cloning=chisel.bin.chisel_cloning:main',
+                                      'chisel_plotting=chisel.bin.chisel_plotting:main',
+                                      'chisel_pseudonormal=chisel.bin.chisel_pseudonormal:main']}
 )
