@@ -46,5 +46,6 @@ setuptools.setup(
                                       'chisel_cloning=chisel.bin.chisel_cloning:main',
                                       'chisel_plotting=chisel.bin.chisel_plotting:main',
                                       'chisel_pseudonormal=chisel.bin.chisel_pseudonormal:main',
-                                      'chisel_prep=chisel.bin.chisel_prep:main']}
+                                      'chisel_prep=chisel.bin.chisel_prep:main',
+                                      'chisel_bedding=chisel.bin.chisel_bedding:main']}
 )
