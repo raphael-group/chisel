@@ -202,10 +202,10 @@ Every command can be run directly when CHISEL has been correctly installed.
 | Command | Description | Required input | Output |
 |---------|-------------|----------------|--------|
 | [`chisel`](man/chisel.md) | Running the complete CHISEL pipeline | The 4 required input data | [Final results and plots](doc/chisel.md) |
-| [`chisel-calling`](man/chisel-calling.md) | Running from the inference of copy numbers | Computed RDRs and BAFs | [Final results and plots](doc/chisel-calling.md) |
-| [`chisel-cloning`](man/chisel-cloning.md) | Running from the identification of clones | Inferred copy numbers | [Final results and plots](doc/chisel-cloning.md) |
-| [`chisel-plotting`](man/chisel-plotting.md) | Running plot generation | Inferred copy numbers and clones | [Final plots](doc/chisel-plotting.md) |
-| [`chisel-pseudonormal`](man/chisel-pseudonormal.md) | Extracting diploid cells to form a pseudo matched-normal sample | A barcoded BAM file containing diploid cells and the corresponding reference genome | [A BAM file to be used as a matched-normal sample](doc/chisel-pseudonormal.md) |
+| [`chisel_calling`](man/chisel-calling.md) | Running from the inference of copy numbers | Computed RDRs and BAFs | [Final results and plots](doc/chisel-calling.md) |
+| [`chisel_cloning`](man/chisel-cloning.md) | Running from the identification of clones | Inferred copy numbers | [Final results and plots](doc/chisel-cloning.md) |
+| [`chisel_plotting`](man/chisel-plotting.md) | Running plot generation | Inferred copy numbers and clones | [Final plots](doc/chisel-plotting.md) |
+| [`chisel_pseudonormal`](man/chisel-pseudonormal.md) | Extracting diploid cells to form a pseudo matched-normal sample | A barcoded BAM file containing diploid cells and the corresponding reference genome | [A BAM file to be used as a matched-normal sample](doc/chisel-pseudonormal.md) |
 | [`chisel_prep`](man/chisel-prep.md) | Generating a barcoded BAM | Single-cell FASTQs (or FASTQ.gz), single-cell BAMs, and `RG:`-barcoded BAM | barcoded BAM file (see [Required data](#requireddata)) |
 | [`chisel_bedding`](man/chisel-bedding.md) | Generating a BED file per cell with CHISEL results | CHISEL-inferred allele- and haplotype-specific copy numbers (e.g. `calls.tvs` file) | A BED file per cell with `CHROM START END HAP-COPY-NUMBERS` |
 
