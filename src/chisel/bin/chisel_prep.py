@@ -483,7 +483,7 @@ def barcoding(job):
     with open(rlog, 'w') as earg:
         parg = sp.Popen(shlex.split(curr_cmd_arg), stdout=sp.PIPE, stderr=earg)
         rcodes = map(lambda p : p.wait(), [parg])
-    return '{}_{}'.format(name, lane), bam, check_rcodes(rcodes, [rlog])
+    return '{}_{}'.format(name, lane), bam, check_rcodes(rcodes, [rlog], [])
 
 
 def barcode_marked(files, names, barcodes, lanes, tmpdir, errdir, samtools, J):
