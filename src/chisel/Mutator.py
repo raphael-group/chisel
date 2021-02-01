@@ -44,7 +44,7 @@ def parse_args():
         'tumor' : args.tumor,
         'mutations' : args.listmutations,
         'ref' : args.reference,
-        'samtools' : args.samtools,
+        'samtools' : samtools,
         'J' : args.jobs,
         'list' : args.listcells
     }
