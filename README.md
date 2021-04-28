@@ -3,7 +3,7 @@
 CHISEL is an algorithm to infer allele- and haplotype-specific copy numbers in individual cells from low-coverage single-cell DNA sequencing data.
 The full description of the algorithm and its application on published cancer datasets are described in
 
-[Simone Zaccaria and Ben Raphael, _Nature Biotechnology, 2020](https://doi.org/10.1038/s41587-020-0661-6)
+[Simone Zaccaria and Ben Raphael, Nature Biotechnology, 2021](https://doi.org/10.1038/s41587-020-0661-6)
 
 The results of CHISEL on the published low-coverage single-cell DNA sequencing data of cancer patients and all the related analyses are available at
 
