@@ -62,6 +62,8 @@ optional arguments:
   --rexpread REXPREAD   Regulare expression to extract cell name from input
                         FASTQ filenames (default:
                         `.*_S.*_L.*_(R[1|2])_001.fastq.*`)
+  --barcodeonly         Only compute barcodes but do not run aligning pipeline
+                        (default: False)
   --noduplicates        Do not perform marking duplicates and recalibration
                         with Picard tools (default: False)
   --keeptmpdir          Do not erase temporary directory (default: False)
