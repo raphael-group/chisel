@@ -4,7 +4,7 @@ from setuptools import setup
 
 setuptools.setup(
     name='chisel',
-    version='0.0.5',
+    version='1.0.0',
     python_requires='==2.7.*',
     packages=['chisel', 'chisel.bin'],
     package_dir={'': 'src'},

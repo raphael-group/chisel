@@ -177,6 +177,8 @@ Reading clonemap
 Plotting RDR and mirrored BAF plots for 20 random cells in rbplot_mirrored.png
 Plotting clustered RDR plots for 20 random cells in crdr.png
 Plotting clustered-mirrored BAF plots for 20 random cells in cbaf.png
+Plotting read-depth ratios in rdrs.png
+Plotting B-allele frequencies in bafs.png
 Plotting total copy numbers in totalcn.png
 Plotting total copy numbers corrected by clones in totalcn-corrected.png
 Plotting LOH in loh.png
@@ -190,5 +192,4 @@ Plotting allele-specific copy numbers corrected by clones in allelecn-corrected.
 Plotting haplotype-specific copy numbers in haplotypecn.png
 Plotting haplotype-specific copy numbers corrected by clones in haplotypecn-corrected.png
 KTHKBYE!
-chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22
 exit 0

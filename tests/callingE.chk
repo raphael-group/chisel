@@ -99,6 +99,8 @@ Reading clonemap
 Plotting RDR and mirrored BAF plots for 20 random cells in rbplot_mirrored.png
 Plotting clustered RDR plots for 20 random cells in crdr.png
 Plotting clustered-mirrored BAF plots for 20 random cells in cbaf.png
+Plotting read-depth ratios in rdrs.png
+Plotting B-allele frequencies in bafs.png
 Plotting total copy numbers in totalcn.png
 Plotting total copy numbers corrected by clones in totalcn-corrected.png
 Plotting LOH in loh.png
