@@ -48,6 +48,7 @@ def parse_args():
     parser.add_argument("-o","--output", required=False, default='barcodedcells.bam', type=str, help="Output name in running directory (default: barcodedcells.bam)")    
     parser.add_argument("--rexpname", required=False, default='(.*)_S.*_L00.*_R[1|2]_001.fastq.*', type=str, help="Regulare expression to extract cell name from input FASTQ filenames (default: `(.*)_S.*_L.*_R[1|2]_001.fastq.*`)")
     parser.add_argument("--rexpread", required=False, default='.*_S.*_L00.*_(R[1|2])_001.fastq.*', type=str, help="Regulare expression to extract cell name from input FASTQ filenames (default: `.*_S.*_L.*_(R[1|2])_001.fastq.*`)")
+    parser.add_argument("--barcodeonly", required=False, default=False, action='store_true', help="Only compute barcodes but do not run aligning pipeline (default: False)")
     parser.add_argument("--noduplicates", required=False, default=False, action='store_true', help="Do not perform marking duplicates and recalibration with Picard tools (default: False)")
     parser.add_argument("--keeptmpdir", required=False, default=False, action='store_true', help="Do not erase temporary directory (default: False)")
     parser.add_argument("--barcodelength", required=False, type=int, default=12, help="Length of barcodes (default: 12)")
@@ -83,19 +84,19 @@ def parse_args():
     bcftools = args.bcftools
     if not bcftools:
         bcftools = "bcftools"
-    if which(bcftools) is None:
+    if which(bcftools) is None and not args.barcodeonly:
         raise ValueError(error("bcftools has not been found or is not executable!\n\nIf you are within a CHISEL conda environment ${ENV} you can install it with:\n\tconda install -c bioconda -n ${ENV} bcftools\n\nOtherwise, please provide with the flag `--bcftools` the full path to the directory containing bcftools exacutable."))
 
     samtools = args.samtools
     if not samtools:
         samtools = "samtools"
-    if which(samtools) is None:
+    if which(samtools) is None and not args.barcodeonly:
         raise ValueError(error("samtools has not been found or is not executable!\n\nIf you are within a CHISEL conda environment ${ENV} you can install it with:\n\tconda install -c bioconda -n ${ENV} samtools\n\nOtherwise, please provide with the flag `--samtools` the full path to the directory containing samtools exacutable."))
 
     bwa = args.bwa
     if not bwa:
         bwa = "bwa"
-    if which(bwa) is None:
+    if which(bwa) is None and not args.barcodeonly:
         raise ValueError(error("bwa has not been found or is not executable!\n\nIf you are within a CHISEL conda environment ${ENV} you can install it with:\n\tconda install -c bioconda -n ${ENV} bwa\n\nOtherwise, please provide with the flag `--bwa` the full path to the directory containing bwa exacutable."))
     
     output = os.path.basename(args.output if args.output[-4:] == '.bam' else '{}.bam'.format(args.output))
@@ -103,7 +104,8 @@ def parse_args():
     return {
         "inputs" : inputs,
         "rundir" : os.path.abspath(args.rundir),
-        "reference" : os.path.abspath(args.reference),
+        "reference" : os.path.abspath(args.reference) if args.reference is not None else None,
+        "barcodeonly" : args.barcodeonly,
         "noduplicates" : args.noduplicates,
         "keeptmpdir" : args.keeptmpdir,
         "barlength" : args.barcodelength,
@@ -142,7 +144,7 @@ def main():
         info = None
 
     if all(f[-6:] == '.fastq' or f[-9:] == '.fastq.gz' for f in args['inputs']):
-        if args['reference'] is None:
+        if args['reference'] is None and not args['barcodeonly']:
             shutil.rmtree(tmpdir)
             shutil.rmtree(errdir)
             raise ValueError(error('Reference genome is required when running in FASTQ mode!'))
@@ -154,7 +156,7 @@ def main():
             log('Running in paired-end FASTQ mode', level='STEP')
         else:
             log('Running in single-end FASTQ mode', level='STEP')
-        barcoded, cells = run_q(args, tmpdir, errdir, files, fastqinfo)
+        barcoded, cells = run_q(args, tmpdir, errdir, files, fastqinfo, args['barcodeonly'])
         header = '#CELL\tBARCODE\tREPETITION\tREADS\tFILES'
         cells = sorted(cells, key=(lambda c : (c[2], fastqinfo[c[0][0]]['reps'])))
         loginfo = map(lambda c : (fastqinfo[c[0][0]]['cell'], c[2], fastqinfo[c[0][0]]['reps'], ','.join([fastqinfo[f]['read'] for f in c[0]]), ','.join(c[0])), cells)
@@ -162,21 +164,22 @@ def main():
     elif all(f[-4:] == '.bam' for f in args['inputs']):
         if info is None:
             info = make_baminfo(args['inputs'])
-        barcoded, cells, info = run_B(args, tmpdir, errdir) if len(args['inputs']) == 1 else run_b(args, tmpdir, errdir, info)
+        barcoded, cells, info = run_B(args, tmpdir, errdir) if len(args['inputs']) == 1 else run_b(args, tmpdir, errdir, info, args['barcodeonly'])
         header = '#CELL\tBARCODE\tREPETITION\tFILE'
         cells = sorted(cells, key=(lambda c : (c[2], info[c[0]]['reps'])))
         loginfo = map(lambda c : (info[c[0]]['cell'], c[2], info[c[0]]['reps'], c[0]), cells)
         
     else:
         raise ValueError(error("Input files are of wrong format or mixed formats"))
-    
-    log('Indexing and finalizing final barcoded BAM file', level='STEP')
-    indexing(args['samtools'], args['jobs'], tmpdir, errdir, barcoded, args['output'])
-    
-    log('Retrieving stats about the resulting barcoded BAM file', level='STEP')
-    cmd = '{} flagstat -@ {} {}'.format(args['samtools'], args['jobs'], args['output'])
-    stdout, stderr = sp.Popen(shlex.split(cmd), stdout=sp.PIPE, stderr=sp.PIPE).communicate()
-    log('{}'.format(stdout), level='INFO')
+
+    if not args['barcodeonly']:
+        log('Indexing and finalizing final barcoded BAM file', level='STEP')
+        indexing(args['samtools'], args['jobs'], tmpdir, errdir, barcoded, args['output'])
+
+        log('Retrieving stats about the resulting barcoded BAM file', level='STEP')
+        cmd = '{} flagstat -@ {} {}'.format(args['samtools'], args['jobs'], args['output'])
+        stdout, stderr = sp.Popen(shlex.split(cmd), stdout=sp.PIPE, stderr=sp.PIPE).communicate()
+        log('{}'.format(stdout), level='INFO')
     
     floginfo = os.path.join(args['rundir'], '{}.info.tsv'.format(args['output'][:-4]))
     log('Writing final summary of barcoded cells', level='STEP')
@@ -277,7 +280,7 @@ def make_baminfo(inputs):
     return {f : {'cell' : binfo[f], 'reps' : lanes[binfo[f]][f]} for f in binfo}
 
 
-def run_q(args, tmpdir, errdir, files, fastqinfo):
+def run_q(args, tmpdir, errdir, files, fastqinfo, barcodeonly):
     par = {}
     par['files'] = files
     par['names'] = map(lambda f : fastqinfo[f[0]]['cell'], files)
@@ -289,20 +292,23 @@ def run_q(args, tmpdir, errdir, files, fastqinfo):
     par['samtools'] = args['samtools']
     par['bwa'] = args['bwa']
     par['J'] = args['jobs']
-    if args['noduplicates']:
-        log('Alignment, barcoding and sorting is running for every cell', level='STEP')
-        bams = align(**par)
-    else:
-        log('Alignment, barcoding, sorting, and marking duplicates is running for every cell', level='STEP')
-        bams = align_marked(**par)
+    barcoded = None
     
-    log('Merging all cells', level='STEP')
-    barcoded = merging(args['samtools'], bams, args['jobs'], tmpdir, errdir)
+    if not barcodeonly:
+        if args['noduplicates']:
+            log('Alignment, barcoding and sorting is running for every cell', level='STEP')
+            bams = align(**par)
+        else:
+            log('Alignment, barcoding, sorting, and marking duplicates is running for every cell', level='STEP')
+            bams = align_marked(**par)
+
+        log('Merging all cells', level='STEP')
+        barcoded = merging(args['samtools'], bams, args['jobs'], tmpdir, errdir)
     
     return barcoded, list(zip(par['files'], par['names'], par['barcodes']))
 
 
-def run_b(args, tmpdir, errdir, binfo):
+def run_b(args, tmpdir, errdir, binfo, barcodeonly):
     log('Running in multiple BAM files mode', level='STEP')
     
     par = {}
@@ -314,15 +320,18 @@ def run_b(args, tmpdir, errdir, binfo):
     par['errdir'] = errdir
     par['samtools'] = args['samtools']
     par['J'] = args['jobs']
-    if args['noduplicates']:
-        log('Barcoding and sorting is running for every cell', level='STEP')
-        bams = barcode(**par)
-    else:
-        log('Barcoding, sorting, and marking duplicates is running for every cell', level='STEP')
-        bams = barcode_marked(**par)
-    
-    log('Merging all cells', level='STEP')
-    barcoded = merging(args['samtools'], bams, args['jobs'], tmpdir, errdir)
+    barcoded = None
+
+    if not barcodeonly:
+        if args['noduplicates']:
+            log('Barcoding and sorting is running for every cell', level='STEP')
+            bams = barcode(**par)
+        else:
+            log('Barcoding, sorting, and marking duplicates is running for every cell', level='STEP')
+            bams = barcode_marked(**par)
+
+        log('Merging all cells', level='STEP')
+        barcoded = merging(args['samtools'], bams, args['jobs'], tmpdir, errdir)
     
     return barcoded, list(zip(par['files'], par['names'], par['barcodes'])), binfo
 
