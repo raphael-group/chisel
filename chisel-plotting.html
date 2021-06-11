@@ -1,0 +1,297 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Command chisel-plotting.py &mdash; CHISEL 0.0.5 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> CHISEL
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="README.html">CHISEL</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CHISEL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Command <code class="docutils literal notranslate"><span class="pre">chisel-plotting.py</span></code></li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/chisel-plotting.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="command-chisel-plotting-py">
+<h1>Command <code class="docutils literal notranslate"><span class="pre">chisel-plotting.py</span></code><a class="headerlink" href="#command-chisel-plotting-py" title="Permalink to this headline">¶</a></h1>
+<p>The CHISEL command <code class="docutils literal notranslate"><span class="pre">chisel-plotting.py</span></code> generates several useful plots, which can be used to inspect the inferred results or for quality control.
+More specifically, this command generates 15 plots.</p>
+<div class="section" id="main-plots">
+<h2>Main plots<a class="headerlink" href="#main-plots" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="allele-specific-copy-numbers">
+<h3>Allele-specific copy numbers<a class="headerlink" href="#allele-specific-copy-numbers" title="Permalink to this headline">¶</a></h3>
+<p>This plot (<code class="docutils literal notranslate"><span class="pre">allelecn.png</span></code>) depicts the allele-specific copy numbers inferred by CHISEL for every cell (rows) along the entire genome (y-axis), with cells/rows colored according to the inferred clone and columns/genomic bins colored according to the chromosome.
+The colors of the heatmap represent the difference pairs of allele-specific copy numbers and a full description of the color map used is available in the <a class="reference external" href="https://doi.org/10.1101/837195">CHISEL manuscript</a>.</p>
+</div>
+<div class="section" id="corrected-allele-specific-copy-numbers">
+<h3>Corrected allele-specific copy numbers<a class="headerlink" href="#corrected-allele-specific-copy-numbers" title="Permalink to this headline">¶</a></h3>
+<p>This plot (<code class="docutils literal notranslate"><span class="pre">allelecn-corrected.png</span></code>) depicts the allele-specific copy numbers inferred by CHISEL and corrected using the inferred clones for every cell (rows) along the entire genome (y-axis), with cells/rows colored according to the inferred clone and columns/genomic bins colored according to the chromosome.
+The colors of the heatmap represent the difference pairs of allele-specific copy numbers and a full description of the color map used is available in the <a class="reference external" href="https://doi.org/10.1101/837195">CHISEL manuscript</a>.</p>
+</div>
+<div class="section" id="haplotype-specific-copy-numbers">
+<h3>Haplotype-specific copy numbers<a class="headerlink" href="#haplotype-specific-copy-numbers" title="Permalink to this headline">¶</a></h3>
+<p>This plot (<code class="docutils literal notranslate"><span class="pre">haplotypecn.png</span></code>) depicts the haplotype-specific copy numbers inferred by CHISEL for every cell (rows) along the entire genome (y-axis), with cells/rows colored according to the inferred clone and columns/genomic bins colored according to the chromosome.
+The colors of the heatmap represent the haplotype of the allele with fewer copies, such that green and magenta represent haplotype A and B, respectively.
+Note that balanced regions (allele with the same number of copies) are represented in white.
+Further descriptions of the color map used are available in the <a class="reference external" href="https://doi.org/10.1101/837195">CHISEL manuscript</a>.</p>
+</div>
+<div class="section" id="corrected-haplotype-specific-copy-numbers">
+<h3>Corrected haplotype-specific copy numbers<a class="headerlink" href="#corrected-haplotype-specific-copy-numbers" title="Permalink to this headline">¶</a></h3>
+<p>This plot (<code class="docutils literal notranslate"><span class="pre">haplotypecn-corrected.png</span></code>) depicts the haplotype-specific copy numbers inferred by CHISEL and corrected using the inferred clones for every cell (rows) along the entire genome (y-axis), with cells/rows colored according to the inferred clone and columns/genomic bins colored according to the chromosome.
+The colors of the heatmap represent the haplotype of the allele with fewer copies, such that green and magenta represent haplotype A and B, respectively.
+Note that balanced regions (allele with the same number of copies) are represented in white.
+Further descriptions of the color map used are available in the <a class="reference external" href="https://doi.org/10.1101/837195">CHISEL manuscript</a>.</p>
+</div>
+</div>
+<div class="section" id="useful-additional-plots">
+<h2>Useful additional plots<a class="headerlink" href="#useful-additional-plots" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="baf-and-rdr-plots">
+<h3>BAF and RDR plots<a class="headerlink" href="#baf-and-rdr-plots" title="Permalink to this headline">¶</a></h3>
+<p>This plot (<code class="docutils literal notranslate"><span class="pre">rbplot_mirrored.png</span></code>) shows the global clusters of RDRs and BAFs inferred for a random sample of a certain number of cells (by default 20 cells).
+Each plot corresponds to a different cell, with each plot depicting the bins (each point) which are represented by the corresponding values of <code class="docutils literal notranslate"><span class="pre">|0.5</span> <span class="pre">-</span> <span class="pre">mirrored</span> <span class="pre">BAF|</span></code> (x-axis) and RDR (y-axis), and are colored according to the corresponding cluster; note that colors are consistent across cells.</p>
+</div>
+<div class="section" id="clustered-rdr">
+<h3>Clustered RDR<a class="headerlink" href="#clustered-rdr" title="Permalink to this headline">¶</a></h3>
+<p>This plot (<code class="docutils literal notranslate"><span class="pre">crdr.png</span></code>) shows the estimated RDR and their cluster for a random sample of a certain number of cells (by default 20 cells).
+Each plot corresponds to a different cell, with each plot depicting the bins (each point) which are represented by the corresponding values of RDR (y-axis) along the entire genome (x-axis) and are colored according to the corresponding cluster; note that colors are consistent across cells.</p>
+</div>
+<div class="section" id="clustered-mirrored-baf">
+<h3>Clustered mirrored BAF<a class="headerlink" href="#clustered-mirrored-baf" title="Permalink to this headline">¶</a></h3>
+<p>This plot (<code class="docutils literal notranslate"><span class="pre">cbaf.png</span></code>) shows the estimated BAF and their cluster for a random sample of a certain number of cells (by default 20 cells).
+Each plot corresponds to a different cell, with each plot depicting the bins (each point) which are represented by the corresponding values of <code class="docutils literal notranslate"><span class="pre">|0.5</span> <span class="pre">-</span> <span class="pre">mirrored</span> <span class="pre">BAF|</span></code> (y-axis) along the entire genome (x-axis) and are colored according to the corresponding cluster; note that colors are consistent across cells.</p>
+</div>
+<div class="section" id="total-copy-numbers">
+<h3>Total copy numbers<a class="headerlink" href="#total-copy-numbers" title="Permalink to this headline">¶</a></h3>
+<p>This plot (<code class="docutils literal notranslate"><span class="pre">totalcn.png</span></code>) is an heatmap that shows the total copy numbers inferred by CHISEL for every cell (rows) along the entire genome (y-axis), with cells/rows colored according to the inferred clone and columns/genomic bins colored according to the chromosome.
+Each point of the heatmap this represents the total copy numbers inferred by CHISEL, such that grey represents 2 copies, blue colors represent &lt;2 copies with darker colors corresponding to smaller values, and red colors represent &gt;2 copies with darker colors corresponding to higher values.</p>
+</div>
+<div class="section" id="corrected-total-copy-numbers">
+<h3>Corrected total copy numbers<a class="headerlink" href="#corrected-total-copy-numbers" title="Permalink to this headline">¶</a></h3>
+<p>This plot (<code class="docutils literal notranslate"><span class="pre">totalcn-corrected.png</span></code>) is an heatmap that shows the total copy numbers inferred by CHISEL and corrected using the inferred clones for every cell (rows) along the entire genome (y-axis), with cells/rows colored according to the inferred clone and columns/genomic bins colored according to the chromosome.
+Each point of the heatmap this represents the total copy numbers inferred by CHISEL, such that grey represents 2 copies, blue colors represent &lt;2 copies with darker colors corresponding to smaller values, and red colors represent &gt;2 copies with darker colors corresponding to higher values.</p>
+</div>
+<div class="section" id="loh">
+<h3>LOH<a class="headerlink" href="#loh" title="Permalink to this headline">¶</a></h3>
+<p>This plot (<code class="docutils literal notranslate"><span class="pre">loh.png</span></code>) is an heatmap that shows the LOH inferred by CHISEL for every cell (rows) along the entire genome (y-axis), with cells/rows colored according to the inferred clone and columns/genomic bins colored according to the chromosome.
+Each point of the heatmap is colored according to the absence (white) or presence (black) of a LOH in the corresponding cell and bin.</p>
+</div>
+<div class="section" id="corrected-loh">
+<h3>Corrected LOH<a class="headerlink" href="#corrected-loh" title="Permalink to this headline">¶</a></h3>
+<p>This plot (<code class="docutils literal notranslate"><span class="pre">loh-corrected.png</span></code>) is an heatmap that shows the LOH inferred by CHISEL and corrected using the inferred clones for every cell (rows) along the entire genome (y-axis), with cells/rows colored according to the inferred clone and columns/genomic bins colored according to the chromosome.
+Each point of the heatmap is colored according to the absence (white) or presence (black) of a LOH in the corresponding cell and bin.</p>
+</div>
+<div class="section" id="a-specific-copy-numbers">
+<h3>A-specific copy numbers<a class="headerlink" href="#a-specific-copy-numbers" title="Permalink to this headline">¶</a></h3>
+<p>This plot (<code class="docutils literal notranslate"><span class="pre">Aspecificcn.png</span></code>) is an heatmap that shows the copy numbers inferred by CHISEL for haplotype A for every cell (rows) along the entire genome (y-axis), with cells/rows colored according to the inferred clone and columns/genomic bins colored according to the chromosome.
+The colors of the heatmap are the same for the total copy-numbers (see above).</p>
+</div>
+<div class="section" id="corrected-a-specific-copy-numbers">
+<h3>Corrected A-specific copy numbers<a class="headerlink" href="#corrected-a-specific-copy-numbers" title="Permalink to this headline">¶</a></h3>
+<p>This plot (<code class="docutils literal notranslate"><span class="pre">Aspecificcn-corrected.png</span></code>) is an heatmap that shows the copy numbers inferred by CHISEL for haplotype A and corrected using the inferred clones for every cell (rows) along the entire genome (y-axis), with cells/rows colored according to the inferred clone and columns/genomic bins colored according to the chromosome.
+The colors of the heatmap are the same for the total copy-numbers (see above).</p>
+</div>
+<div class="section" id="b-specific-copy-numbers">
+<h3>B-specific copy numbers<a class="headerlink" href="#b-specific-copy-numbers" title="Permalink to this headline">¶</a></h3>
+<p>This plot (<code class="docutils literal notranslate"><span class="pre">Bspecificcn.png</span></code>) is an heatmap that shows the copy numbers inferred by CHISEL for haplotype B for every cell (rows) along the entire genome (y-axis), with cells/rows colored according to the inferred clone and columns/genomic bins colored according to the chromosome.
+The colors of the heatmap are the same for the total copy-numbers (see above).</p>
+</div>
+<div class="section" id="corrected-b-specific-copy-numbers">
+<h3>Corrected B-specific copy numbers<a class="headerlink" href="#corrected-b-specific-copy-numbers" title="Permalink to this headline">¶</a></h3>
+<p>This plot (<code class="docutils literal notranslate"><span class="pre">Bspecificcn-corrected.png</span></code>) is an heatmap that shows the copy numbers inferred by CHISEL for haplotype B and corrected using the inferred clones for every cell (rows) along the entire genome (y-axis), with cells/rows colored according to the inferred clone and columns/genomic bins colored according to the chromosome.
+The colors of the heatmap are the same for the total copy-numbers (see above).</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Princeton University.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

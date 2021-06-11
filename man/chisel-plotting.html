@@ -1,0 +1,243 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>&lt;no title&gt; &mdash; CHISEL 0.0.5 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> CHISEL
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">CHISEL</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Modules</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CHISEL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>&lt;no title&gt;</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/man/chisel-plotting.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>usage: chisel-plotting.py <span class="o">[</span>-h<span class="o">]</span> <span class="o">[</span>-m CLONEMAP<span class="o">]</span> <span class="o">[</span>-f FIGFORMAT<span class="o">]</span> <span class="o">[</span>-s SAMPLE<span class="o">]</span>
+                          <span class="o">[</span>--excludenoisy<span class="o">]</span> <span class="o">[</span>--gridsize GRIDSIZE<span class="o">]</span>
+                          <span class="o">[</span>--plotsize PLOTSIZE<span class="o">]</span> <span class="o">[</span>--clussize CLUSSIZE<span class="o">]</span>
+                          <span class="o">[</span>--xmax XMAX<span class="o">]</span> <span class="o">[</span>--xmin XMIN<span class="o">]</span> <span class="o">[</span>--ymax YMAX<span class="o">]</span>
+                          <span class="o">[</span>--ymin YMIN<span class="o">]</span>
+                          <span class="o">[</span>INPUT<span class="o">]</span>
+
+CHISEL <span class="nb">command</span> to re-create the plots.
+
+positional arguments:
+  INPUT                 Input file with inferred copy numbers <span class="o">(</span>default:
+                        calls/calls.tsv<span class="o">)</span>
+
+optional arguments:
+  -h, --help            show this <span class="nb">help</span> message and <span class="nb">exit</span>
+  -m CLONEMAP, --clonemap CLONEMAP
+                        Clone map <span class="o">(</span>default: not used, the cells will be
+                        clustered <span class="k">for</span> plotting purposes<span class="o">)</span>
+  -f FIGFORMAT, --figformat FIGFORMAT
+                        Format of output figures <span class="o">(</span>default: png, the only other
+                        option is pdf<span class="o">)</span>
+  -s SAMPLE, --sample SAMPLE
+                        Number of cells to sample <span class="o">(</span>default: <span class="m">20</span><span class="o">)</span>
+  --excludenoisy        Exclude noisy cells from plots <span class="o">(</span>default: False<span class="o">)</span>
+  --gridsize GRIDSIZE   Grid dimenstions specified as comma-separated numbers
+                        <span class="o">(</span>default: <span class="m">12</span>,6<span class="o">)</span>
+  --plotsize PLOTSIZE   Plot dimenstions <span class="k">for</span> RDR-BAF plots, specified as
+                        comma-separated numbers <span class="o">(</span>default: <span class="m">5</span>,1.5<span class="o">)</span>
+  --clussize CLUSSIZE   Grid dimenstions <span class="k">for</span> clustered plots, specified as
+                        comma-separated numbers <span class="o">(</span>default: <span class="m">5</span>,3<span class="o">)</span>
+  --xmax XMAX           Maximum x-axis value <span class="o">(</span>default: None<span class="o">)</span>
+  --xmin XMIN           Minimum x-axis value <span class="o">(</span>default: None<span class="o">)</span>
+  --ymax YMAX           Maximum x-axis value <span class="o">(</span>default: None<span class="o">)</span>
+  --ymin YMIN           Minimum x-axis value <span class="o">(</span>default: None<span class="o">)</span>
+</pre></div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Princeton University.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

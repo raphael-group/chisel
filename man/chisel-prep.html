@@ -1,0 +1,288 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>&lt;no title&gt; &mdash; CHISEL 0.0.5 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> CHISEL
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">CHISEL</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Modules</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CHISEL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>&lt;no title&gt;</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/man/chisel-prep.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>usage: chisel_prep <span class="o">[</span>-h<span class="o">]</span> <span class="o">[</span>-r REFERENCE<span class="o">]</span> <span class="o">[</span>-x RUNDIR<span class="o">]</span> <span class="o">[</span>-o OUTPUT<span class="o">]</span>
+                   <span class="o">[</span>--rexpname REXPNAME<span class="o">]</span> <span class="o">[</span>--rexpread REXPREAD<span class="o">]</span>
+                   <span class="o">[</span>--noduplicates<span class="o">]</span> <span class="o">[</span>--keeptmpdir<span class="o">]</span>
+                   <span class="o">[</span>--barcodelength BARCODELENGTH<span class="o">]</span> <span class="o">[</span>--bcftools BCFTOOLS<span class="o">]</span>
+                   <span class="o">[</span>--samtools SAMTOOLS<span class="o">]</span> <span class="o">[</span>--bwa BWA<span class="o">]</span> <span class="o">[</span>-j JOBS<span class="o">]</span> <span class="o">[</span>--seed SEED<span class="o">]</span>
+                   INPUT <span class="o">[</span>INPUT ...<span class="o">]</span>
+
+CHISEL <span class="nb">command</span> to create a barcoded BAM file from single-cell FASTQs <span class="o">(</span>or gz-
+compressed FASTQs<span class="o">)</span>, single-cell BAMs, or a <span class="sb">`</span>RG:Z:<span class="sb">`</span>-barcoded BAM files without
+<span class="sb">`</span>CB:Z:<span class="sb">`</span> tags. When single-cell FASTQs or BAMs are provided a CELL name is
+assigned to each file <span class="o">(</span>through either filename or table<span class="o">)</span> and the same cell
+barcode will be assigned to all corresponding reads, but a different RG tag as
+they are considered as different repetitions of sequencing of the same cell.
+Specifically, when a table of inputs is not provied, <span class="k">for</span> FASTQs each CELL name
+is extracted from the filename through the provided regular expression
+<span class="o">(</span>default matches Illumina standard format<span class="o">)</span>, <span class="k">for</span> BAMs basename is used as CELL
+name. When single-cell FASTQs are provided a READ value is also assigned to
+each file <span class="o">(</span>through either filename or table<span class="o">)</span> and files with the same filename
+when removing READ values are considered as pairs of sequencing <span class="nb">read</span> mates.
+Input files, CELL names, and possible READ values can be provided through a
+table of inputs.
+
+positional arguments:
+  INPUT                 Input FASTQs, BAMs, or TSV file with different
+                        behaviors: .........................................
+                        <span class="o">(</span><span class="m">1</span><span class="o">)</span> FASTQs -- specified in a directory DIR as
+                        <span class="sb">`</span>DIR/*.fastq<span class="sb">`</span> or <span class="sb">`</span>DIR/*.fastq.gz<span class="sb">`</span> -- will be barcoded
+                        and aligned with <span class="o">(</span>optionally<span class="o">)</span> marked duplicates into a
+                        barcoded BAM file<span class="p">;</span> .................................
+                        <span class="o">(</span><span class="m">2</span><span class="o">)</span> BAMs -- specified in a directory DIR as
+                        <span class="sb">`</span>DIR/*.bam<span class="sb">`</span> -- will be barcoded and aligned with
+                        <span class="o">(</span>optionally<span class="o">)</span> marked duplicates into a barcoded BAM
+                        file<span class="p">;</span> ..............................................
+                        <span class="o">(</span><span class="m">3</span><span class="o">)</span> a single BAM file with unique cells names in the
+                        field <span class="sb">`</span>RG:Z:<span class="sb">`</span> will be converted into a barcoded BAM
+                        file with the additional <span class="sb">`</span>CB:Z:<span class="sb">`</span> tag<span class="p">;</span> ..............
+                        <span class="o">(</span><span class="m">4</span><span class="o">)</span> a tab-separated table of inputs <span class="o">(</span>TSV with optional
+                        header starting with <span class="sb">`</span><span class="c1">#`) with two columns: the first</span>
+                        column is an input file <span class="o">(</span>FASTQ or BAM<span class="o">)</span> and the second
+                        column is the corresponding cell name. When FASTQs are
+                        provided, a third column can be optionally specified
+                        to indicate the <span class="nb">read</span> name in paired-end sequencing,
+                        e.g., indicating either R1 or R2 <span class="k">for</span> the first or
+                        second mate of paired-end reads, respectively. If a
+                        third column is not present, FASTQs are assumed to be
+                        from single-end sequencing.
+
+optional arguments:
+  -h, --help            show this <span class="nb">help</span> message and <span class="nb">exit</span>
+  -r REFERENCE, --reference REFERENCE
+                        Reference genome, which is mandatory in FASTQ mode
+                        <span class="o">(</span>default: None<span class="o">)</span>
+  -x RUNDIR, --rundir RUNDIR
+                        Running directory <span class="o">(</span>default: current directory<span class="o">)</span>
+  -o OUTPUT, --output OUTPUT
+                        Output name in running directory <span class="o">(</span>default:
+                        barcodedcells.bam<span class="o">)</span>
+  --rexpname REXPNAME   Regulare expression to extract cell name from input
+                        FASTQ filenames <span class="o">(</span>default:
+                        <span class="sb">`</span><span class="o">(</span>.*<span class="o">)</span>_S.*_L.*_R<span class="o">[</span><span class="m">1</span><span class="p">|</span><span class="m">2</span><span class="o">]</span>_001.fastq.*<span class="sb">`</span><span class="o">)</span>
+  --rexpread REXPREAD   Regulare expression to extract cell name from input
+                        FASTQ filenames <span class="o">(</span>default:
+                        <span class="sb">`</span>.*_S.*_L.*_<span class="o">(</span>R<span class="o">[</span><span class="m">1</span><span class="p">|</span><span class="m">2</span><span class="o">])</span>_001.fastq.*<span class="sb">`</span><span class="o">)</span>
+  --barcodeonly         Only compute barcodes but <span class="k">do</span> not run aligning pipeline
+                        <span class="o">(</span>default: False<span class="o">)</span>
+  --noduplicates        Do not perform marking duplicates and recalibration
+                        with Picard tools <span class="o">(</span>default: False<span class="o">)</span>
+  --keeptmpdir          Do not erase temporary directory <span class="o">(</span>default: False<span class="o">)</span>
+  --barcodelength BARCODELENGTH
+                        Length of barcodes <span class="o">(</span>default: <span class="m">12</span><span class="o">)</span>
+  --bcftools BCFTOOLS   Path to the directory to <span class="s2">&quot;bcftools&quot;</span> executable
+                        <span class="o">(</span>default: in <span class="nv">$PATH</span><span class="o">)</span>
+  --samtools SAMTOOLS   Path to the directory to <span class="s2">&quot;samtools&quot;</span> executable
+                        <span class="o">(</span>default: in <span class="nv">$PATH</span><span class="o">)</span>
+  --bwa BWA             Path to the directory to <span class="s2">&quot;bwa&quot;</span> executable <span class="o">(</span>default: in
+                        <span class="nv">$PATH</span><span class="o">)</span>
+  -j JOBS, --jobs JOBS  Number of parallele <span class="nb">jobs</span> to use <span class="o">(</span>default: equal to
+                        number of available processors<span class="o">)</span>
+  --seed SEED           Random seed <span class="k">for</span> replication <span class="o">(</span>default: None<span class="o">)</span>
+</pre></div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Princeton University.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

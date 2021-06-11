@@ -1,0 +1,864 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>chisel package &mdash; CHISEL 0.0.5 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="chisel.bin package" href="chisel.bin.html" />
+    <link rel="prev" title="Modules" href="../modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> CHISEL
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">CHISEL</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">Modules</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">chisel package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="chisel.bin.html">chisel.bin package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CHISEL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../modules.html">Modules</a> &raquo;</li>
+        
+      <li>chisel package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/src/chisel.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="chisel-package">
+<h1>chisel package<a class="headerlink" href="#chisel-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="chisel.bin.html">chisel.bin package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="chisel.bin.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chisel.bin.html#module-chisel.bin.chisel_bedding">chisel.bin.chisel_bedding module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chisel.bin.html#module-chisel.bin.chisel_calling">chisel.bin.chisel_calling module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chisel.bin.html#module-chisel.bin.chisel_cloning">chisel.bin.chisel_cloning module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chisel.bin.html#module-chisel.bin.chisel_main">chisel.bin.chisel_main module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chisel.bin.html#module-chisel.bin.chisel_plotting">chisel.bin.chisel_plotting module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chisel.bin.html#module-chisel.bin.chisel_prep">chisel.bin.chisel_prep module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chisel.bin.html#module-chisel.bin.chisel_pseudonormal">chisel.bin.chisel_pseudonormal module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chisel.bin.html#module-chisel.bin">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-chisel.BAFEstimator">
+<span id="chisel-bafestimator-module"></span><h2>chisel.BAFEstimator module<a class="headerlink" href="#module-chisel.BAFEstimator" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="chisel.BAFEstimator.counting_cell">
+<code class="descclassname">chisel.BAFEstimator.</code><code class="descname">counting_cell</code><span class="sig-paren">(</span><em>job</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.BAFEstimator.counting_cell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.BAFEstimator.counting_germinal">
+<code class="descclassname">chisel.BAFEstimator.</code><code class="descname">counting_germinal</code><span class="sig-paren">(</span><em>j</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.BAFEstimator.counting_germinal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.BAFEstimator.extracting">
+<code class="descclassname">chisel.BAFEstimator.</code><code class="descname">extracting</code><span class="sig-paren">(</span><em>args</em>, <em>snps</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.BAFEstimator.extracting" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.BAFEstimator.init_extracting">
+<code class="descclassname">chisel.BAFEstimator.</code><code class="descname">init_extracting</code><span class="sig-paren">(</span><em>_tumor</em>, <em>_sam</em>, <em>countawk</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.BAFEstimator.init_extracting" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.BAFEstimator.init_selecting">
+<code class="descclassname">chisel.BAFEstimator.</code><code class="descname">init_selecting</code><span class="sig-paren">(</span><em>lock</em>, <em>counter</em>, <em>l</em>, <em>normal</em>, <em>bcf</em>, <em>ref</em>, <em>_gamma</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.BAFEstimator.init_selecting" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.BAFEstimator.isHet">
+<code class="descclassname">chisel.BAFEstimator.</code><code class="descname">isHet</code><span class="sig-paren">(</span><em>countA</em>, <em>countB</em>, <em>gamma</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.BAFEstimator.isHet" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.BAFEstimator.main">
+<code class="descclassname">chisel.BAFEstimator.</code><code class="descname">main</code><span class="sig-paren">(</span><em>args=None</em>, <em>stdout_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.BAFEstimator.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.BAFEstimator.mkcount">
+<code class="descclassname">chisel.BAFEstimator.</code><code class="descname">mkcount</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.BAFEstimator.mkcount" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.BAFEstimator.parse_args">
+<code class="descclassname">chisel.BAFEstimator.</code><code class="descname">parse_args</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.BAFEstimator.parse_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.BAFEstimator.read_phase">
+<code class="descclassname">chisel.BAFEstimator.</code><code class="descname">read_phase</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.BAFEstimator.read_phase" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.BAFEstimator.selecting">
+<code class="descclassname">chisel.BAFEstimator.</code><code class="descname">selecting</code><span class="sig-paren">(</span><em>args</em>, <em>phased</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.BAFEstimator.selecting" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-chisel.Caller">
+<span id="chisel-caller-module"></span><h2>chisel.Caller module<a class="headerlink" href="#module-chisel.Caller" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="chisel.Caller.call">
+<code class="descclassname">chisel.Caller.</code><code class="descname">call</code><span class="sig-paren">(</span><em>bins</em>, <em>members</em>, <em>mapb</em>, <em>clusters</em>, <em>cells</em>, <em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Caller.call" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Caller.calling">
+<code class="descclassname">chisel.Caller.</code><code class="descname">calling</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Caller.calling" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Caller.est_clusters">
+<code class="descclassname">chisel.Caller.</code><code class="descname">est_clusters</code><span class="sig-paren">(</span><em>bins</em>, <em>cells</em>, <em>members</em>, <em>mapb</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Caller.est_clusters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Caller.format_combo">
+<code class="descclassname">chisel.Caller.</code><code class="descname">format_combo</code><span class="sig-paren">(</span><em>bins</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Caller.format_combo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Caller.identify_base">
+<code class="descclassname">chisel.Caller.</code><code class="descname">identify_base</code><span class="sig-paren">(</span><em>e</em>, <em>clusters</em>, <em>ccnts</em>, <em>shift</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Caller.identify_base" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Caller.infer">
+<code class="descclassname">chisel.Caller.</code><code class="descname">infer</code><span class="sig-paren">(</span><em>bins</em>, <em>cells</em>, <em>mapb</em>, <em>members</em>, <em>calls</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Caller.infer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Caller.init">
+<code class="descclassname">chisel.Caller.</code><code class="descname">init</code><span class="sig-paren">(</span><em>_clusters</em>, <em>_totsize</em>, <em>args</em>, <em>_counts</em>, <em>_rdrs</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Caller.init" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Caller.init_phasing">
+<code class="descclassname">chisel.Caller.</code><code class="descname">init_phasing</code><span class="sig-paren">(</span><em>_table</em>, <em>_cells</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Caller.init_phasing" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Caller.main">
+<code class="descclassname">chisel.Caller.</code><code class="descname">main</code><span class="sig-paren">(</span><em>args=None</em>, <em>stdout_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Caller.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Caller.parse_args">
+<code class="descclassname">chisel.Caller.</code><code class="descname">parse_args</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Caller.parse_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Caller.phase">
+<code class="descclassname">chisel.Caller.</code><code class="descname">phase</code><span class="sig-paren">(</span><em>cns</em>, <em>cells</em>, <em>j</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Caller.phase" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Caller.phasing">
+<code class="descclassname">chisel.Caller.</code><code class="descname">phasing</code><span class="sig-paren">(</span><em>c</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Caller.phasing" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Caller.read_combo">
+<code class="descclassname">chisel.Caller.</code><code class="descname">read_combo</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Caller.read_combo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Caller.scoring">
+<code class="descclassname">chisel.Caller.</code><code class="descname">scoring</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Caller.scoring" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-chisel.Cloner">
+<span id="chisel-cloner-module"></span><h2>chisel.Cloner module<a class="headerlink" href="#module-chisel.Cloner" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="chisel.Cloner.clustering">
+<code class="descclassname">chisel.Cloner.</code><code class="descname">clustering</code><span class="sig-paren">(</span><em>cns</em>, <em>pos</em>, <em>cells</em>, <em>maxdiff</em>, <em>linkage</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Cloner.clustering" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Cloner.main">
+<code class="descclassname">chisel.Cloner.</code><code class="descname">main</code><span class="sig-paren">(</span><em>args=None</em>, <em>stdout_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Cloner.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Cloner.parse_args">
+<code class="descclassname">chisel.Cloner.</code><code class="descname">parse_args</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Cloner.parse_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Cloner.profiling">
+<code class="descclassname">chisel.Cloner.</code><code class="descname">profiling</code><span class="sig-paren">(</span><em>cns</em>, <em>clus</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Cloner.profiling" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Cloner.reading">
+<code class="descclassname">chisel.Cloner.</code><code class="descname">reading</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Cloner.reading" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Cloner.refining">
+<code class="descclassname">chisel.Cloner.</code><code class="descname">refining</code><span class="sig-paren">(</span><em>cns</em>, <em>clus</em>, <em>chosen</em>, <em>maxdiff</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Cloner.refining" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Cloner.selecting">
+<code class="descclassname">chisel.Cloner.</code><code class="descname">selecting</code><span class="sig-paren">(</span><em>clus</em>, <em>minsize</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Cloner.selecting" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-chisel.Clusterizer">
+<span id="chisel-clusterizer-module"></span><h2>chisel.Clusterizer module<a class="headerlink" href="#module-chisel.Clusterizer" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="chisel.Clusterizer.getord">
+<code class="descclassname">chisel.Clusterizer.</code><code class="descname">getord</code><span class="sig-paren">(</span><em>lord</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Clusterizer.getord" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Clusterizer.init_kclustering">
+<code class="descclassname">chisel.Clusterizer.</code><code class="descname">init_kclustering</code><span class="sig-paren">(</span><em>_N</em>, <em>_M</em>, <em>_K</em>, <em>_lord</em>, <em>_TERROR</em>, <em>_points</em>, <em>_pairwise</em>, <em>_clus</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Clusterizer.init_kclustering" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Clusterizer.kclustering">
+<code class="descclassname">chisel.Clusterizer.</code><code class="descname">kclustering</code><span class="sig-paren">(</span><em>data</em>, <em>restarts</em>, <em>threshold</em>, <em>seed=None</em>, <em>lord=1</em>, <em>j=1</em>, <em>LB=1</em>, <em>UB=None</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Clusterizer.kclustering" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Clusterizer.kclustering_fixed">
+<code class="descclassname">chisel.Clusterizer.</code><code class="descname">kclustering_fixed</code><span class="sig-paren">(</span><em>points</em>, <em>K</em>, <em>restarts</em>, <em>TERROR</em>, <em>PAIRWISE</em>, <em>lord=1</em>, <em>j=1</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Clusterizer.kclustering_fixed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Clusterizer.newshare_matrix">
+<code class="descclassname">chisel.Clusterizer.</code><code class="descname">newshare_matrix</code><span class="sig-paren">(</span><em>N</em>, <em>M</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Clusterizer.newshare_matrix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Clusterizer.run_kclustering">
+<code class="descclassname">chisel.Clusterizer.</code><code class="descname">run_kclustering</code><span class="sig-paren">(</span><em>job</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Clusterizer.run_kclustering" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Clusterizer.share_array">
+<code class="descclassname">chisel.Clusterizer.</code><code class="descname">share_array</code><span class="sig-paren">(</span><em>npdata</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Clusterizer.share_array" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Clusterizer.share_matrix">
+<code class="descclassname">chisel.Clusterizer.</code><code class="descname">share_matrix</code><span class="sig-paren">(</span><em>npdata</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Clusterizer.share_matrix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Clusterizer.weighted_ichoice">
+<code class="descclassname">chisel.Clusterizer.</code><code class="descname">weighted_ichoice</code><span class="sig-paren">(</span><em>weights</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Clusterizer.weighted_ichoice" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-chisel.Combiner">
+<span id="chisel-combiner-module"></span><h2>chisel.Combiner module<a class="headerlink" href="#module-chisel.Combiner" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="chisel.Combiner.EM">
+<code class="descclassname">chisel.Combiner.</code><code class="descname">EM</code><span class="sig-paren">(</span><em>ns</em>, <em>xs</em>, <em>start</em>, <em>tol=1e-06</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Combiner.EM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Combiner.combine">
+<code class="descclassname">chisel.Combiner.</code><code class="descname">combine</code><span class="sig-paren">(</span><em>job</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Combiner.combine" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Combiner.combo">
+<code class="descclassname">chisel.Combiner.</code><code class="descname">combo</code><span class="sig-paren">(</span><em>rdr</em>, <em>cA</em>, <em>cB</em>, <em>bulk</em>, <em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Combiner.combo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Combiner.est_error">
+<code class="descclassname">chisel.Combiner.</code><code class="descname">est_error</code><span class="sig-paren">(</span><em>ns</em>, <em>significance=0.05</em>, <em>restarts=50</em>, <em>bootstrap=100</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Combiner.est_error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Combiner.init">
+<code class="descclassname">chisel.Combiner.</code><code class="descname">init</code><span class="sig-paren">(</span><em>_snps</em>, <em>_cA</em>, <em>_cB</em>, <em>_bulk</em>, <em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Combiner.init" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Combiner.main">
+<code class="descclassname">chisel.Combiner.</code><code class="descname">main</code><span class="sig-paren">(</span><em>args=None</em>, <em>stdout_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Combiner.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Combiner.parse_args">
+<code class="descclassname">chisel.Combiner.</code><code class="descname">parse_args</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Combiner.parse_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Combiner.read_baf">
+<code class="descclassname">chisel.Combiner.</code><code class="descname">read_baf</code><span class="sig-paren">(</span><em>f</em>, <em>cells</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Combiner.read_baf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Combiner.read_listofcells">
+<code class="descclassname">chisel.Combiner.</code><code class="descname">read_listofcells</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Combiner.read_listofcells" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Combiner.read_rdr">
+<code class="descclassname">chisel.Combiner.</code><code class="descname">read_rdr</code><span class="sig-paren">(</span><em>f</em>, <em>cells</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Combiner.read_rdr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-chisel.Mutator">
+<span id="chisel-mutator-module"></span><h2>chisel.Mutator module<a class="headerlink" href="#module-chisel.Mutator" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="chisel.Mutator.counting_cell">
+<code class="descclassname">chisel.Mutator.</code><code class="descname">counting_cell</code><span class="sig-paren">(</span><em>job</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Mutator.counting_cell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Mutator.extracting">
+<code class="descclassname">chisel.Mutator.</code><code class="descname">extracting</code><span class="sig-paren">(</span><em>args</em>, <em>mutations</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Mutator.extracting" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Mutator.init_extracting">
+<code class="descclassname">chisel.Mutator.</code><code class="descname">init_extracting</code><span class="sig-paren">(</span><em>_tumor</em>, <em>_sam</em>, <em>countawk</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Mutator.init_extracting" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Mutator.main">
+<code class="descclassname">chisel.Mutator.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Mutator.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Mutator.parse_args">
+<code class="descclassname">chisel.Mutator.</code><code class="descname">parse_args</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Mutator.parse_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Mutator.read_mutations">
+<code class="descclassname">chisel.Mutator.</code><code class="descname">read_mutations</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Mutator.read_mutations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-chisel.Plotter">
+<span id="chisel-plotter-module"></span><h2>chisel.Plotter module<a class="headerlink" href="#module-chisel.Plotter" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="chisel.Plotter.acns">
+<code class="descclassname">chisel.Plotter.</code><code class="descname">acns</code><span class="sig-paren">(</span><em>bins</em>, <em>pos</em>, <em>cells</em>, <em>index=None</em>, <em>clones=None</em>, <em>selected=None</em>, <em>args=None</em>, <em>out='Aspecificcn.'</em>, <em>val='CNS'</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Plotter.acns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Plotter.addchr">
+<code class="descclassname">chisel.Plotter.</code><code class="descname">addchr</code><span class="sig-paren">(</span><em>g</em>, <em>pos</em>, <em>color=None</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Plotter.addchr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Plotter.addchrplt">
+<code class="descclassname">chisel.Plotter.</code><code class="descname">addchrplt</code><span class="sig-paren">(</span><em>pos</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Plotter.addchrplt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Plotter.bcns">
+<code class="descclassname">chisel.Plotter.</code><code class="descname">bcns</code><span class="sig-paren">(</span><em>bins</em>, <em>pos</em>, <em>cells</em>, <em>index=None</em>, <em>clones=None</em>, <em>selected=None</em>, <em>args=None</em>, <em>out='Bspecificcn.'</em>, <em>val='CNS'</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Plotter.bcns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Plotter.cbaf">
+<code class="descclassname">chisel.Plotter.</code><code class="descname">cbaf</code><span class="sig-paren">(</span><em>bins</em>, <em>pos</em>, <em>chosen</em>, <em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Plotter.cbaf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Plotter.clonemap_to_index">
+<code class="descclassname">chisel.Plotter.</code><code class="descname">clonemap_to_index</code><span class="sig-paren">(</span><em>f</em>, <em>cells</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Plotter.clonemap_to_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Plotter.clustering_tot">
+<code class="descclassname">chisel.Plotter.</code><code class="descname">clustering_tot</code><span class="sig-paren">(</span><em>bins</em>, <em>pos</em>, <em>cells</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Plotter.clustering_tot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Plotter.crdr">
+<code class="descclassname">chisel.Plotter.</code><code class="descname">crdr</code><span class="sig-paren">(</span><em>bins</em>, <em>pos</em>, <em>chosen</em>, <em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Plotter.crdr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Plotter.draw">
+<code class="descclassname">chisel.Plotter.</code><code class="descname">draw</code><span class="sig-paren">(</span><em>table</em>, <em>bins</em>, <em>pos</em>, <em>cells</em>, <em>index</em>, <em>clones</em>, <em>palette</em>, <em>center</em>, <em>method</em>, <em>metric</em>, <em>title</em>, <em>out</em>, <em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Plotter.draw" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Plotter.exclude_noisy">
+<code class="descclassname">chisel.Plotter.</code><code class="descname">exclude_noisy</code><span class="sig-paren">(</span><em>_bins</em>, <em>_pos</em>, <em>_cells</em>, <em>_index</em>, <em>_clones</em>, <em>_selected</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Plotter.exclude_noisy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Plotter.gridbafs">
+<code class="descclassname">chisel.Plotter.</code><code class="descname">gridbafs</code><span class="sig-paren">(</span><em>bins</em>, <em>pos</em>, <em>cells</em>, <em>index=None</em>, <em>clones=None</em>, <em>selected=None</em>, <em>args=None</em>, <em>out='bafs.'</em>, <em>val='BAF'</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Plotter.gridbafs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Plotter.gridrdrs">
+<code class="descclassname">chisel.Plotter.</code><code class="descname">gridrdrs</code><span class="sig-paren">(</span><em>bins</em>, <em>pos</em>, <em>cells</em>, <em>index=None</em>, <em>clones=None</em>, <em>selected=None</em>, <em>args=None</em>, <em>out='rdrs.'</em>, <em>val='RDR'</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Plotter.gridrdrs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Plotter.loh">
+<code class="descclassname">chisel.Plotter.</code><code class="descname">loh</code><span class="sig-paren">(</span><em>bins</em>, <em>pos</em>, <em>cells</em>, <em>index=None</em>, <em>clones=None</em>, <em>selected=None</em>, <em>args=None</em>, <em>out='loh.'</em>, <em>val='CNS'</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Plotter.loh" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Plotter.main">
+<code class="descclassname">chisel.Plotter.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Plotter.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Plotter.minor">
+<code class="descclassname">chisel.Plotter.</code><code class="descname">minor</code><span class="sig-paren">(</span><em>bins</em>, <em>pos</em>, <em>cells</em>, <em>index=None</em>, <em>clones=None</em>, <em>selected=None</em>, <em>args=None</em>, <em>out='haplotypecn.'</em>, <em>val='CNS'</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Plotter.minor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Plotter.order">
+<code class="descclassname">chisel.Plotter.</code><code class="descname">order</code><span class="sig-paren">(</span><em>b</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Plotter.order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Plotter.orderchrs">
+<code class="descclassname">chisel.Plotter.</code><code class="descname">orderchrs</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Plotter.orderchrs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Plotter.parse_args">
+<code class="descclassname">chisel.Plotter.</code><code class="descname">parse_args</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Plotter.parse_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Plotter.rbplot_mirrored">
+<code class="descclassname">chisel.Plotter.</code><code class="descname">rbplot_mirrored</code><span class="sig-paren">(</span><em>bins</em>, <em>chosen</em>, <em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Plotter.rbplot_mirrored" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Plotter.rbplot_unphased">
+<code class="descclassname">chisel.Plotter.</code><code class="descname">rbplot_unphased</code><span class="sig-paren">(</span><em>bins</em>, <em>chosen</em>, <em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Plotter.rbplot_unphased" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Plotter.read_cells">
+<code class="descclassname">chisel.Plotter.</code><code class="descname">read_cells</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Plotter.read_cells" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Plotter.set_style">
+<code class="descclassname">chisel.Plotter.</code><code class="descname">set_style</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Plotter.set_style" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Plotter.states">
+<code class="descclassname">chisel.Plotter.</code><code class="descname">states</code><span class="sig-paren">(</span><em>bins</em>, <em>pos</em>, <em>cells</em>, <em>index=None</em>, <em>clones=None</em>, <em>selected=None</em>, <em>args=None</em>, <em>out='allelecn.'</em>, <em>val='CNS'</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Plotter.states" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Plotter.totalcns">
+<code class="descclassname">chisel.Plotter.</code><code class="descname">totalcns</code><span class="sig-paren">(</span><em>bins</em>, <em>pos</em>, <em>cells</em>, <em>index=None</em>, <em>clones=None</em>, <em>selected=None</em>, <em>args=None</em>, <em>out='totalcn.'</em>, <em>val='CNS'</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Plotter.totalcns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-chisel.RDREstimator">
+<span id="chisel-rdrestimator-module"></span><h2>chisel.RDREstimator module<a class="headerlink" href="#module-chisel.RDREstimator" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="chisel.RDREstimator.counting_cells">
+<code class="descclassname">chisel.RDREstimator.</code><code class="descname">counting_cells</code><span class="sig-paren">(</span><em>counts</em>, <em>tumor</em>, <em>bins</em>, <em>samtools</em>, <em>J</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.RDREstimator.counting_cells" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.RDREstimator.counting_normal">
+<code class="descclassname">chisel.RDREstimator.</code><code class="descname">counting_normal</code><span class="sig-paren">(</span><em>normal</em>, <em>bins</em>, <em>samtools</em>, <em>J</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.RDREstimator.counting_normal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.RDREstimator.extracting">
+<code class="descclassname">chisel.RDREstimator.</code><code class="descname">extracting</code><span class="sig-paren">(</span><em>job</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.RDREstimator.extracting" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.RDREstimator.extracting_normal">
+<code class="descclassname">chisel.RDREstimator.</code><code class="descname">extracting_normal</code><span class="sig-paren">(</span><em>job</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.RDREstimator.extracting_normal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.RDREstimator.get_bins">
+<code class="descclassname">chisel.RDREstimator.</code><code class="descname">get_bins</code><span class="sig-paren">(</span><em>ref</em>, <em>chromosomes</em>, <em>bsize</em>, <em>bams=None</em>, <em>samtools=None</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.RDREstimator.get_bins" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.RDREstimator.init_extracting">
+<code class="descclassname">chisel.RDREstimator.</code><code class="descname">init_extracting</code><span class="sig-paren">(</span><em>_tumor</em>, <em>sam</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.RDREstimator.init_extracting" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.RDREstimator.init_extracting_normal">
+<code class="descclassname">chisel.RDREstimator.</code><code class="descname">init_extracting_normal</code><span class="sig-paren">(</span><em>lock</em>, <em>counter</em>, <em>_l</em>, <em>_normal</em>, <em>sam</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.RDREstimator.init_extracting_normal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.RDREstimator.main">
+<code class="descclassname">chisel.RDREstimator.</code><code class="descname">main</code><span class="sig-paren">(</span><em>args=None</em>, <em>stdout_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.RDREstimator.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.RDREstimator.parse_args">
+<code class="descclassname">chisel.RDREstimator.</code><code class="descname">parse_args</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.RDREstimator.parse_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-chisel.Utils">
+<span id="chisel-utils-module"></span><h2>chisel.Utils module<a class="headerlink" href="#module-chisel.Utils" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="chisel.Utils.ProgressBar">
+<em class="property">class </em><code class="descclassname">chisel.Utils.</code><code class="descname">ProgressBar</code><span class="sig-paren">(</span><em>total</em>, <em>length</em>, <em>lock=None</em>, <em>counter=0</em>, <em>verbose=False</em>, <em>decimals=1</em>, <em>fill=u'u2588'</em>, <em>prefix='Progress:'</em>, <em>suffix='Complete'</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Utils.ProgressBar" title="Permalink to this definition">¶</a></dt>
+<dd><p class="rubric">Methods</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="68%" />
+<col width="32%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>progress</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>progress_locked</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><strong>progress_unlocked</strong></td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="chisel.Utils.ProgressBar.progress">
+<code class="descname">progress</code><span class="sig-paren">(</span><em>self</em>, <em>advance=True</em>, <em>msg=''</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Utils.ProgressBar.progress" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="chisel.Utils.ProgressBar.progress_locked">
+<code class="descname">progress_locked</code><span class="sig-paren">(</span><em>self</em>, <em>advance</em>, <em>msg</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Utils.ProgressBar.progress_locked" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="chisel.Utils.ProgressBar.progress_unlocked">
+<code class="descname">progress_unlocked</code><span class="sig-paren">(</span><em>self</em>, <em>advance</em>, <em>msg</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Utils.ProgressBar.progress_unlocked" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="chisel.Utils.argmax">
+<code class="descclassname">chisel.Utils.</code><code class="descname">argmax</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Utils.argmax" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Utils.argmin">
+<code class="descclassname">chisel.Utils.</code><code class="descname">argmin</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Utils.argmin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="chisel.Utils.bcolors">
+<em class="property">class </em><code class="descclassname">chisel.Utils.</code><code class="descname">bcolors</code><a class="headerlink" href="#chisel.Utils.bcolors" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="chisel.Utils.bcolors.BBLUE">
+<code class="descname">BBLUE</code><em class="property"> = '\x1b[96m'</em><a class="headerlink" href="#chisel.Utils.bcolors.BBLUE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="chisel.Utils.bcolors.BOLD">
+<code class="descname">BOLD</code><em class="property"> = '\x1b[1m'</em><a class="headerlink" href="#chisel.Utils.bcolors.BOLD" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="chisel.Utils.bcolors.ENDC">
+<code class="descname">ENDC</code><em class="property"> = '\x1b[0m'</em><a class="headerlink" href="#chisel.Utils.bcolors.ENDC" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="chisel.Utils.bcolors.FAIL">
+<code class="descname">FAIL</code><em class="property"> = '\x1b[91m'</em><a class="headerlink" href="#chisel.Utils.bcolors.FAIL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="chisel.Utils.bcolors.HEADER">
+<code class="descname">HEADER</code><em class="property"> = '\x1b[95m'</em><a class="headerlink" href="#chisel.Utils.bcolors.HEADER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="chisel.Utils.bcolors.OKBLUE">
+<code class="descname">OKBLUE</code><em class="property"> = '\x1b[94m'</em><a class="headerlink" href="#chisel.Utils.bcolors.OKBLUE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="chisel.Utils.bcolors.OKGREEN">
+<code class="descname">OKGREEN</code><em class="property"> = '\x1b[92m'</em><a class="headerlink" href="#chisel.Utils.bcolors.OKGREEN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="chisel.Utils.bcolors.UNDERLINE">
+<code class="descname">UNDERLINE</code><em class="property"> = '\x1b[4m'</em><a class="headerlink" href="#chisel.Utils.bcolors.UNDERLINE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="chisel.Utils.bcolors.WARNING">
+<code class="descname">WARNING</code><em class="property"> = '\x1b[93m'</em><a class="headerlink" href="#chisel.Utils.bcolors.WARNING" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="chisel.Utils.error">
+<code class="descclassname">chisel.Utils.</code><code class="descname">error</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Utils.error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Utils.indices_to_condensed">
+<code class="descclassname">chisel.Utils.</code><code class="descname">indices_to_condensed</code><span class="sig-paren">(</span><em>i</em>, <em>j</em>, <em>n</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Utils.indices_to_condensed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Utils.inupdate">
+<code class="descclassname">chisel.Utils.</code><code class="descname">inupdate</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Utils.inupdate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Utils.log">
+<code class="descclassname">chisel.Utils.</code><code class="descname">log</code><span class="sig-paren">(</span><em>msg</em>, <em>level='STEP'</em>, <em>lock=None</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Utils.log" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Utils.orderchrs">
+<code class="descclassname">chisel.Utils.</code><code class="descname">orderchrs</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Utils.orderchrs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Utils.runcmd">
+<code class="descclassname">chisel.Utils.</code><code class="descname">runcmd</code><span class="sig-paren">(</span><em>cmd</em>, <em>xdir</em>, <em>out=None</em>, <em>log='log'</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Utils.runcmd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Utils.stdout_redirected">
+<code class="descclassname">chisel.Utils.</code><code class="descname">stdout_redirected</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Utils.stdout_redirected" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="chisel.Utils.which">
+<code class="descclassname">chisel.Utils.</code><code class="descname">which</code><span class="sig-paren">(</span><em>program</em><span class="sig-paren">)</span><a class="headerlink" href="#chisel.Utils.which" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-chisel">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-chisel" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="chisel.bin.html" class="btn btn-neutral float-right" title="chisel.bin package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../modules.html" class="btn btn-neutral float-left" title="Modules" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Princeton University.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

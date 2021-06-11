@@ -1,0 +1,266 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>&lt;no title&gt; &mdash; CHISEL 0.0.5 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> CHISEL
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">CHISEL</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Modules</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CHISEL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>&lt;no title&gt;</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/man/chisel.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>usage: chisel.py <span class="o">[</span>-h<span class="o">]</span> <span class="o">[</span>-x RUNDIR<span class="o">]</span> -t TUMOR -n NORMAL -r REFERENCE -l
+                 LISTPHASED <span class="o">[</span>-b SIZE<span class="o">]</span> <span class="o">[</span>-k BLOCKSIZE<span class="o">]</span> <span class="o">[</span>-c CHROMOSOMES<span class="o">]</span>
+                 <span class="o">[</span>-m MINREADS<span class="o">]</span> <span class="o">[</span>-p MAXPLOIDY<span class="o">]</span> <span class="o">[</span>-K UPPERK<span class="o">]</span>
+                 <span class="o">[</span>--bcftools BCFTOOLS<span class="o">]</span> <span class="o">[</span>--samtools SAMTOOLS<span class="o">]</span>
+                 <span class="o">[</span>--cellprefix CELLPREFIX<span class="o">]</span> <span class="o">[</span>--cellsuffix CELLSUFFIX<span class="o">]</span>
+                 <span class="o">[</span>--seed SEED<span class="o">]</span> <span class="o">[</span>-j JOBS<span class="o">]</span>
+
+CHISEL <span class="nb">command</span> to run the <span class="nb">complete</span> pipeline starting from the <span class="m">4</span> required data:
+<span class="o">(</span><span class="m">1</span><span class="o">)</span> Barcoded single-cell BAM<span class="p">;</span> <span class="o">(</span><span class="m">2</span><span class="o">)</span> Matched-normal BAM<span class="p">;</span> <span class="o">(</span><span class="m">3</span><span class="o">)</span> Reference genome<span class="p">;</span>
+<span class="o">(</span><span class="m">4</span><span class="o">)</span> Phased VCF.
+
+optional arguments:
+  -h, --help            show this <span class="nb">help</span> message and <span class="nb">exit</span>
+  -x RUNDIR, --rundir RUNDIR
+                        Running directory <span class="o">(</span>default: current directory<span class="o">)</span>
+  -t TUMOR, --tumor TUMOR
+                        Barcoded single-cell BAM file
+  -n NORMAL, --normal NORMAL
+                        Matched-normal BAM file
+  -r REFERENCE, --reference REFERENCE
+                        Reference genome
+  -l LISTPHASED, --listphased LISTPHASED
+                        Phased SNPs file <span class="o">(</span>lines of heterozygous germline SNPs
+                        must contain either <span class="m">0</span><span class="p">|</span><span class="m">1</span> or <span class="m">1</span><span class="p">|</span><span class="m">0</span><span class="o">)</span>
+  -b SIZE, --size SIZE  Bin size, with or without <span class="s2">&quot;kb&quot;</span> or <span class="s2">&quot;Mb&quot;</span>
+  -k BLOCKSIZE, --blocksize BLOCKSIZE
+                        Size of the haplotype blocks <span class="o">(</span>default: 50kb, use <span class="m">0</span> to
+                        disable<span class="o">)</span>
+  -c CHROMOSOMES, --chromosomes CHROMOSOMES
+                        Space-separeted list of chromosomes between apices
+                        <span class="o">(</span>default: <span class="s2">&quot;chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8</span>
+<span class="s2">                        chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17</span>
+<span class="s2">                        chr18 chr19 chr20 chr21 chr22&quot;</span><span class="o">)</span>
+  -m MINREADS, --minreads MINREADS
+                        Minimum number total reads to <span class="k">select</span> cells <span class="o">(</span>default:
+                        <span class="m">100000</span><span class="o">)</span>
+  -p MAXPLOIDY, --maxploidy MAXPLOIDY
+                        Maximum total copy number to consider <span class="k">for</span> balanced
+                        cluster <span class="o">(</span>default: <span class="m">4</span>, corresponding to a WGD<span class="o">)</span>
+  -K UPPERK, --upperk UPPERK
+                        Maximum number of bin clusters <span class="o">(</span>default: <span class="m">100</span>, use <span class="m">0</span> to
+                        consider maximum number of clusters<span class="o">)</span>
+  --bcftools BCFTOOLS   Path to the directory to <span class="s2">&quot;bcftools&quot;</span> executable,
+                        required in default mode <span class="o">(</span>default: bcftools is
+                        directly called as it is in user <span class="nv">$PATH</span><span class="o">)</span>
+  --samtools SAMTOOLS   Path to the directory to <span class="s2">&quot;samtools&quot;</span> executable,
+                        required in default mode <span class="o">(</span>default: samtools is
+                        directly called as it is in user <span class="nv">$PATH</span><span class="o">)</span>
+  --cellprefix CELLPREFIX
+                        Prefix of cell barcode field in SAM format <span class="o">(</span>default:
+                        CB:Z:<span class="o">)</span>
+  --cellsuffix CELLSUFFIX
+                        Suffix of cell barcode field in SAM format <span class="o">(</span>default:
+                        none<span class="o">)</span>
+  --seed SEED           Random seed <span class="k">for</span> replication <span class="o">(</span>default: None<span class="o">)</span>
+  -j JOBS, --jobs JOBS  Number of parallele <span class="nb">jobs</span> to use <span class="o">(</span>default: equal to
+                        number of available processors<span class="o">)</span>
+</pre></div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Princeton University.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

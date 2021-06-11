@@ -1,0 +1,70 @@
+chisel.bin package
+==================
+
+Submodules
+----------
+
+chisel.bin.chisel\_bedding module
+---------------------------------
+
+.. automodule:: chisel.bin.chisel_bedding
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+chisel.bin.chisel\_calling module
+---------------------------------
+
+.. automodule:: chisel.bin.chisel_calling
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+chisel.bin.chisel\_cloning module
+---------------------------------
+
+.. automodule:: chisel.bin.chisel_cloning
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+chisel.bin.chisel\_main module
+------------------------------
+
+.. automodule:: chisel.bin.chisel_main
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+chisel.bin.chisel\_plotting module
+----------------------------------
+
+.. automodule:: chisel.bin.chisel_plotting
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+chisel.bin.chisel\_prep module
+------------------------------
+
+.. automodule:: chisel.bin.chisel_prep
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+chisel.bin.chisel\_pseudonormal module
+--------------------------------------
+
+.. automodule:: chisel.bin.chisel_pseudonormal
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: chisel.bin
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,314 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Command chisel.py &mdash; CHISEL 0.0.5 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> CHISEL
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="README.html">CHISEL</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CHISEL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Command <code class="docutils literal notranslate"><span class="pre">chisel.py</span></code></li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/chisel.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="command-chisel-py">
+<h1>Command <code class="docutils literal notranslate"><span class="pre">chisel.py</span></code><a class="headerlink" href="#command-chisel-py" title="Permalink to this headline">¶</a></h1>
+<p>The CHISEL command <code class="docutils literal notranslate"><span class="pre">chisel.py</span></code> runs the entire CHISEL pipeline starting from the required inputs (e.g. BAM files).
+During the executiong, the command creates six folders which contain the temporary and final results produced by the 5 distinct steps of CHISEL.</p>
+<div class="section" id="estimating-rdrs">
+<h2>Estimating RDRs<a class="headerlink" href="#estimating-rdrs" title="Permalink to this headline">¶</a></h2>
+<p>This step aims to estimate the RDR for every genomic bin in each cell.
+Moreover, it selects the barcodes that correspond to cells using a specified threshold on the minimum number of reads.
+This step creates a folder <code class="docutils literal notranslate"><span class="pre">rdr</span></code> with three files:</p>
+<ol class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">total.tsv</span></code>: a TSV dataframe containing the number of sequencing reads observed for every selected cell. More specifically, the fields are:<ol>
+<li><code class="docutils literal notranslate"><span class="pre">CELL</span></code>: the name of a cell or the name <code class="docutils literal notranslate"><span class="pre">normal</span></code> indicating the matched-normal sample;</li>
+<li><code class="docutils literal notranslate"><span class="pre">TOTAL</span></code>: the total number of sequencing reads observed for the cell.</li>
+</ol>
+</li>
+<li><code class="docutils literal notranslate"><span class="pre">rdr.tsv</span></code>: a TSV dataframe containg the estimated RDRs with the following fields:<ol>
+<li><code class="docutils literal notranslate"><span class="pre">CHROMOSOME</span></code>: the name of a chromosome;</li>
+<li><code class="docutils literal notranslate"><span class="pre">START</span></code>: the starting coordinate of a genomic bin;</li>
+<li><code class="docutils literal notranslate"><span class="pre">END</span></code>: the ending coordinate of the genomic bin;</li>
+<li><code class="docutils literal notranslate"><span class="pre">CELL</span></code>: the name of a cell;</li>
+<li><code class="docutils literal notranslate"><span class="pre">NORMAL</span></code>: the number of sequencing reads from the matched-normal sample for the bin;</li>
+<li><code class="docutils literal notranslate"><span class="pre">COUNT</span></code>: the number of sequencing reads from the cell <code class="docutils literal notranslate"><span class="pre">CELL</span></code> in the bin;</li>
+<li><code class="docutils literal notranslate"><span class="pre">RDR</span></code>: the estimated RDR.</li>
+</ol>
+</li>
+<li><code class="docutils literal notranslate"><span class="pre">log</span></code>: a logging file of the execution of this step (optional).</li>
+</ol>
+</div>
+<div class="section" id="estimating-baf">
+<h2>Estimating BAF<a class="headerlink" href="#estimating-baf" title="Permalink to this headline">¶</a></h2>
+<p>This step aims to estimate the BAF for phased germline heterozygous SNPs in the selected cells.
+This step creates a folder <code class="docutils literal notranslate"><span class="pre">baf</span></code> with two files:</p>
+<ol class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">baf.tsv</span></code>: a TSV dataframe with the following fields:<ol>
+<li><code class="docutils literal notranslate"><span class="pre">CHROMOSOME</span></code>: the name of a chromosome;</li>
+<li><code class="docutils literal notranslate"><span class="pre">POS</span></code>: a genomic position in the chromosome <code class="docutils literal notranslate"><span class="pre">CHROMOSOME</span></code> for a germline heterozygous SNP;</li>
+<li><code class="docutils literal notranslate"><span class="pre">CELL</span></code>: the name of a cell;</li>
+<li><code class="docutils literal notranslate"><span class="pre">A-COUNT</span></code>: the number of observed sequencing reads from the haplotype A of the SNP;</li>
+<li><code class="docutils literal notranslate"><span class="pre">B-COUNT</span></code>: the number of observed sequencing reads from the haplotype B of the SNP.</li>
+</ol>
+</li>
+<li><code class="docutils literal notranslate"><span class="pre">log</span></code>: a logging file of the execution of this step (optional).</li>
+</ol>
+</div>
+<div class="section" id="combining-rdrs-and-bafs">
+<h2>Combining RDRs and BAFs<a class="headerlink" href="#combining-rdrs-and-bafs" title="Permalink to this headline">¶</a></h2>
+<p>This step aims to combine the RDRs and BAFs for the selected bins in the selected cells.
+This step creates a folder <code class="docutils literal notranslate"><span class="pre">combo</span></code> with two files:</p>
+<ol class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">combo.tsv</span></code>: a TSV dataframe with the following fields:<ol>
+<li><code class="docutils literal notranslate"><span class="pre">CHROMOSOME</span></code>: the name of a chromosome;</li>
+<li><code class="docutils literal notranslate"><span class="pre">START</span></code>: the starting coordinate of a genomic bin;</li>
+<li><code class="docutils literal notranslate"><span class="pre">END</span></code>: the ending coordinate of the genomic bin;</li>
+<li><code class="docutils literal notranslate"><span class="pre">CELL</span></code>: the name of a cell;</li>
+<li><code class="docutils literal notranslate"><span class="pre">NORMAL</span></code>: the number of sequencing reads from the matched-normal sample for the bin;</li>
+<li><code class="docutils literal notranslate"><span class="pre">COUNT</span></code>: the number of sequencing reads from the cell <code class="docutils literal notranslate"><span class="pre">CELL</span></code> in the bin;</li>
+<li><code class="docutils literal notranslate"><span class="pre">RDR</span></code>: the estimated RDR for the bin in the cell <code class="docutils literal notranslate"><span class="pre">CELL</span></code>;</li>
+<li><code class="docutils literal notranslate"><span class="pre">A-COUNT</span></code>: the number of observed sequencing reads from the haplotype A of the SNP;</li>
+<li><code class="docutils literal notranslate"><span class="pre">B-COUNT</span></code>: the number of observed sequencing reads from the haplotype B of the SNP;</li>
+<li><code class="docutils literal notranslate"><span class="pre">BAF</span></code>: the B-allele frequency estimated for the bin in the cell <code class="docutils literal notranslate"><span class="pre">CELL</span></code>.</li>
+</ol>
+</li>
+<li><code class="docutils literal notranslate"><span class="pre">log</span></code>: a logging file of the execution of this step (optional).</li>
+</ol>
+</div>
+<div class="section" id="calling">
+<h2>Calling<a class="headerlink" href="#calling" title="Permalink to this headline">¶</a></h2>
+<p>This step aims to infer the ploidy of each cell and, after global clustering of RDRs and BAFs, to infer the allele- and haplotype-specific copy numbers for every bin in every cell.
+This step creates a folder <code class="docutils literal notranslate"><span class="pre">calls</span></code> with two files</p>
+<ol class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">calls.tsv</span></code>: a TSV dataframe with the following fields:<ol>
+<li><code class="docutils literal notranslate"><span class="pre">CHROMOSOME</span></code>: the name of a chromosome;</li>
+<li><code class="docutils literal notranslate"><span class="pre">START</span></code>: the starting coordinate of a genomic bin;</li>
+<li><code class="docutils literal notranslate"><span class="pre">END</span></code>: the ending coordinate of the genomic bin;</li>
+<li><code class="docutils literal notranslate"><span class="pre">CELL</span></code>: the name of a cell;</li>
+<li><code class="docutils literal notranslate"><span class="pre">NORMAL</span></code>: the number of sequencing reads from the matched-normal sample for the bin;</li>
+<li><code class="docutils literal notranslate"><span class="pre">COUNT</span></code>: the number of sequencing reads from the cell <code class="docutils literal notranslate"><span class="pre">CELL</span></code> in the bin;</li>
+<li><code class="docutils literal notranslate"><span class="pre">RDR</span></code>: the estimated RDR for the bin in the cell <code class="docutils literal notranslate"><span class="pre">CELL</span></code>;</li>
+<li><code class="docutils literal notranslate"><span class="pre">A-COUNT</span></code>: the number of observed sequencing reads from the haplotype A of the SNP;</li>
+<li><code class="docutils literal notranslate"><span class="pre">B-COUNT</span></code>: the number of observed sequencing reads from the haplotype B of the SNP;</li>
+<li><code class="docutils literal notranslate"><span class="pre">BAF</span></code>: the B-allele frequency estimated for the bin in the cell <code class="docutils literal notranslate"><span class="pre">CELL</span></code>;</li>
+<li><code class="docutils literal notranslate"><span class="pre">ALLELECN</span></code>: dash-separated ordered pair of the inferred haplotype-specific copy numbers for the bin in the cell <code class="docutils literal notranslate"><span class="pre">CELL</span></code>.</li>
+</ol>
+</li>
+<li><code class="docutils literal notranslate"><span class="pre">log</span></code>: a logging file of the execution of this step (optional).</li>
+</ol>
+</div>
+<div class="section" id="cloning">
+<h2>Cloning<a class="headerlink" href="#cloning" title="Permalink to this headline">¶</a></h2>
+<p>This steps aims to infer the clones by clustering cells based on the inferred haplotype-specific copy numbers and selecting the clusters that correspond to actual clones.
+This step creates a folder <code class="docutils literal notranslate"><span class="pre">clones</span></code> with two files:</p>
+<ol class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">mapping.tsv</span></code>: a TSV dataframe with the following fields:<ol>
+<li><code class="docutils literal notranslate"><span class="pre">CELL</span></code>: the name of a selected cell;</li>
+<li><code class="docutils literal notranslate"><span class="pre">CLUSTER</span></code>: the cluster where the cell <code class="docutils literal notranslate"><span class="pre">CELL</span></code> has been assigned;</li>
+<li><code class="docutils literal notranslate"><span class="pre">CLONE</span></code>: the clone of the cell <code class="docutils literal notranslate"><span class="pre">CELL</span></code>, however it corresponds to <code class="docutils literal notranslate"><span class="pre">None</span></code> if the cells is classified as noisy.</li>
+</ol>
+</li>
+<li><code class="docutils literal notranslate"><span class="pre">log</span></code>: a logging file of the execution of this step (optional).</li>
+</ol>
+<p>Moreover, this step introduces a new field (right-most field) in the file <code class="docutils literal notranslate"><span class="pre">calls.tsv</span></code> which is <code class="docutils literal notranslate"><span class="pre">CORRECTED_CNS</span></code> and corresponds to the final haplotype-specific copy numbers estimated after consensus of cells in the same clone.</p>
+</div>
+<div class="section" id="plotting">
+<h2>Plotting<a class="headerlink" href="#plotting" title="Permalink to this headline">¶</a></h2>
+<p>This step generate several useful plots about the results, which are fully described <a class="reference internal" href="chisel-plotting.html"><span class="doc">here</span></a>.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Princeton University.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

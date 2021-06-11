@@ -1,0 +1,224 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Identification of clones &mdash; CHISEL 0.0.5 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> CHISEL
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">CHISEL</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Modules</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CHISEL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Identification of clones</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/guides/clones.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="identification-of-clones">
+<h1>Identification of clones<a class="headerlink" href="#identification-of-clones" title="Permalink to this headline">¶</a></h1>
+<p>CHISEL infers clones by clustering cells based on the inferred haplotype-specific copy numbers and selecting the clusters that correspond to actual clones.
+This selection is indeed required because the data are noisy and minor differences between cells may indicate errors as well as small clusters may indicate noisy cells with bad sequencing.
+This identification is controlled by two parameters:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">f</span></code>: the maximum fraction of the genome with different haplotype-specific copy numbers for cells in the same clone (default: 0.06);</li>
+<li><code class="docutils literal notranslate"><span class="pre">s</span></code>: the minimum number of cells in a clone (default: 14).</li>
+</ul>
+<p>The values of these two parameters have been calibrated for the expected number of cells and sequencing coverage of 10X Genomics datasets.
+However, when analyzing datasets with different number of cells, different sequencing coverage, or particularly noisy datasets, the default values of these parameters may not be appropriate.
+Therefore, when the user observes a outlying high number of noisy cells or too few inferred clones (even 0), it is important to vary these values to explore different solutions.</p>
+<p>Given the inferred clones with the previous parameters, there is one additional parameter that can be used to adjust the classification of noisy cells: <code class="docutils literal notranslate"><span class="pre">-r</span></code>, which controls the refinement of the identified clones and allows the user to include more “noisy” cells into the identified clones. Specifically, every cell that has a fraction of the genome with different haplotype-specific copy numbers lower than then value of <code class="docutils literal notranslate"><span class="pre">r</span></code> will be included into the clones. Therefore, the user can user increasingly higher values to force the inclusion of more noisy cells into the inferred clones, for example <code class="docutils literal notranslate"><span class="pre">-r</span> <span class="pre">0.2</span></code>, <code class="docutils literal notranslate"><span class="pre">-r</span> <span class="pre">0.3</span></code>, <code class="docutils literal notranslate"><span class="pre">-r</span> <span class="pre">0.4</span></code>, etc. Note that <code class="docutils literal notranslate"><span class="pre">-r</span> <span class="pre">1</span></code> will force every cell to be assigned to a clone.</p>
+<p>These tasks can be performed very efficiently and easily by using the <a class="reference external" href="../chisel-cloning.html">CHISEL command <code class="docutils literal notranslate"><span class="pre">chisel-cloning.py</span></code></a>, which allows the user to only re-execute the inference of clones and the generation of plots very efficiently from the already inferred haploty-specific copy numbers.
+As such, using this command, the user can attempt to use different combinations of the parameters, varying the maximum difference <code class="docutils literal notranslate"><span class="pre">f</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">-f</span> <span class="pre">0.1</span></code>, <code class="docutils literal notranslate"><span class="pre">-f</span> <span class="pre">0.12</span></code>, <code class="docutils literal notranslate"><span class="pre">-f</span> <span class="pre">0.15</span></code>, …) and the minimum number <code class="docutils literal notranslate"><span class="pre">-s</span></code> of cells to select the clones (either increasing like <code class="docutils literal notranslate"><span class="pre">-s</span> <span class="pre">20</span></code>, <code class="docutils literal notranslate"><span class="pre">-s</span> <span class="pre">30</span></code>, … or decreasing like <code class="docutils literal notranslate"><span class="pre">-s</span> <span class="pre">3</span></code>, <code class="docutils literal notranslate"><span class="pre">-s</span> <span class="pre">2</span></code>, according to the total number of cells).
+More details on adjusting and selecting reasonable values of these parameters are available in the <a class="reference external" href="https://doi.org/10.1101/837195">CHISEL’s manuscript</a>.</p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Princeton University.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,93 @@
+chisel package
+==============
+
+Subpackages
+-----------
+
+.. toctree::
+
+    chisel.bin
+
+Submodules
+----------
+
+chisel.BAFEstimator module
+--------------------------
+
+.. automodule:: chisel.BAFEstimator
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+chisel.Caller module
+--------------------
+
+.. automodule:: chisel.Caller
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+chisel.Cloner module
+--------------------
+
+.. automodule:: chisel.Cloner
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+chisel.Clusterizer module
+-------------------------
+
+.. automodule:: chisel.Clusterizer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+chisel.Combiner module
+----------------------
+
+.. automodule:: chisel.Combiner
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+chisel.Mutator module
+---------------------
+
+.. automodule:: chisel.Mutator
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+chisel.Plotter module
+---------------------
+
+.. automodule:: chisel.Plotter
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+chisel.RDREstimator module
+--------------------------
+
+.. automodule:: chisel.RDREstimator
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+chisel.Utils module
+-------------------
+
+.. automodule:: chisel.Utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: chisel
+    :members:
+    :undoc-members:
+    :show-inheritance:

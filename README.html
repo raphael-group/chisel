@@ -1,0 +1,634 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>CHISEL &mdash; CHISEL 0.0.5 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Modules" href="modules.html" />
+    <link rel="prev" title="CHISEL" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> CHISEL
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">CHISEL</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#contents">Contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm">Algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#software">Software</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#quick-start">Quick start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#full-automatic-installation">Full automatic installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#standard-installation">Standard installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#custom-installation">Custom installation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#python-packages">&gt; Python packages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#additional-software">&gt; Additional software</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#additional-notes">Additional notes:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#required-data">Required data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#system-requirements">System requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#chisel-commands">CHISEL Commands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#demos">Demos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#recommendations-and-quality-control">Recommendations and quality control</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#development">Development</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#recent-and-important-updates">Recent and important updates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#current-issues">Current issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#contacts">Contacts</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CHISEL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>CHISEL</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/README.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="chisel">
+<h1>CHISEL<a class="headerlink" href="#chisel" title="Permalink to this headline">¶</a></h1>
+<p>CHISEL is an algorithm to infer allele- and haplotype-specific copy numbers in individual cells from low-coverage single-cell DNA sequencing data.
+The full description of the algorithm and its application on published cancer datasets are described in</p>
+<p><a class="reference external" href="https://doi.org/10.1038/s41587-020-0661-6">Simone Zaccaria and Ben Raphael, Nature Biotechnology, 2021</a></p>
+<p>The results of CHISEL on the published low-coverage single-cell DNA sequencing data of cancer patients and all the related analyses are available at</p>
+<p><a class="reference external" href="https://github.com/raphael-group/chisel-data">CHISEL data</a></p>
+<p>This repository includes detailed instructions for installation and requirements, demos with related tutorial of different CHISEL applications, a list of current issues, and contacts.
+The CHISEL repository is currently in a preliminary release and improved versions are released frequently.
+During this stage, please keep checking for updates.</p>
+<div class="section" id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
+<ol class="simple">
+<li><a class="reference external" href="#overview">Overview</a><ul>
+<li><a class="reference external" href="#algorithm">Algorithm</a></li>
+<li><a class="reference external" href="#software">Software</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#quick">Quick start</a></li>
+<li><a class="reference external" href="#setup">Setup</a><ul>
+<li><a class="reference external" href="#automatic">Full automatic installation</a></li>
+<li><a class="reference external" href="#standard">Standard installation</a></li>
+<li><a class="reference external" href="#custom">Custom installation</a></li>
+<li><a class="reference external" href="#additionalnotes">Additional notes</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#usage">Usage</a><ul>
+<li><a class="reference external" href="#requireddata">Required data</a></li>
+<li><a class="reference external" href="#requirements">System requirements</a></li>
+<li><a class="reference external" href="#commands">Commands</a></li>
+<li><a class="reference external" href="#demos">Demos</a></li>
+<li><a class="reference external" href="#reccomendations">Recommendations and quality control</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#development">Development</a><ul>
+<li><a class="reference external" href="#updates">Recent and important updates</a></li>
+<li><a class="reference external" href="#currentissues">Current issues</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#contacts">Contacts</a></li>
+</ol>
+<p><a name="overview"></a></p>
+</div>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p><a name="algorithm"></a></p>
+<div class="section" id="algorithm">
+<h3>Algorithm<a class="headerlink" href="#algorithm" title="Permalink to this headline">¶</a></h3>
+<p><img alt="_images/chisel-cartoon.png" src="_images/chisel-cartoon.png" /></p>
+<p><strong>The CHISEL algorithm.</strong> <strong>(A)</strong> CHISEL computes RDRs and BAFs in low-coverage (&lt;0.05X per cell) single-cell DNA sequencing data (top left). Read counts from 2000 individual cells (rows) in 5Mb genomic bins (columns) across three chromosomes (grey rectangles in first row) are shown. For each bin in each cell, CHISEL computes the RDR (top) by normalizing the observed read counts. CHISEL computes the BAF in each bin and cell (bottom) by first performing referenced-based phasing of germline SNPs in 50kb haplotype blocks (magenta and green) and then phasing all these blocks jointly across all cells. <strong>(B)</strong> CHISEL clusters RDRs and BAFs globally along the genome and jointly across all cells resulting here in 5 clusters of genomic bins (red, blue, purple, yellow, and grey) with distinct copy-number states. <strong>(C)</strong> CHISEL infers a pair of allele-specific copy numbers for each cluster by determining whether the allele-specific copy numbers of the largest balanced (BAF~0.5) cluster are equal to <em>{1, 1}</em> (diploid), <em>{2, 2}</em> (tetraploid), or are higher ploidy. <strong>(D)</strong> CHISEL infers haplotype-specific copy numbers <em>(a, b)</em> by phasing the allele-specific copy numbers consistently across all cells. <strong>(E)</strong> CHISEL clusters tumor cells into clones according to their haplotype-specific copy numbers. Here, a diploid clone (light gray) and two tumor clones (red and blue) are obtained. A phylogenetic tree describes the evolution of these clones. Somatic single-nucleotide variants (SNVs) are derived from pseudo-bulk samples and placed on the branches of the tree.</p>
+<p><a name="software"></a></p>
+</div>
+<div class="section" id="software">
+<h3>Software<a class="headerlink" href="#software" title="Permalink to this headline">¶</a></h3>
+<p>The current implementation of CHISEL is written in <code class="docutils literal notranslate"><span class="pre">python2.7</span></code> and <a class="reference external" href="https://bioconda.github.io/recipes/chisel/README.html">CHISEL</a> is distributed as a <a class="reference external" href="https://bioconda.github.io/">bioconda</a> package. CHISEL provides different commands (in <code class="docutils literal notranslate"><span class="pre">bin</span></code>) to automatically execute the different features/pipelines of CHISEL. See details in <a class="reference external" href="#usage">Usage</a>.</p>
+<p><a name="quick"></a></p>
+</div>
+</div>
+<div class="section" id="quick-start">
+<h2>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
+<p>To get started quickly, you can install CHISEL and test the complete CHISEL pipeline on example data using the 4 following commands.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/raphael-group/chisel <span class="o">&amp;&amp;</span> <span class="nb">cd</span> chisel <span class="c1"># Clone CHISEL and enters the directory</span>
+bash install_full.sh <span class="c1"># Run the automatic installation, which installs conda and CHISEL on it</span>
+<span class="nb">source</span> conda/bin/activate chisel <span class="c1"># Activate CHISEL, remember to run this command before every new session of CHISEL</span>
+<span class="nb">cd</span> demos/complete/ <span class="o">&amp;&amp;</span> bash demo-complete.sh <span class="c1"># Enter the directory of the complete demo and run it</span>
+</pre></div>
+</div>
+<p>A successful execution of these commands will generate the <a class="reference external" href="man/chisel-plotting.html">final plots</a> of the demo as PNG images in <code class="docutils literal notranslate"><span class="pre">chisel/demos/complete/plots/</span></code>, the inferred allele- and haplotype-specific copy numbers in <code class="docutils literal notranslate"><span class="pre">chisel/demos/complete/calls/calls.tsv</span></code>, and the clones in <code class="docutils literal notranslate"><span class="pre">chisel/demos/complete/clones/mapping.tsv</span></code>. Further details of the temporary files and final outputs are described <a class="reference external" href="chisel.html">here</a>.</p>
+<p><a name="setup"></a></p>
+</div>
+<div class="section" id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://bioconda.github.io/recipes/chisel/README.html">CHISEL</a> is distributed as a <a class="reference external" href="https://bioconda.github.io/">bioconda</a> package, and can be installed either from conda or directly from source.<br />Depending on your interest in using conda, there are three possible installation approaches for CHISEL.</p>
+<ol class="simple">
+<li><a class="reference external" href="#automatic">Full automatic installation</a>: creates a new conda installation with Miniconda and installs CHISEL on it;</li>
+<li><a class="reference external" href="#standard">Standard installation</a>: uses an existing conda installation and installs CHISEL on it;</li>
+<li><a class="reference external" href="#custom">Custom installation</a>: installs CHISEL from source without conda.</li>
+</ol>
+<p><a class="reference external" href="#additionalnotes">Additional notes</a> and comments are reported at the end of this section.</p>
+<p><a name="automatic"></a></p>
+<div class="section" id="full-automatic-installation">
+<h3>Full automatic installation<a class="headerlink" href="#full-automatic-installation" title="Permalink to this headline">¶</a></h3>
+<p>An automatic BASH script that fully installs <code class="docutils literal notranslate"><span class="pre">conda</span></code> through Miniconda and installs <code class="docutils literal notranslate"><span class="pre">chisel</span></code> on it is provided in <a class="reference external" href="install_full.sh">install_full.sh</a>. Simply run the following command from the CHISEL’s home <code class="docutils literal notranslate"><span class="pre">${CHISEL_HOME}</span></code>.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>bash install_full.sh
+</pre></div>
+</div>
+<p>Note that this procedures installs <code class="docutils literal notranslate"><span class="pre">conda</span></code> in <code class="docutils literal notranslate"><span class="pre">${CHISEL_HOME}/conda</span></code> and the following command (output at the end of the installation) must be executed before using <code class="docutils literal notranslate"><span class="pre">chisel</span></code> in every new session:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span> <span class="si">${</span><span class="nv">CHISEL_HOME</span><span class="si">}</span>/conda/bin/activate chisel
+</pre></div>
+</div>
+<p><a name="standard"></a></p>
+</div>
+<div class="section" id="standard-installation">
+<h3>Standard installation<a class="headerlink" href="#standard-installation" title="Permalink to this headline">¶</a></h3>
+<p>CHISEL can be installed using an existing installation of <code class="docutils literal notranslate"><span class="pre">conda</span></code> (e.g. either the compact <a class="reference external" href="https://docs.conda.io/en/latest/miniconda.html">Miniconda</a> or the complete <a class="reference external" href="https://www.anaconda.com/">Anaconda</a>) in two steps.
+First, <code class="docutils literal notranslate"><span class="pre">bioconda</span></code> <a class="reference external" href="https://bioconda.github.io/user/index.html">requires</a> to set the following channels in this exact order:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>conda config --add channels defaults
+conda config --add channels bioconda
+conda config --add channels conda-forge
+</pre></div>
+</div>
+<p>Next, <code class="docutils literal notranslate"><span class="pre">chisel</span></code> can be installed with the following one-time command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>conda install chisel
+</pre></div>
+</div>
+<p>This command installs <code class="docutils literal notranslate"><span class="pre">chisel</span></code> in the base conda environment, however best practices generally recommend, especially in computing servers, to keep distinct packages independent.
+Therefore, it is preferable to use the following command to install <code class="docutils literal notranslate"><span class="pre">chisel</span></code>:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>conda create -n chisel chisel
+</pre></div>
+</div>
+<p>In this case, <code class="docutils literal notranslate"><span class="pre">chisel</span></code> must be activated before every session with the following command</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span> activate chisel
+</pre></div>
+</div>
+<p>Note that all the <code class="docutils literal notranslate"><span class="pre">conda</span></code> and <code class="docutils literal notranslate"><span class="pre">activate</span></code> commands above are located in <code class="docutils literal notranslate"><span class="pre">${CONDA_HOME}/bin/</span></code>.</p>
+<p><a name="custom"></a></p>
+</div>
+<div class="section" id="custom-installation">
+<h3>Custom installation<a class="headerlink" href="#custom-installation" title="Permalink to this headline">¶</a></h3>
+<p>CHISEL is written in <code class="docutils literal notranslate"><span class="pre">python2.7</span></code> and requires few standard python packages and two additional standard tools.
+Once all the requirements have been successfully installed, <code class="docutils literal notranslate"><span class="pre">chisel</span></code> can be manually installed from <code class="docutils literal notranslate"><span class="pre">${CHISEL_HOME}</span></code> as</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python setup.py install
+</pre></div>
+</div>
+<div class="section" id="python-packages">
+<h4>&gt; Python packages<a class="headerlink" href="#python-packages" title="Permalink to this headline">¶</a></h4>
+<p>CHISEL depends on the following standard python packages, which must be available in the python environment where the user runs CHISEL.</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Package</th>
+<th>Tested version</th>
+<th>Comments</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://numpy.org/">numpy</a></td>
+<td>1.16.1</td>
+<td>Efficient scientific computations</td>
+</tr>
+<tr>
+<td><a href="https://www.scipy.org/">scipy</a></td>
+<td>1.2.1</td>
+<td>Efficient mathematical functions and methods</td>
+</tr>
+<tr>
+<td><a href="https://pandas.pydata.org/">pandas</a></td>
+<td>0.20.1</td>
+<td>Dataframe management</td>
+</tr>
+<tr>
+<td><a href="https://matplotlib.org/">matplotlib</a></td>
+<td>2.0.2</td>
+<td>Basic plotting utilities</td>
+</tr>
+<tr>
+<td><a href="https://seaborn.pydata.org/">seaborn</a></td>
+<td>0.7.1</td>
+<td>Advanced plotting utilities</td>
+</tr>
+</tbody>
+</table></div>
+<div class="section" id="additional-software">
+<h4>&gt; Additional software<a class="headerlink" href="#additional-software" title="Permalink to this headline">¶</a></h4>
+<p>CHISEL also requires few standard additional tools, which must be included in <code class="docutils literal notranslate"><span class="pre">PATH</span></code> (e.g. by executing <code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">PATH=${SAMTOOLS_HOME}/bin/:${PATH}</span></code>)</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Software</th>
+<th>Tested version</th>
+<th>Comments</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://en.wikipedia.org/wiki/AWK">AWK</a></td>
+<td>GNU Awk 4.0.2</td>
+<td>Scripting language available by default on most Unix-like OSs and with specific implementation available for any other OS</td>
+</tr>
+<tr>
+<td><a href="http://www.htslib.org/doc/">SAMtools and BCFtools</a></td>
+<td>1.9</td>
+<td>Suite of programs for interacting with high-throughput sequencing data</td>
+</tr>
+</tbody>
+</table><p><a name="additionalnotes"></a></p>
+</div>
+</div>
+<div class="section" id="additional-notes">
+<h3>Additional notes:<a class="headerlink" href="#additional-notes" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>To be to run the conda commands <code class="docutils literal notranslate"><span class="pre">conda</span></code> and <code class="docutils literal notranslate"><span class="pre">activate</span></code> without prefix, add their path full path to <code class="docutils literal notranslate"><span class="pre">PATH</span></code> by</li>
+</ul>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="si">${</span><span class="nv">CONDA_HOME</span><span class="si">}</span>/bin/:<span class="si">${</span><span class="nv">PATH</span><span class="si">}</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">bioconda</span></code> <a class="reference external" href="https://bioconda.github.io/user/index.html">requires</a> does not support Windows; however, Windows uses can use either <a class="reference external" href="https://docs.microsoft.com/en-us/windows/wsl/">WSL</a> or the <a class="reference external" href="#custom">custom installation</a>.</li>
+</ul>
+<p><a name="usage"></a></p>
+</div>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<ol class="simple">
+<li><a class="reference external" href="#requireddata">Required data</a></li>
+<li><a class="reference external" href="#requirements">System requirements</a></li>
+<li><a class="reference external" href="#commands">Commands</a></li>
+<li><a class="reference external" href="#demos">Demos</a></li>
+<li><a class="reference external" href="#reccomendations">Reccomendations and quality control</a></li>
+</ol>
+<p><a name="requireddata"></a></p>
+<div class="section" id="required-data">
+<h3>Required data<a class="headerlink" href="#required-data" title="Permalink to this headline">¶</a></h3>
+<p>CHISEL requires 4 input data:</p>
+<ol class="simple">
+<li>A <strong>single-cell barcoded BAM</strong> file containing aligned DNA sequencing reads from single cells of a single patient in the <code class="docutils literal notranslate"><span class="pre">CB:Z:</span></code>-barcoded format.
+CHISEL includes a command <code class="docutils literal notranslate"><span class="pre">chisel_prep</span></code> to automatically generate such barcoded BAM file (aligned and sorted) starting from standard formats for single-cell
+DNA sequencing data, including single-cell FASTQs, single-cell BAMs, etc.
+The barcoded BAM file must be indexed and sorted (see <a class="reference external" href="http://www.htslib.org/workflow/#mapping_to_variant">SAMtools</a> and <a class="reference external" href="https://software.broadinstitute.org/gatk/best-practices/">GATK Best Practices</a>). In a barcoded BAM file, reads must be labelled by a barcode, which is a string or substring <code class="docutils literal notranslate"><span class="pre">PREFIX:[A,C,G,T]+</span></code> composed of two parts: (1) a prefix <code class="docutils literal notranslate"><span class="pre">PREFIX</span></code>; and (2) the actual barcode <code class="docutils literal notranslate"><span class="pre">[A,C,G,T]+</span></code> which is an arbitrary-long string of letters <code class="docutils literal notranslate"><span class="pre">A,C,G,T</span></code> uniquely identifiying a single cell. Current CHISEL implementation requires the <code class="docutils literal notranslate"><span class="pre">PREFIX</span></code> to be <code class="docutils literal notranslate"><span class="pre">CB:Z:</span></code> according to the 10X Genomics <a class="reference external" href="https://support.10xgenomics.com/single-cell-dna/software/pipelines/latest/output/bam">format</a>.
+Note that the barcode <code class="docutils literal notranslate"><span class="pre">PREFIX:[A,C,G,T]+</span></code> can be either an independent tab-separated field of the SAM alignments or can be incorporated in the name of the sequencing reads.</li>
+<li>The <strong>reference human genome</strong> used to align the sequencing reads in the single-cell barcoded BAM. The most-used human reference genome are available at <a class="reference external" href="https://www.ncbi.nlm.nih.gov/grc/human">GRC</a> or <a class="reference external" href="http://hgdownload.cse.ucsc.edu/downloads.html#human">UCSC</a>. Moreover, the reference genome <code class="docutils literal notranslate"><span class="pre">${REF}.fa</span></code> must be index by SAMtools (i.e. <code class="docutils literal notranslate"><span class="pre">samtools</span> <span class="pre">faidx</span> <span class="pre">${REF}.fa</span></code>) and a dictionary must be created (<code class="docutils literal notranslate"><span class="pre">i.e.</span> <span class="pre">samtools</span> <span class="pre">dict</span> <span class="pre">${REF}.fa</span> <span class="pre">&gt;</span> <span class="pre">${REF}.dict</span></code>) in the same folder as <code class="docutils literal notranslate"><span class="pre">${REF}</span></code>.</li>
+<li>A <strong>matched-normal BAM</strong> file containing sequencing reads from a matched-normal sample from the same patient. When this sample is not available, user can use the corresponding CHISEL command <code class="docutils literal notranslate"><span class="pre">chisel-pseudonormal.py</span></code> to form a <strong>pseudo</strong> matched-normal sample by extracting diploid normal cells. Note that this approach is successful only when normal diploid cells are present in the barcoded BAM file.</li>
+<li>A <strong>VCF file with phased germline SNPs</strong> present in the matched-normal sample. CHISEL only requires a VCF with the phase <code class="docutils literal notranslate"><span class="pre">0|1</span></code> or <code class="docutils literal notranslate"><span class="pre">1|0</span></code> within the record of heterozygous phased SNPs and any reference-based phasing method can be used. Here, we recommend a very easy two step procedure: (1) use BCFtools to call germline SNPs from the matched-normal sample (as described <a class="reference external" href="http://samtools.github.io/bcftools/howtos/variant-calling.html">here</a>); (2) use Eagle2 through the <a class="reference external" href="https://imputationserver.sph.umich.edu/index.html#%21pages/home">Michigan Imputation Server</a> to phase germline SNPs with respect to the reference panel HRC. Alternatively, Eagle2 can be used <a class="reference external" href="https://data.broadinstitute.org/alkesgroup/Eagle/">locally</a>, and other methods as <a class="reference external" href="http://mathgen.stats.ox.ac.uk/genetics_software/shapeit/shapeit.html">SHAPEIT</a> or other panels as 1000 Genomes Phase 3 can be applied, too. Note that HRC currently supports only reference <code class="docutils literal notranslate"><span class="pre">hg19</span></code>, therefore user can use <a class="reference external" href="http://broadinstitute.github.io/picard/">LiftoverVcf from Picard tools</a> or similar methods to convert genomic coordinates to the required <code class="docutils literal notranslate"><span class="pre">hg19</span></code> build, when a different reference genome has been used to align sequencing reads. Note that phased germline SNPs can be also provided in <code class="docutils literal notranslate"><span class="pre">POS</span></code> format, i.e. tab-separated dataframe with field <code class="docutils literal notranslate"><span class="pre">CHROMOSOME</span>&#160; <span class="pre">POSITION</span>&#160; <span class="pre">PHASE</span></code> where phase is either <code class="docutils literal notranslate"><span class="pre">0|1</span></code> or <code class="docutils literal notranslate"><span class="pre">1|0</span></code>.</li>
+</ol>
+<p><a name="requirements"></a></p>
+</div>
+<div class="section" id="system-requirements">
+<h3>System requirements<a class="headerlink" href="#system-requirements" title="Permalink to this headline">¶</a></h3>
+<p>CHISEL is highly parallelized in order to make efficient the extensive computations needed for counting sequencing reads from BAM files, often splitting independent computations to parallel processes. We recommend executing CHISEL on multi-processing computing machines. The minimum system requirements that we have tested for running the demos or running every CHISEL command after BAM file processing are:</p>
+<ul class="simple">
+<li>CPU with at least 2 virtual cores</li>
+<li>4GB of RAM</li>
+</ul>
+<p>However, when the complete CHISEL pipeline is applied to huge BAM files (&gt;200GB) for millions of germline SNPs across thousands of single cells, CHISEL requirements are limited by the existing requirements of SAMtools and BCFtools.  We recommend a machine with larger RAM (&gt;100GB of RAM) and a larger number of cores (e.g. &gt;10 cores). In general, the higher the number of cores is with a sufficient amount of RAM,  the faster the execution will be.</p>
+<p><a name="commands"></a></p>
+</div>
+<div class="section" id="chisel-commands">
+<h3>CHISEL Commands<a class="headerlink" href="#chisel-commands" title="Permalink to this headline">¶</a></h3>
+<p>CHISEL offers different commands to run either the entire pipeline with all the steps or only some specific steps. In particular, the latter commands are useful when user wants to re-run some specific steps by varying some of the default parameters or for quality control (see below).
+Every command can be run directly when CHISEL has been correctly installed.</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Required input</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="man/chisel.html"><code>chisel</code></a></td>
+<td>Running the complete CHISEL pipeline</td>
+<td>The 4 required input data</td>
+<td><a href="chisel.html">Final results and plots</a></td>
+</tr>
+<tr>
+<td><a href="man/chisel-calling.html"><code>chisel-calling</code></a></td>
+<td>Running from the inference of copy numbers</td>
+<td>Computed RDRs and BAFs</td>
+<td><a href="chisel-calling.html">Final results and plots</a></td>
+</tr>
+<tr>
+<td><a href="man/chisel-cloning.html"><code>chisel-cloning</code></a></td>
+<td>Running from the identification of clones</td>
+<td>Inferred copy numbers</td>
+<td><a href="chisel-cloning.html">Final results and plots</a></td>
+</tr>
+<tr>
+<td><a href="man/chisel-plotting.html"><code>chisel-plotting</code></a></td>
+<td>Running plot generation</td>
+<td>Inferred copy numbers and clones</td>
+<td><a href="chisel-plotting.html">Final plots</a></td>
+</tr>
+<tr>
+<td><a href="man/chisel-pseudonormal.html"><code>chisel-pseudonormal</code></a></td>
+<td>Extracting diploid cells to form a pseudo matched-normal sample</td>
+<td>A barcoded BAM file containing diploid cells and the corresponding reference genome</td>
+<td><a href="chisel-pseudonormal.html">A BAM file to be used as a matched-normal sample</a></td>
+</tr>
+<tr>
+<td><a href="man/chisel-prep.html"><code>chisel_prep</code></a></td>
+<td>Generating a barcoded BAM</td>
+<td>Single-cell FASTQs (or FASTQ.gz), single-cell BAMs, and <code>RG:</code>-barcoded BAM</td>
+<td>barcoded BAM file (see <a href="#requireddata">Required data</a>)</td>
+</tr>
+<tr>
+<td><a href="man/chisel-bedding.html"><code>chisel_bedding</code></a></td>
+<td>Generating a BED file per cell with CHISEL results</td>
+<td>CHISEL-inferred allele- and haplotype-specific copy numbers (e.g. <code>calls.tvs</code> file)</td>
+<td>A BED file per cell with <code>CHROM START END HAP-COPY-NUMBERS</code></td>
+</tr>
+</tbody>
+</table><p>Click on the name of each command to obtain a description of all the available parameters.</p>
+<p><a name="demos"></a></p>
+</div>
+<div class="section" id="demos">
+<h3>Demos<a class="headerlink" href="#demos" title="Permalink to this headline">¶</a></h3>
+<p>Each demo is an exemplary and guided execution of a CHISEL command on available data. The demos are meant to illustrate the complete CHISEL pipeline and the usage of each specific command. In particular, the specific commands allow the user to explore the results when varying the main parameters (without the need to re-execute the entire pipeline), allowing to deal with different features of distinct datasets and to obtain the best-quality results (see recommendations below). Each demo is simultaneously a guided description of the entire example and a BASH script which can be directly executed to run the complete demo. As such, the user can both read the guided description as a web page and run the same script to execute the demo. At this time the following demos are available (more demos will be available soon):</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Demo</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/raphael-group/chisel/blob/master/demos/complete/demo-complete.sh">complete</a></td>
+<td>Demo of the complete CHISEL pipeline</td>
+</tr>
+<tr>
+<td><a href="https://github.com/raphael-group/chisel/blob/master/demos/callingE/demo-callingE.sh">callingE</a></td>
+<td>Demo of <code>chisel-calling.py</code> command to re-run pipeline from the inference of copy numbers on tumor section E of breast cancer patient S0</td>
+</tr>
+<tr>
+<td><a href="https://github.com/raphael-group/chisel/blob/master/demos/cloningE/demo-cloningE.sh">cloningE</a></td>
+<td>Demo of <code>chisel-cloning.py</code> command to re-run pipeline from the identification of clones on tumor section E of breast cancer patient S0</td>
+</tr>
+<tr>
+<td><a href="https://github.com/raphael-group/chisel/blob/master/demos/plottingE/demo-plottingE.sh">plottingE</a></td>
+<td>Demo of <code>chisel-plotting.py</code> command to re-run plot generation on tumor section E of breast cancer patient S0</td>
+</tr>
+<tr>
+<td><a href="https://github.com/raphael-group/chisel/blob/master/demos/pseudonormal/demo-pseudonormal.sh">pseudonormal</a></td>
+<td>Demo of <code>chisel-pseudonormal.py</code> command to generate a pseudo matched-normal sample by extracting diploid cells from a barcoded BAM file</td>
+</tr>
+</tbody>
+</table><p><a name="reccomendations"></a></p>
+</div>
+<div class="section" id="recommendations-and-quality-control">
+<h3>Recommendations and quality control<a class="headerlink" href="#recommendations-and-quality-control" title="Permalink to this headline">¶</a></h3>
+<p>The following recommendations guide the user in the process of quality control for the final results. In order to deal with datasets with different features, these recommendations help the user in investigating solutions obtained with different parameters. In particular, some of these guides are especially helpful when analyzing datasets with non-standard features and with noisy or high-variance sequencing data, e.g. due to low number of cells, different sequencing coverages, low number of phased germline SNPs.</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Recommendation</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="guides/ploidy.html">Ploidy selection</a></td>
+<td>Adjusting model-selection parameters to accurately infer ploidy in noisy and high-variance datasets</td>
+</tr>
+<tr>
+<td><a href="guides/clones.html">Identification of clones</a></td>
+<td>Interpreting the identified clones and explore alternative solutions</td>
+</tr>
+<tr>
+<td><a href="guides/clustering.html">Global clustering</a></td>
+<td>Interpreting the global clustering of RDRs and BAFs, and exploring alternative solutions</td>
+</tr>
+</tbody>
+</table><p><a name="development"></a></p>
+</div>
+</div>
+<div class="section" id="development">
+<h2>Development<a class="headerlink" href="#development" title="Permalink to this headline">¶</a></h2>
+<p><a name="updates"></a></p>
+<div class="section" id="recent-and-important-updates">
+<h3>Recent and important updates<a class="headerlink" href="#recent-and-important-updates" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><strong>[12-Jan-2021]</strong> Introducing two new CHISEL commands: <code class="docutils literal notranslate"><span class="pre">chisel_prep</span></code> to generate input barcoded BAM file from standard formats, and <code class="docutils literal notranslate"><span class="pre">chisel_bedding</span></code> to generate BED files with CHISEL results.</li>
+<li><strong>[20-Jul-2020]</strong> CHISEL has been deposited and approved in <a class="reference external" href="https://bioconda.github.io/recipes/chisel/README.html">Bioconda</a>; check the new streamlined installation procedure.</li>
+<li><strong>[22-Jan-2020]</strong> This version introduced two important updates:<ol>
+<li>CHISEL now use the inferred clones to correct the inferred allele- and haplotype-specific copy numbers, removing noise and outlying errors. As such, CHISEL generates plots with both uncorrected and corrected copy numbers;</li>
+<li>CHISEL now has a <strong>sensitivity</strong>, which can be varied through the command <code class="docutils literal notranslate"><span class="pre">chisel-cloning.py</span></code> to enable the accurate inference of cell ploidy even in the case of noisy or high-variance data (e.g. low number of cells with low coverage).</li>
+</ol>
+</li>
+<li><strong>[20-Jan-2020]</strong> This version introduced the previously missing command <code class="docutils literal notranslate"><span class="pre">chisel-pseudonormal.py</span></code>. This command can be used to extract sequencing reads from diploid cells to form a pseudo matched-normal sample, which is required by the full CHISEL pipeline. A corresponding demo has also been introduced.</li>
+</ul>
+<p><a name="currentissues"></a></p>
+</div>
+<div class="section" id="current-issues">
+<h3>Current issues<a class="headerlink" href="#current-issues" title="Permalink to this headline">¶</a></h3>
+<p>CHISEL is in active development, please report any issue or question as this could help the development and improvement of CHISEL. Known issues with current version are reported here below.</p>
+<p><a name="contacts"></a></p>
+</div>
+</div>
+<div class="section" id="contacts">
+<h2>Contacts<a class="headerlink" href="#contacts" title="Permalink to this headline">¶</a></h2>
+<p>CHISEL’s repository is actively maintained by <a class="reference external" href="https://simozacca.github.io/">Simone Zaccaria</a>, previously a Postdoctoral Research Associate at Princeton University in the research group of prof. Ben Raphael and currently group leader of the <a class="reference external" href="https://www.ucl.ac.uk/cancer/zaccaria-lab">Computational Cancer Genomics lab</a> at the UCL Cancer Institute.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="modules.html" class="btn btn-neutral float-right" title="Modules" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="CHISEL" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Princeton University.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,241 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>&lt;no title&gt; &mdash; CHISEL 0.0.5 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> CHISEL
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">CHISEL</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Modules</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CHISEL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>&lt;no title&gt;</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/man/chisel-calling.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>usage: chisel-calling.py <span class="o">[</span>-h<span class="o">]</span> <span class="o">[</span>-x RUNDIR<span class="o">]</span> <span class="o">[</span>-A SENSITIVITY<span class="o">]</span> <span class="o">[</span>-P MAXPLOIDY<span class="o">]</span>
+                         <span class="o">[</span>-K UPPERK<span class="o">]</span> <span class="o">[</span>--seed SEED<span class="o">]</span> <span class="o">[</span>-j JOBS<span class="o">]</span>
+                         <span class="o">[</span>INPUT<span class="o">]</span>
+
+CHISEL <span class="nb">command</span> to re-run the inference of allele- and haplotype-specific copy
+numbers, cell clustering, and plotting. This steps starts from estimated RDRs
+and BAFs.
+
+positional arguments:
+  INPUT                 Input file with combined RDR and BAF per bin and per
+                        cell <span class="o">(</span>default: combo/combo.tsv<span class="o">)</span>
+
+optional arguments:
+  -h, --help            show this <span class="nb">help</span> message and <span class="nb">exit</span>
+  -x RUNDIR, --rundir RUNDIR
+                        Running directory <span class="o">(</span>default: current directory<span class="o">)</span>
+  -A SENSITIVITY, --sensitivity SENSITIVITY
+                        Sensitivity of model selection <span class="k">for</span> ploidy <span class="o">(</span>default: <span class="m">1</span>,
+                        increase this parameter to lower sensitivity to noisy
+                        data, adjust this value <span class="o">(</span>e.g. <span class="m">2</span>, <span class="m">4</span>, ..., <span class="m">10</span>, ...<span class="o">)</span> to
+                        better deal with high-variance data <span class="o">(</span>e.g. low
+                        coverage, small number of cells, low number of phased
+                        SNPs, etc...<span class="o">)</span>
+  -P MAXPLOIDY, --maxploidy MAXPLOIDY
+                        Maximum total copy number to consider <span class="k">for</span> balanced
+                        cluster <span class="o">(</span>default: <span class="m">4</span>, corresponding to a WGD<span class="o">)</span>
+  -K UPPERK, --upperk UPPERK
+                        Maximum number of bin clusters <span class="o">(</span>default: <span class="m">100</span>, use <span class="m">0</span> to
+                        consider maximum number of clusters<span class="o">)</span>
+  --seed SEED           Random seed <span class="k">for</span> replication <span class="o">(</span>default: None<span class="o">)</span>
+  -j JOBS, --jobs JOBS  Number of parallele <span class="nb">jobs</span> to use <span class="o">(</span>default: equal to
+                        number of available processors<span class="o">)</span>
+</pre></div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Princeton University.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
