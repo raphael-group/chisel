@@ -21,7 +21,7 @@ setuptools.setup(
         'seaborn>=0.7.1'
     ],
     extras_require={
-        'dev': ['pytest', 'mock']
+        'dev': ['pytest', 'mock', 'numpydoc', 'sphinx', 'sphinx-rtd-theme', 'recommonmark', 'sphinx-markdown-tables']
     },
     license='BSD',
     platforms=["Linux", "MacOs", "Windows"],

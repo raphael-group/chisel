@@ -7,7 +7,7 @@ on:
     branches: [ master, develop, py3, ci ]
 
 jobs:
-  build:
+  run_tests:
 
     runs-on: ubuntu-latest
     strategy:
@@ -71,3 +71,40 @@ jobs:
           tox
         env:
           PLATFORM: ${{ matrix.python }}
+
+build_docs:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: [2.7]
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          lfs: true 
+
+      - name: Upgrade setuptools
+        run: |
+          pip3 install wheel --upgrade
+          pip3 install setuptools --upgrade
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install package
+        run: |
+          pip install .[dev]
+
+      - name: Build docs
+        run: |
+          cd docs && sphinx-apidoc -f -o ./source/src ../src/chisel -H Modules && make html && touch build/html/.nojekyll
+
+      - name: Update gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: "docs/buildDocs.sh"
+        shell: bash
+
