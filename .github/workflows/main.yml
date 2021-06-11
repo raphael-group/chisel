@@ -72,7 +72,7 @@ jobs:
         env:
           PLATFORM: ${{ matrix.python }}
 
-build_docs:
+  build_docs:
 
     runs-on: ubuntu-latest
     strategy:
