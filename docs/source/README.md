@@ -3,7 +3,7 @@
 CHISEL is an algorithm to infer allele- and haplotype-specific copy numbers in individual cells from low-coverage single-cell DNA sequencing data.
 The full description of the algorithm and its application on published cancer datasets are described in
 
-[Simone Zaccaria and Ben Raphael, 2019](https://doi.org/10.1101/837195)
+[Simone Zaccaria and Ben Raphael, Nature Biotechnology, 2021](https://doi.org/10.1038/s41587-020-0661-6)
 
 The results of CHISEL on the published low-coverage single-cell DNA sequencing data of cancer patients and all the related analyses are available at
 
@@ -172,7 +172,11 @@ export PATH=${CONDA_HOME}/bin/:${PATH}
 
 CHISEL requires 4 input data:
 
-1. A **single-cell barcoded BAM** file containing aligned DNA sequencing reads from single cells of a single patient. The BAM file must be indexed and sorted (see [SAMtools](http://www.htslib.org/workflow/#mapping_to_variant) and [GATK Best Practices](https://software.broadinstitute.org/gatk/best-practices/)). According to the standard format for recent single-cell DNA sequencing technologies (e.g. 10X Genomics), reads must be labelled by a barcode, which is a string `PREFIX:[A,C,G,T]+` composed of two parts: (1) a prefix `PREFIX`; and (2) the actual barcode `[A,C,G,T]+` which is an arbitrary-long string of letters `A,C,G,T` uniquely identifiying a single cell. Current CHISEL implementation requires the `PREFIX` to be `CB:Z:` according to the 10X Genomics [format](https://support.10xgenomics.com/single-cell-dna/software/pipelines/latest/output/bam). However, the upcoming version of CHISEL will support any `PREFIX` to support any different single-cell technology. Note that the barcode `PREFIX:[A,C,G,T]+` can be either an independent tab-separated field of the SAM alignments or can be incorporated in the name of the sequencing reads.
+1. A **single-cell barcoded BAM** file containing aligned DNA sequencing reads from single cells of a single patient in the `CB:Z:`-barcoded format. 
+CHISEL includes a command `chisel_prep` to automatically generate such barcoded BAM file (aligned and sorted) starting from standard formats for single-cell 
+DNA sequencing data, including single-cell FASTQs, single-cell BAMs, etc.
+The barcoded BAM file must be indexed and sorted (see [SAMtools](http://www.htslib.org/workflow/#mapping_to_variant) and [GATK Best Practices](https://software.broadinstitute.org/gatk/best-practices/)). In a barcoded BAM file, reads must be labelled by a barcode, which is a string or substring `PREFIX:[A,C,G,T]+` composed of two parts: (1) a prefix `PREFIX`; and (2) the actual barcode `[A,C,G,T]+` which is an arbitrary-long string of letters `A,C,G,T` uniquely identifiying a single cell. Current CHISEL implementation requires the `PREFIX` to be `CB:Z:` according to the 10X Genomics [format](https://support.10xgenomics.com/single-cell-dna/software/pipelines/latest/output/bam).
+Note that the barcode `PREFIX:[A,C,G,T]+` can be either an independent tab-separated field of the SAM alignments or can be incorporated in the name of the sequencing reads.
 
 2. The **reference human genome** used to align the sequencing reads in the single-cell barcoded BAM. The most-used human reference genome are available at [GRC](https://www.ncbi.nlm.nih.gov/grc/human) or [UCSC](http://hgdownload.cse.ucsc.edu/downloads.html#human). Moreover, the reference genome `${REF}.fa` must be index by SAMtools (i.e. `samtools faidx ${REF}.fa`) and a dictionary must be created (`i.e. samtools dict ${REF}.fa > ${REF}.dict`) in the same folder as `${REF}`.
 
@@ -202,6 +206,8 @@ Every command can be run directly when CHISEL has been correctly installed.
 | [`chisel-cloning`](man/chisel-cloning.html) | Running from the identification of clones | Inferred copy numbers | [Final results and plots](chisel-cloning.html) |
 | [`chisel-plotting`](man/chisel-plotting.html) | Running plot generation | Inferred copy numbers and clones | [Final plots](chisel-plotting.html) |
 | [`chisel-pseudonormal`](man/chisel-pseudonormal.html) | Extracting diploid cells to form a pseudo matched-normal sample | A barcoded BAM file containing diploid cells and the corresponding reference genome | [A BAM file to be used as a matched-normal sample](chisel-pseudonormal.html) |
+| [`chisel_prep`](man/chisel-prep.html) | Generating a barcoded BAM | Single-cell FASTQs (or FASTQ.gz), single-cell BAMs, and `RG:`-barcoded BAM | barcoded BAM file (see [Required data](#requireddata)) |
+| [`chisel_bedding`](man/chisel-bedding.html) | Generating a BED file per cell with CHISEL results | CHISEL-inferred allele- and haplotype-specific copy numbers (e.g. `calls.tvs` file) | A BED file per cell with `CHROM START END HAP-COPY-NUMBERS` |
 
 Click on the name of each command to obtain a description of all the available parameters.
 
@@ -235,6 +241,7 @@ The following recommendations guide the user in the process of quality control f
 <a name="updates"></a>
 ### Recent and important updates
 
+- **[12-Jan-2021]** Introducing two new CHISEL commands: `chisel_prep` to generate input barcoded BAM file from standard formats, and `chisel_bedding` to generate BED files with CHISEL results.
 - **[20-Jul-2020]** CHISEL has been deposited and approved in [Bioconda](https://bioconda.github.io/recipes/chisel/README.html); check the new streamlined installation procedure.
 - **[22-Jan-2020]** This version introduced two important updates:
     1. CHISEL now use the inferred clones to correct the inferred allele- and haplotype-specific copy numbers, removing noise and outlying errors. As such, CHISEL generates plots with both uncorrected and corrected copy numbers;
@@ -249,4 +256,4 @@ CHISEL is in active development, please report any issue or question as this cou
 <a name="contacts"></a>
 ## Contacts
 
-CHISEL's repository is actively maintained by [Simone Zaccaria](https://simozacca.github.io/), currently a Postdoctoral Research Associate at Princeton University in the research group of prof. Ben Raphael.
+CHISEL's repository is actively maintained by [Simone Zaccaria](https://simozacca.github.io/), previously a Postdoctoral Research Associate at Princeton University in the research group of prof. Ben Raphael and currently group leader of the [Computational Cancer Genomics lab](https://www.ucl.ac.uk/cancer/zaccaria-lab) at the UCL Cancer Institute.
