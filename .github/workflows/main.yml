@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ master, develop, py3, ci ]
+    branches: [ master, develop, py3, ci, docs ]
   pull_request:
-    branches: [ master, develop, py3, ci ]
+    branches: [ master, develop, py3, ci, docs ]
 
 jobs:
   run_tests:
@@ -96,7 +96,8 @@ build_docs:
 
       - name: Install package
         run: |
-          pip install .[dev]
+          pip install .
+          pip install numpydoc sphinx sphinx-rtd-theme recommonmark sphinx-markdown-tables
 
       - name: Build docs
         run: |
