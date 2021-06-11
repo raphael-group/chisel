@@ -158,7 +158,7 @@ def selecting(args, phased):
 def init_selecting(lock, counter, l, normal, bcf, ref, _gamma):
     global bar, cmd_mpi, cmd_que, gamma
     bar = ProgressBar(total=l, length=40, lock=lock, counter=counter, verbose=False)
-    cmd_mpi = '{} mpileup {} -R {} -f {} --skip-indels -a INFO/AD -Ou'.format(bcf, normal, "{}", ref)
+    cmd_mpi = '{} mpileup {} -T {} -f {} --skip-indels -a INFO/AD -Ou'.format(bcf, normal, "{}", ref)
     cmd_que = "{} query {}".format(bcf, "-f '%CHROM\t%POS\t%REF\t%ALT{0}\t%AD{0}\t%AD{1}\n' -i 'SUM(AD)<=10000'")
     gamma = _gamma
 

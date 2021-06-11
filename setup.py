@@ -4,7 +4,7 @@ from setuptools import setup
 
 setuptools.setup(
     name='chisel',
-    version='0.0.5',
+    version='1.0.0',
     python_requires='==2.7.*',
     packages=['chisel', 'chisel.bin'],
     package_dir={'': 'src'},
@@ -21,7 +21,7 @@ setuptools.setup(
         'seaborn>=0.7.1'
     ],
     extras_require={
-        'dev': ['pytest', 'mock', 'numpydoc', 'sphinx', 'sphinx-rtd-theme', 'recommonmark', 'sphinx-markdown-tables']
+        'dev': ['pytest', 'mock']
     },
     license='BSD',
     platforms=["Linux", "MacOs", "Windows"],
@@ -45,5 +45,7 @@ setuptools.setup(
                                       'chisel_calling=chisel.bin.chisel_calling:main',
                                       'chisel_cloning=chisel.bin.chisel_cloning:main',
                                       'chisel_plotting=chisel.bin.chisel_plotting:main',
-                                      'chisel_pseudonormal=chisel.bin.chisel_pseudonormal:main']}
+                                      'chisel_pseudonormal=chisel.bin.chisel_pseudonormal:main',
+                                      'chisel_prep=chisel.bin.chisel_prep:main',
+                                      'chisel_bedding=chisel.bin.chisel_bedding:main']}
 )

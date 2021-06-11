@@ -124,6 +124,12 @@ def main():
     log('Plotting clustered-mirrored BAF plots for {} random cells in cbaf.{}'.format(args['sample'], args['format']))
     cbaf(bins, pos, chosen, args)
 
+    log('Plotting read-depth ratios in {}'.format('rdrs.' + args['format']))
+    gridrdrs(bins, pos, cells, index=index, clones=clones, selected=selected, args=args)
+
+    log('Plotting B-allele frequencies in {}'.format('bafs.' + args['format']))
+    gridbafs(bins, pos, cells, index=index, clones=clones, selected=selected, args=args)
+    
     log('Plotting total copy numbers in {}'.format('totalcn.' + args['format']))
     totalcns(bins, pos, cells, index=index, clones=clones, selected=selected, args=args)
 
@@ -260,10 +266,12 @@ def rbplot_unphased(bins, chosen, args):
     par['palette'] = 'tab20'
     par['size'] = args['plotsize'][0]
     par['aspect'] = args['plotsize'][1]
-    g = sns.lmplot(**par)
-    g.despine(top=False, bottom=False, left=False, right=False)
-    g.set(ylim=(-0.01, 1.01))
-    g.set(xlim=(args['xmin'], args['xmax']))
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        g = sns.lmplot(**par)
+        g.despine(top=False, bottom=False, left=False, right=False)
+        g.set(ylim=(-0.01, 1.01))
+        g.set(xlim=(args['xmin'], args['xmax']))
     plt.savefig('rbplot_unphased.{}'.format(args['format']), bbox_inches='tight')
     plt.close()
 
@@ -283,10 +291,12 @@ def rbplot_mirrored(bins, chosen, args):
     par['palette'] = 'tab20'
     par['size'] = args['plotsize'][0]
     par['aspect'] = args['plotsize'][1]
-    g = sns.lmplot(**par)
-    g.despine(top=False, bottom=False, left=False, right=False)
-    g.set(ylim=(-0.01, 0.51))
-    g.set(xlim=(args['xmin'], args['xmax']))
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        g = sns.lmplot(**par)
+        g.despine(top=False, bottom=False, left=False, right=False)
+        g.set(ylim=(-0.01, 0.51))
+        g.set(xlim=(args['xmin'], args['xmax']))
     plt.savefig('rbplot_mirrored.{}'.format(args['format']), bbox_inches='tight')
     plt.close()
 
@@ -306,16 +316,18 @@ def crdr(bins, pos, chosen, args):
     par['palette'] = 'tab20'
     par['size'] = args['clussize'][0]
     par['aspect'] = args['clussize'][1]
-    g = sns.lmplot(**par)
-    g.despine(top=False, bottom=False, left=False, right=False)
-    for ax in g.axes:
-        for x, p in enumerate(pos):
-            if x > 0 and pos[x-1][0] != pos[x][0]:
-                ax[0].plot((x, x), (0, 2), '--b', linewidth=1.0)
-        ax[0].margins(x=0, y=0)
-    addchrplt(pos)
-    g.set(xlim=(0, len(pos)))
-    g.set(xlim=(args['ymin'], args['ymax']))
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        g = sns.lmplot(**par)
+        g.despine(top=False, bottom=False, left=False, right=False)
+        for ax in g.axes:
+            for x, p in enumerate(pos):
+                if x > 0 and pos[x-1][0] != pos[x][0]:
+                    ax[0].plot((x, x), (0, 2), '--b', linewidth=1.0)
+            ax[0].margins(x=0, y=0)
+        addchrplt(pos)
+        g.set(xlim=(0, len(pos)))
+        g.set(xlim=(args['ymin'], args['ymax']))
     plt.savefig('crdr.{}'.format(args['format']), bbox_inches='tight')
     plt.close()
 
@@ -335,18 +347,45 @@ def cbaf(bins, pos, chosen, args):
     par['palette'] = 'tab20'
     par['size'] = args['clussize'][0]
     par['aspect'] = args['clussize'][1]
-    g = sns.lmplot(**par)
-    g.despine(top=False, bottom=False, left=False, right=False)
-    for ax in g.axes:
-        for x, p in enumerate(pos):
-            if x > 0 and pos[x-1][0] != pos[x][0]:
-                ax[0].plot((x, x), (0, 0.5), '--b', linewidth=1.0)
-        ax[0].margins(x=0, y=0)
-    addchrplt(pos)
-    g.set(xlim=(0, len(pos)))
-    g.set(xlim=(args['ymin'], args['ymax']))
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        g = sns.lmplot(**par)
+        g.despine(top=False, bottom=False, left=False, right=False)
+        for ax in g.axes:
+            for x, p in enumerate(pos):
+                if x > 0 and pos[x-1][0] != pos[x][0]:
+                    ax[0].plot((x, x), (0, 0.5), '--b', linewidth=1.0)
+            ax[0].margins(x=0, y=0)
+        addchrplt(pos)
+        g.set(xlim=(0, len(pos)))
+        g.set(xlim=(args['ymin'], args['ymax']))
     plt.savefig('cbaf.'.format(args['format']), bbox_inches='tight')
     plt.close()
+
+
+def gridrdrs(bins, pos, cells, index=None, clones=None, selected=None, args=None, out='rdrs.', val='RDR'):
+    df = []
+    mapc = {}
+    for x, e in enumerate(index):
+        df.extend([{'Cell' : x, 'Genome' : bins[b][e]['Genome'], 'RDR' : min(2, bins[b][e][val])} for b in pos])
+        mapc[x] = (clones[e], selected[e])
+    df = pd.DataFrame(df)
+    table = pd.pivot_table(df, values='RDR', columns=['Genome'], index=['Cell'], aggfunc='first')
+    title = 'Read-depth ratios'
+    draw(table, bins, pos, cells, index, mapc, palette='coolwarm', center=1, method='single', metric='hamming', title=title, out=out, args=args)
+
+
+def gridbafs(bins, pos, cells, index=None, clones=None, selected=None, args=None, out='bafs.', val='BAF'):
+    df = []
+    mapc = {}
+    mirror = (lambda v : min(v, 1 - v))
+    for x, e in enumerate(index):
+        df.extend([{'Cell' : x, 'Genome' : bins[b][e]['Genome'], 'Mirrored BAF' : mirror(bins[b][e][val])} for b in pos])
+        mapc[x] = (clones[e], selected[e])
+    df = pd.DataFrame(df)
+    table = pd.pivot_table(df, values='Mirrored BAF', columns=['Genome'], index=['Cell'], aggfunc='first')
+    title = 'Mirrored B-allele frequencies'
+    draw(table, bins, pos, cells, index, mapc, palette='YlGnBu_r', center=None, method='single', metric='hamming', title=title, out=out, args=args)
 
 
 def totalcns(bins, pos, cells, index=None, clones=None, selected=None, args=None, out='totalcn.', val='CNS'):

@@ -329,7 +329,10 @@ def identify_base(e, clusters, ccnts, shift):
             collapse = (lambda bu : (wavg(bu), sum(u[1] for u in bu)))
             return max((collapse(mk_bubble(clusters[c][e]['RDR'])) for c in sel), key=(lambda x : x[1]))[0], sel
         else:
+            if s >= 0.5:
+                break
             s += shift/2.0
+            s = min(s, 0.5)
     assert False, 'There is a bin with a BAF shift > 0.5, likely BAF was not mirrored between 0 and 0.5'
 
 
