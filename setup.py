@@ -18,7 +18,8 @@ setuptools.setup(
         'numpy>=1.16.1',
         'scipy>=1.2.1',
         'pandas',
-        'seaborn>=0.7.1'
+        'seaborn>=0.7.1',
+        'statsmodels>=0.13'
     ],
     extras_require={
         'dev': ['pytest', 'mock']
@@ -42,6 +43,7 @@ setuptools.setup(
         'DNA',
         'copy-number'],
     entry_points={'console_scripts': ['chisel=chisel.bin.chisel_main:main',
+                                      'chisel_nonormal=chisel.bin.chisel_nonormal:main',
                                       'chisel_calling=chisel.bin.chisel_calling:main',
                                       'chisel_cloning=chisel.bin.chisel_cloning:main',
                                       'chisel_plotting=chisel.bin.chisel_plotting:main',
