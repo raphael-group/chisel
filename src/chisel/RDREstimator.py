@@ -23,6 +23,8 @@ def parse_args(args):
     parser.add_argument("-m","--minreads", type=int, required=False, default=100000, help="Minimum number total reads to select cells (default: None)")
     parser.add_argument("-l","--cellslist", type=str, required=False, default=None, help="List of cells to select (default: None)")
     parser.add_argument("-c", "--chromosomes", type=str, required=False, default=' '.join(['chr{}'.format(i) for i in range(1, 23)]), help="Space-separeted list of chromosomes between apices (default: \"chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22\")")
+    parser.add_argument("--cellprefix", type=str, required=False, default='CB:Z:', help="Prefix of cell barcode field in SAM format (default: CB:Z:)")
+    parser.add_argument("--cellsuffix", type=str, required=False, default='', help="Suffix of cell barcode field in SAM format (default: none)")
     parser.add_argument("--outdir", required=False, default='./', type=str, help="Running directory where to write the list of selected cells (default: current directory)")
     args = parser.parse_args(args)
 
@@ -74,6 +76,8 @@ def parse_args(args):
         'minreads' : args.minreads,
         'list' : args.cellslist,
         'chrs' : args.chromosomes.split(),
+        'prefix' : args.cellprefix,
+        'suffix' : args.cellsuffix,
         'outdir' : args.outdir
     }
 
@@ -90,8 +94,8 @@ def main(args=None, stdout_file=None):
     counts = counting_normal(args['normal'], bins, args['samtools'], args['J'])
 
     log('Counting reads on barcoded cells')
-    counts = counting_cells(counts, args['tumor'], bins, args['samtools'], args['J'])
-
+    counts = counting_cells(counts, args['tumor'], bins, args['samtools'], args['J'], args['prefix'], args['suffix'])
+    
     log('Evaluating set of found cells')
     if args['list'] is None:
         names = set(e for c in counts for b in counts[c] for e in counts[c][b])
@@ -157,6 +161,8 @@ def counting_normal(normal, bins, samtools, J):
                 counts[c][b]['normal'] = int(rd.strip())
             else:
                 counts[c][b]['normal'] = 0
+        pool.close()
+        pool.join()
     except Exception, e:
         pool.close()
         pool.terminate()
@@ -180,11 +186,11 @@ def extracting_normal(job):
     return (c, b, stdout.strip())
 
 
-def counting_cells(counts, tumor, bins, samtools, J):
+def counting_cells(counts, tumor, bins, samtools, J, prefix, suffix):
     jobs = [(c, b) for c in bins for b in bins[c]]
     bar = ProgressBar(total=len(jobs), length=40, verbose=False)
 
-    initargs = (tumor, samtools)
+    initargs = (tumor, samtools, prefix, suffix)
     pool = Pool(processes=min(J, len(jobs)), initializer=init_extracting, initargs=initargs)
 
     for c, b, rd in pool.imap_unordered(extracting, jobs):
@@ -195,13 +201,16 @@ def counting_cells(counts, tumor, bins, samtools, J):
                 counts[c][b][p[0]] = int(p[1])
         bar.progress(advance=True, msg="Extracted barcodes on {}:{}-{}".format(c, b[0], b[1]))
 
+    pool.close()
+    pool.join()
+
     return counts
 
 
-def init_extracting(_tumor, sam):
+def init_extracting(_tumor, sam, prefix, suffix):
     global cmd_sam, cmd_awk
     cmd_sam = "{} view -F 1796 -q 13 {} {}:{}-{}".format(sam, _tumor, "{}", "{}", "{}")
-    cmd_awk = shlex.split("awk 'BEGIN{} { if(match($0, /CB:Z:[ACGT]+/)) { X[substr($0, RSTART+5, RLENGTH-5)]++ } } END{ for(i in X) print i, X[i] }'")
+    cmd_awk = shlex.split("awk 'BEGIN{{}} {{ if(match($0, /{}[ACGT]+{}/)) {{ X[substr($0, RSTART+5, RLENGTH-5)]++ }} }} END{{ for(i in X) print i, X[i] }}'".format(prefix, suffix))
 
 
 def extracting(job):
