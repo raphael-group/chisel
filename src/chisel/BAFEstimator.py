@@ -122,13 +122,12 @@ def main(args=None, stdout_file=None):
     form = (lambda c, o, s, REF, ALT : '\t'.join(map(str, [c, o, s] + ([REF, ALT] if snps[c][o]['PHASE'] == '0|1' else [ALT, REF]))))
     getREF = (lambda c, o, s : abc[c][o][s][snps[c][o]['REFALT'][0]])
     getALT = (lambda c, o, s : abc[c][o][s][snps[c][o]['REFALT'][1]])
-    check = (lambda c, o, s : (getREF(c, o, s) + getALT(c, o, s)) > 0)
+    check = (lambda c, o, s : (getREF(c, o, s) + getALT(c, o, s)) >= 0)
     if args['list']:
         rec = (lambda c, o : (form(c, o, s, getREF(c, o, s), getALT(c, o, s)) for s in sorted(abc[c][o]) if check(c, o, s) and s in cells))
     else:
         rec = (lambda c, o : (form(c, o, s, getREF(c, o, s), getALT(c, o, s)) for s in sorted(abc[c][o]) if check(c, o, s)))
     #print '\n'.join([r for c in sorted(snps, key=orderchrs) for o in sorted(snps[c]) for r in rec(c, o)])
- 
 
     if stdout_file is not None:
         stdout_f = open(stdout_file, 'w')
