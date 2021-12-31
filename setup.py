@@ -19,7 +19,7 @@ setuptools.setup(
         'scipy>=1.2.1',
         'pandas',
         'seaborn>=0.7.1',
-        'statsmodels>=0.13'
+        'statsmodels'
     ],
     extras_require={
         'dev': ['pytest', 'mock']
