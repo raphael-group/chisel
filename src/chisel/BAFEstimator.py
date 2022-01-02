@@ -130,10 +130,9 @@ def main(args=None, stdout_file=None):
     #print '\n'.join([r for c in sorted(snps, key=orderchrs) for o in sorted(snps[c]) for r in rec(c, o)])
 
     if stdout_file is not None:
-        stdout_f = open(stdout_file, 'w')
-        for p in (r for c in sorted(snps, key=orderchrs) for o in sorted(snps[c]) for r in rec(c, o)):
-            stdout_f.write(p)
-        stdout_f.close()
+        with open(stdout_file, 'w') as stdout_f:
+            for p in (r for c in sorted(snps, key=orderchrs) for o in sorted(snps[c]) for r in rec(c, o)):
+                stdout_f.write("{}\n".format(p))
     else:
         for p in (r for c in sorted(snps, key=orderchrs) for o in sorted(snps[c]) for r in rec(c, o)):
             print p
