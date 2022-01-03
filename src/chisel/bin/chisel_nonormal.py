@@ -2,18 +2,20 @@
 
 import sys, os
 import argparse
-import chisel
 
-src = os.path.dirname(chisel.__file__)
-from ..Utils import *
+src = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, 'src')
+if not os.path.isdir(src):
+    raise ValueError("src directory not found in parent directory of bin i.e. {}, is anything been moved?".format(src))
+sys.path.append(src)
+from Utils import *
 
 
 def parse_args():
-    description = "CHISEL command to run the complete pipeline starting from the 4 required data: (1) Barcoded single-cell BAM; (2) Matched-normal BAM; (3) Reference genome; (4) Phased VCF."
+    description = "CHISEL command to run the complete pipeline starting from the 4 required data: (1) Barcoded single-cell BAM; (2) Simulated normal BAM; (3) Reference genome; (4) Phased VCF."
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("-x","--rundir", required=False, default='./', type=str, help="Running directory (default: current directory)")
     parser.add_argument("-t","--tumor", required=True, type=str, help="Barcoded single-cell BAM file")
-    parser.add_argument("-n","--normal", required=True, type=str, help="Matched-normal BAM file")
+    parser.add_argument("-n","--normal", required=True, type=str, help="Simulated normal BAM file for mappability corrections")
     parser.add_argument("-r","--reference", type=str, required=True, help="Reference genome")
     parser.add_argument("-l","--listphased", type=str, required=True, help="Phased SNPs file (lines of heterozygous germline SNPs must contain either 0|1 or 1|0)")
     parser.add_argument("-b","--size", type=str, required=False, default="5Mb", help="Bin size, with or without \"kb\" or \"Mb\"")
@@ -22,6 +24,9 @@ def parse_args():
     parser.add_argument("-m","--minreads", type=int, required=False, default=100000, help="Minimum number total reads to select cells (default: 100000)")
     parser.add_argument("-p","--maxploidy", required=False, type=int, default=4, help="Maximum total copy number to consider for balanced cluster (default: 4, corresponding to a WGD)")
     parser.add_argument("-K","--upperk", required=False, type=int, default=100, help="Maximum number of bin clusters (default: 100, use 0 to consider maximum number of clusters)")
+    parser.add_argument("--minimumsnps", required=False, type=float, default=0.08, help="Minimum SNP density per kb (default: 0.08)")
+    parser.add_argument("--missingsnps", required=False, type=str, default="10,0", help="A,B counts for genomic bins without minimum minimum SNP density (default: 10,0 i.e. BAF=0)")
+    parser.add_argument("--nogccorr", required=False, default=False, action='store_true', help="Disable correction for GC bias (default: enabled)")
     parser.add_argument("--bcftools", required=False, default=None, type=str, help="Path to the directory to \"bcftools\" executable, required in default mode (default: bcftools is directly called as it is in user $PATH)")
     parser.add_argument("--samtools", required=False, default=None, type=str, help="Path to the directory to \"samtools\" executable, required in default mode (default: samtools is directly called as it is in user $PATH)")
     parser.add_argument("--cellprefix", type=str, required=False, default='CB:Z:', help="Prefix of cell barcode field in SAM format (default: CB:Z:)")
@@ -35,7 +40,7 @@ def parse_args():
     if not os.path.isfile(args.tumor):
         raise ValueError("Barcoded single-cell BAM file does not exist: {}".format(args.tumor))
     if not os.path.isfile(args.normal):
-        raise ValueError("Matched-normal BAM file does not exist: {}".format(args.normal))
+        raise ValueError("Simulated normal BAM file does not exist: {}".format(args.normal))
     if not os.path.isfile(args.reference):
         raise ValueError("Reference genome file does not exist: {}".format(args.reference))
     if not os.path.isfile(args.listphased):
@@ -48,6 +53,8 @@ def parse_args():
         raise ValueError("The maximum total copy number to consider for balanced cluster must be at least 2!")
     if args.upperk < 1:
         raise ValueError("The maximum number of clusters must be positive!")
+    if args.minimumsnps < 0.0:
+        raise ValueError("The minimum SNP density must be >= 0.0!")
 
     size = 0
     try:
@@ -102,8 +109,11 @@ def parse_args():
         "samtools" : args.samtools,
         "maxploidy" : args.maxploidy,
         "upperk" : args.upperk,
+        'minimumsnps' : args.minimumsnps,
+        'missingsnps' : args.missingsnps,
         "cellprefix" : args.cellprefix,
         "cellsuffix" : args.cellsuffix,
+        "gccorr" : not args.nogccorr,
         "seed" : args.seed,
         "jobs" : args.jobs
     }
@@ -135,8 +145,8 @@ def main():
     rdr = os.path.join(drdr, 'rdr.tsv')
 
     log('Computing BAFs', level='PROGRESS')
-    cmd = 'python2.7 {} -n {} -t {} -r {} -j {} -c {} -l {}'
-    cmd = cmd.format(get_comp('BAFEstimator.py'), args['normal'], args['tumor'], args['reference'], args['jobs'], lcel, args['listphased'])
+    cmd = 'python2.7 {} -t {} -r {} -j {} -c {} -l {}'
+    cmd = cmd.format(get_comp('BAFEstimator.py'), args['tumor'], args['reference'], args['jobs'], lcel, args['listphased'])
     if args['samtools'] is not None:
         cmd += " -s {}".format(args['samtools'])
     if args['bcftools'] is not None:
@@ -148,8 +158,10 @@ def main():
     baf = os.path.join(dbaf, 'baf.tsv')
 
     log('Combining RDRs and BAFs', level='PROGRESS')
-    cmd = 'python2.7 {} -r {} -b {} -j {} -k {} -l {}'
-    cmd = cmd.format(get_comp('Combiner.py'), rdr, baf, args['jobs'], args['blocksize'], lcel)
+    cmd = 'python2.7 {} -r {} -b {} -j {} -k {} -l {} --minimumsnps {} --missingsnps {}'
+    cmd = cmd.format(get_comp('Combiner.py'), rdr, baf, args['jobs'], args['blocksize'], lcel, args['minimumsnps'], args['missingsnps'])
+    if args['gccorr']:
+        cmd += " --gccorr {}".format(args['reference'])
     if args['seed'] is not None:
         cmd += " --seed {}".format(args['seed'])
     runcmd(cmd, dcom, out='combo.tsv')

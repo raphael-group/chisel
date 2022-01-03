@@ -26,4 +26,4 @@ def test_baf(input_folder):
             ], stdout_file=f.name)
 
             assert hashlib.md5(open(f.name, 'rb').read()).hexdigest() == \
-                   'f695990677d8488e82198d1b3c270a33'
+                   'bb41cbc96c1f76020bb965f41a961884'

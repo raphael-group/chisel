@@ -5,6 +5,7 @@ import argparse
 import bisect
 import math
 import multiprocessing as mp
+import warnings
 
 from multiprocessing import Lock, Value, Pool
 from collections import defaultdict
@@ -14,6 +15,7 @@ from functools import reduce
 
 import numpy as np
 import scipy.stats
+import statsmodels.api as sm
 
 from Utils import *
 
@@ -32,6 +34,9 @@ def parse_args(args):
     parser.add_argument("-E", "--minerror", required=False, type=float, default=0.001, help="Minimum shift error for identification of BAF = 0.5 (default: 0.001)")
     parser.add_argument("-l", "--listofcells", required=False, type=str, default=None, help="List of cells to include (default: None)")
     parser.add_argument("-s", "--seed", required=False, type=int, default=None, help="Random seed for replication (default: None)")
+    parser.add_argument("--minimumsnps", required=False, type=float, default=0.0, help="Minimum SNP density per kb (default: 0.0, reasonable values are 0.01, 0.02, etc.)")
+    parser.add_argument("--missingsnps", required=False, type=str, default=None, help="A,B counts for genomic bins without minimum minimum SNP density (default: 0,0 i.e. BAF=0.5)")
+    parser.add_argument("--gccorr", required=False, type=str, default=None, help="The reference genome to apply additional GC correction in addition to using a matched-normal sample (default: None)")
     args = parser.parse_args(args)
 
     if not os.path.isfile(args.rdr):
@@ -56,7 +61,11 @@ def parse_args(args):
     if args.listofcells is not None and not os.path.isfile(args.listofcells):
         raise ValueError("The list of cells does not exist!")
     if args.seed and args.seed < 1:
-        raise ValueError("The random seed  must be positive!")
+        raise ValueError("The random seed must be positive!")
+    if args.gccorr is not None and not os.path.isfile(args.gccorr):
+        raise ValueError("The specified reference genome for additional GC correction does not exist!")
+    if args.minimumsnps < 0.0:
+        raise ValueError("The minimum SNP density must be >= 0.0!")
 
     blocksize = 0
     try:
@@ -70,7 +79,17 @@ def parse_args(args):
         raise ValueError("Size must be a number, optionally ending with either \"kb\" or \"Mb\"!")
 
     if blocksize == 0:
-        blocksize = None   
+        blocksize = None
+
+    if args.missingsnps is not None:
+        if ',' not in args.missingsnps:
+            raise ValueError("missingsnps parameter has the wrong format! Please specify A,B with A and B integers.")
+        val = args.missingsnps.split(',')
+        if len(val) != 2 and any(not l.isdigit() for l in val[0]) or any(not l.isdigit() for l in val[1]):
+            raise ValueError("missingsnps parameter has the wrong format! Please specify A,B with A and B integers.")
+        missingsnps = (int(val[0]), int(val[1]))
+    else:
+        missingsnps = None
 
     return {
         'rdr' : args.rdr,
@@ -83,7 +102,10 @@ def parse_args(args):
         'maxerror' : args.maxerror,
         'minerror' : args.minerror,
         'listofcells' : args.listofcells,
-        'seed' : args.seed
+        'seed' : args.seed,
+        'minimumsnps' : args.minimumsnps,
+        'missingsnps' : missingsnps,
+        'gccorr' : args.gccorr
     }
 
 
@@ -104,7 +126,11 @@ def main(args=None, stdout_file=None):
     cA, cB, bulk = read_baf(args['baf'], cells=cells)
 
     log('Combining')
-    rb = combo(rdr, cA, cB, bulk, args)
+    rb, isbalanced = combo(rdr, cA, cB, bulk, args)
+
+    if args['gccorr']:
+        log('Applying additional GC correction')
+        rdr = addgccorrect(rb, isbalanced, args)
 
     if stdout_file is not None:
         stdout_f = open(stdout_file, 'w')
@@ -166,34 +192,39 @@ def read_listofcells(f):
 def combo(rdr, cA, cB, bulk, args):
     np.random.seed(args['seed'])
     rb = defaultdict(lambda : dict())
+    isbalanced = defaultdict(lambda : dict())
     cells = set(e for c in rdr for b in rdr[c] for e in rdr[c][b])
     jobs = ((c, b, np.random.randint(1000)) for c in rdr for b in rdr[c])
     njobs = sum(len(rdr[c].keys()) for c in rdr)
     snps = {c : sorted(cA[c].keys()) if c in cA else [] for c in rdr}
     bar = ProgressBar(total=njobs, length=40, verbose=False)
-
-    initargs = (snps, cA, cB, bulk, args)
+    initargs = (snps, cA, cB, bulk, cells, args)
     pool = Pool(processes=min(args['j'], njobs), initializer=init, initargs=initargs)
     counts = (lambda c, b, e : rdr[c][b][e].items())
-    for c, b, A, B in pool.imap_unordered(combine, jobs):
+    for c, b, A, B, isbal in pool.imap_unordered(combine, jobs):
         rb[c][b] = {e : dict(counts(c, b, e) + [('BAF', (A[e], B[e]) if e in A else (0, 0))]) for e in cells}
+        isbalanced[c][b] = isbal
         bar.progress(advance=True, msg="Combined bin {}:{}-{}".format(c, b[0], b[1]))
-
-    return rb
+    pool.close()
+    pool.join()
+    return rb, isbalanced
     
 
-def init(_snps, _cA, _cB, _bulk, args):
-    global snps, cA, cB, bulk, blocksize, restarts, boot, alpha, maxerror, minerror
+def init(_snps, _cA, _cB, _bulk, _cells, args):
+    global snps, cA, cB, bulk, cells, blocksize, restarts, boot, alpha, maxerror, minerror, missingsnps, minimumsnps
     snps = _snps
     cA = _cA
     cB = _cB
     bulk = _bulk
+    cells = _cells
     blocksize = args['blocksize']
     restarts = args['restarts']
     boot = args['bootstrap']
     alpha = args['significance']
     maxerror = args['maxerror']
     minerror = args['minerror']
+    minimumsnps = args['minimumsnps']
+    missingsnps = args['missingsnps']
 
 
 def combine(job):
@@ -201,9 +232,13 @@ def combine(job):
     np.random.seed(seed)
     L = bisect.bisect_left(snps[c], b[0])
     R = bisect.bisect_right(snps[c], b[1])
+    snpdensity = 1000.0 * max(0.0, (float(R - L) / float(b[1] - b[0])) if b[1] > b[0] else 0.0)
 
-    if L >= R:
-        return c, b, dict(), dict()
+    if L >= R or snpdensity < minimumsnps:
+        if missingsnps is None:
+            return c, b, dict(), dict(), False
+        else:
+            return c, b, {e : missingsnps[0] for e in cells}, {e : missingsnps[1] for e in cells}, False
 
     snpsLR = snps[c][L:R]
     assert all(snpsLR[x - 1] < snpsLR[x] if x > 0 else True for x, o in enumerate(snpsLR))
@@ -233,22 +268,25 @@ def combine(job):
         else:
             thres = maxerror
             
-        if thres <= abs(beta - 0.5): # <= 0.25:
+        if thres <= abs(beta - 0.5):
             minel = (lambda p : 0 if p[0] < p[1] else 1)
             sumpairs = (lambda I : reduce((lambda x, y : (x[0] + y[0], x[1] + y[1])), I))
             if minel(sumpairs(allblocks)) == 0:
                 swap = {o : False if blocks[omap[o]][0] < blocks[omap[o]][1] else True for o in snpsLR}
             else:
                 swap = {o : False if blocks[omap[o]][1] < blocks[omap[o]][0] else True for o in snpsLR}
+            isbal = False
         else:
             bkswap = {bk : False if np.random.random() < 0.5 else True for bk in blocks}
             swap = {o : True if bkswap[omap[o]] else False for o in snpsLR}
+            isbal = True
     else:
         swap = {o : False for o in snpsLR}
+        isbal = True
                 
     A = reduce(inupdate, (Counter(cA[c][o] if not swap[o] else cB[c][o]) for o in snpsLR))
     B = reduce(inupdate, (Counter(cB[c][o] if not swap[o] else cA[c][o]) for o in snpsLR))
-    return c, b, A, B
+    return c, b, A, B, isbal
 
 
 def EM(ns, xs, start, tol=10**-6):
@@ -286,6 +324,150 @@ def est_error(ns, significance=0.05, restarts=50, bootstrap=100):
     betas = sorted(mirror(runEM(genneu(n=nis, p=0.5, size=len(nis)))) for x in xrange(bootstrap))
     betas = betas[int(round(len(betas) * significance)):]
     return 0.5 - betas[0]
+
+
+def addgccorrect(data, isbalanced, args):
+    gcs = gccount(args['gccorr'], data, args['j'])
+    gccorrect(data, gcs, isbalanced, args['j'])
+
+    
+def gccount(ref, data, j=56):
+    jobs = set(data.keys())
+    bar = ProgressBar(total=len(jobs), length=min(len(jobs), 40), verbose=False)
+    initargs = (ref, data)
+    pool = Pool(processes=min(j, len(jobs)), initializer=init_gccounting, initargs=initargs)
+    progress = (lambda c : bar.progress(advance=True, msg="Counted chromosome {}".format(c)))
+    gcresult = {c : {b : gcs[b] for b in gcs} for c, gcs in pool.imap_unordered(gccounting, jobs) if progress(c)}
+    pool.close()
+    pool.join()
+    return gcresult
+    
+
+def init_gccounting(_ref, _bins):
+    global ref, bins
+    ref = _ref
+    bins = _bins
+
+
+def gccounting(c):
+    chro = c.replace('chr', '')
+    sel = sorted(bins[c].keys(), key=(lambda b : (b[0], b[1])))
+    tgts = deque(sel + [None])
+    getchr = (lambda p : p[0].replace('>', '').replace('chr', ''))
+    start = False
+    tgt = tgts.popleft()
+    offset = 0
+    res = {b : Counter() for b in sel}
+    with open(ref, 'r') as i:
+        for l in i:
+            if not start and l[0] == '>' and getchr(l.strip().split()) == chro:
+                start = True
+            elif start and l[0] == '>':
+                break
+            elif start:
+                read = l.strip()
+                while tgt is not None:
+                    if tgt[1] <= offset + len(read):
+                        if offset < tgt[1]:
+                            res[tgt].update(read[max(0, tgt[0] - offset):tgt[1] - offset])
+                        tgt = tgts.popleft()
+                    else:
+                        if tgt[0] < offset + len(read):
+                            res[tgt].update(read[max(0, tgt[0] - offset):])
+                        break
+                offset += len(read)
+    return c, res
+
+
+def gccorrect(data, gcs, isbalanced, j):
+    jobs = set(e for c in data for b in data[c] for e in data[c][b])
+    bar = ProgressBar(total=len(jobs), length=min(len(jobs), 40), verbose=False)
+    initargs = (data, gcs, isbalanced)
+    pool = Pool(processes=min(j, len(jobs)), initializer=init_gccorrecting, initargs=initargs)
+    progress = (lambda e : bar.progress(advance=True, msg="GC Corrected cell {}".format(e)))
+    for e, gcs in pool.imap_unordered(gccorrecting, jobs):
+        progress(e)
+        for c in gcs:
+            for b in gcs[c]:
+                data[c][b][e]['RDR'] = gcs[c][b]
+    pool.close()
+    pool.join()
+    return
+
+
+def init_gccorrecting(_data, _gcs, _isbalanced):
+    global data, gcs, isbalanced
+    data = _data
+    gcs = _gcs
+    isbalanced = _isbalanced
+
+
+def gccorrecting(e):
+    getgc = (lambda C : ((C['C'] + C['G']) / float(C['C'] + C['G'] + C['A'] + C['T'])) if (C['C'] + C['G'] + C['A'] + C['T']) > 0 else 0.5)
+    form = (lambda c, b : {'Tumor' : data[c][b][e]['readcount'], 'Normal' : data[c][b][e]['normalcount'], '%GC' : getgc(gcs[c][b]), 'isbalanced' : isbalanced[c][b] if isbalanced is not None else True})
+    curr = {(c, b[0], b[1]) : form(c, b) for c in data for b in data[c]}
+    with warnings.catch_warnings() as w:
+        warnings.simplefilter("ignore")
+        tcorr = gccorr(curr, rkey='Tumor')
+        ncorr = gccorr(curr, rkey='Normal')
+    getrdr = (lambda c, b : (tcorr[(c, b[0], b[1])] / ncorr[(c, b[0], b[1])]) if ncorr[(c, b[0], b[1])] > 0 else 0.0)
+    return e, {c : {b : getrdr(c, b) for b in data[c]} for c in data}
+
+
+def gccorr(curr, rkey='Tumor', plot=False, frac=0.3, tol=0.1, genomethres=0.1):
+    reg = (lambda D : D / (np.sum(D) / float(len(D))))
+    regD = (lambda D : {b : D[b] / (sum(D.values()) / float(len(D))) for b in D})
+    ixs = sorted(curr.keys(), key=(lambda b : curr[b]['%GC']))
+
+    sel1 = [b for b in ixs if curr[b]['isbalanced']]
+    if (len(sel1) / float(len(ixs))) <= genomethres:
+        sel1 = [b for b in ixs]
+    thres = int(round(len(sel1) * 0.0))
+    firlas = (lambda L : (L[0], L[-1]))
+    min1, max1 = firlas(sorted([curr[b][rkey] for b in sel1])[thres:len(sel1)-thres])
+    xs1, ys1 = map(np.array, zip(*((curr[b]['%GC'], curr[b][rkey]) for b in sel1 if min1 <= curr[b][rkey] <= max1)))
+    ys1 = reg(ys1)
+    id1 = ys1 >= tol
+    if not any(id1):
+        return regD({b : curr[b][rkey] for b in ixs})
+    xs1, ys1 = xs1[id1], ys1[id1]
+    lowxs1, lowys1 = sm.nonparametric.lowess(ys1, xs1, frac=frac).T
+    fs1 = np.interp(x=xs1, xp=lowxs1, fp=lowys1)
+    if plot:
+        plt.scatter(xs1, ys1, c='cyan', s=20)
+        plt.plot(xs1, fs1, c='blue')
+
+    ref, mid = max(zip(xs1, fs1), key=(lambda p : p[1]))
+    if np.isnan(mid):
+        return regD({b : curr[b][rkey] for b in ixs})
+    mar = 2.0 * np.max(fs1)
+    mir = np.min(fs1) / 2.0
+    assert mir <= mid <= mar, (mir, mid, mar)
+    dist = (lambda s : np.count_nonzero(np.abs(ys1 - (fs1 + s)) <= tol))
+    fs1 = fs1 + max(np.linspace(mir, mar + 1, 100) - mid, key=dist)
+    id2 = np.abs(fs1 - ys1) <= tol
+    if not any(id2):
+        return regD({b : curr[b][rkey] for b in ixs})
+    xs2, ys2 = xs1[id2], ys1[id2]
+    lowxs2, lowys2 = sm.nonparametric.lowess(ys2, xs2, frac=frac).T
+    fs2 = np.interp(x=xs2, xp=lowxs2, fp=lowys2)
+    if plot:
+        plt.scatter(xs2, ys2, c='yellow', s=20)
+        plt.plot(xs2, fs2, c='orange')
+
+    fs = np.interp(x=xs1, xp=xs2, fp=fs2)
+    xs = map((lambda b : curr[b]['%GC']), ixs)
+    assert xs == sorted(xs), xs
+    fs = reg(np.interp(x=xs, xp=xs1, fp=fs))
+    fs[(np.isnan(fs)) | (fs < tol)] = tol
+    res = regD({b : curr[b][rkey] * (max(fs) / f) for b, f in zip(ixs, fs)})
+    if plot:
+        plt.scatter(xs, reg(map((lambda b : curr[b][rkey]), ixs)), c='k', s=10)
+        plt.plot(xs, fs, c='green')
+        plt.scatter(xs, map((lambda b : res[b]), ixs), c='red', s=10)
+    
+    return res
+    
 
     
 if __name__ == '__main__':
