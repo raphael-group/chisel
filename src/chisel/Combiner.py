@@ -243,45 +243,51 @@ def combine(job):
     snpsLR = snps[c][L:R]
     assert all(snpsLR[x - 1] < snpsLR[x] if x > 0 else True for x, o in enumerate(snpsLR))
 
-    if blocksize:
-        que = deque(snpsLR)
-        assert sorted(snpsLR) == list(que) and b[0] <= que[0] and que[-1] <= b[1]
-        omap = {}
-        blocks = {}
-        for bk in range(b[0], b[1]+1, blocksize):
-            block = (0, 0)
-            while que and bk <= que[0] < bk + blocksize:
-                o = que.popleft()
-                block = (block[0] + bulk[c][o][0], block[1] + bulk[c][o][1])
-                omap[o] = bk
-            if sum(block) > 0:
-                blocks[bk] = block
-        assert set(omap.values()) == set(blocks.keys())
-        assert set(snpsLR) == set(omap.keys())
-                
-        allblocks = blocks.values()
-        nis = [sum(block) for block in allblocks]
-        xis = [block[0] if np.random.random() < 0.5 else block[1] for block in allblocks]
-        beta = max((EM(ns=nis, xs=xis, start=np.random.randint(low=1, high=49)/100.0) for r in xrange(restarts)), key=(lambda x : x[1]))[0]
-        if maxerror is None:
-            thres = max(minerror, est_error(ns=nis, significance=alpha, restarts=restarts, bootstrap=boot))
-        else:
-            thres = maxerror
-            
-        if thres <= abs(beta - 0.5):
-            minel = (lambda p : 0 if p[0] < p[1] else 1)
-            sumpairs = (lambda I : reduce((lambda x, y : (x[0] + y[0], x[1] + y[1])), I))
-            if minel(sumpairs(allblocks)) == 0:
-                swap = {o : False if blocks[omap[o]][0] < blocks[omap[o]][1] else True for o in snpsLR}
-            else:
-                swap = {o : False if blocks[omap[o]][1] < blocks[omap[o]][0] else True for o in snpsLR}
-            isbal = False
-        else:
-            bkswap = {bk : False if np.random.random() < 0.5 else True for bk in blocks}
-            swap = {o : True if bkswap[omap[o]] else False for o in snpsLR}
-            isbal = True
+    # Fix potential phasing errors within each block
+    def count_block(block):
+        assert all(p < q for p, q in zip(block[:-1], block[1:])), "Positions in block {} are not sorted!".format(block)
+        dotest = (lambda p, q, flip : sm.stats.proportions_ztest(count=(bulk[c][p][0], bulk[c][q][0 if not flip else 1]),
+                                                                 nobs=(sum(bulk[c][p]), sum(bulk[c][q])))[1]
+                                      if (bulk[c][p][0] + bulk[c][q][0 if not flip else 1]) > 0
+                                      else 1.0)
+        evaluate = (lambda test1, test2 : False if test1 >= alpha or test1 >= test2 else True)
+        tests = [evaluate(dotest(p, q, False), dotest(p, q, True)) for p, q in zip(block[:-1], block[1:])]
+        assert len(tests) == len(block) - 1
+        dofix = {p : bool(sum(tests[:x]) % 2) if x > 0 else False for x, p in enumerate(block)}
+        return (sum(bulk[c][p][0 if not dofix else 1] for p in block),
+                sum(bulk[c][p][1 if not dofix else 0] for p in block))
+    
+    que = deque(snpsLR)
+    assert sorted(snpsLR) == list(que) and b[0] <= que[0] and que[-1] <= b[1]
+    omap = {}
+    for bk in range(b[0], b[1]+1, blocksize):
+        while que and bk <= que[0] < bk + blocksize:
+            o = que.popleft()
+            omap[o] = bk
+    assert set(snpsLR) == set(omap.keys())        
+    blocks = {bk : count_block(sorted(o for o in omap if omap[o] == bk)) for bk in set(omap.values())}
+    blocks = {bk : blocks[bk] for bk in blocks if sum(blocks[bk]) > 0}
+
+    allblocks = blocks.values()
+    nis = [sum(block) for block in allblocks]
+    xis = [block[0] if np.random.random() < 0.5 else block[1] for block in allblocks]
+    beta = max((EM(ns=nis, xs=xis, start=np.random.randint(low=1, high=49)/100.0) for r in xrange(restarts)), key=(lambda x : x[1]))[0]
+    if maxerror is None:
+        thres = max(minerror, est_error(ns=nis, significance=alpha, restarts=restarts, bootstrap=boot))
     else:
-        swap = {o : False for o in snpsLR}
+        thres = maxerror
+
+    if thres <= abs(beta - 0.5):
+        minel = (lambda p : 0 if p[0] < p[1] else 1)
+        sumpairs = (lambda I : reduce((lambda x, y : (x[0] + y[0], x[1] + y[1])), I))
+        if minel(sumpairs(allblocks)) == 0:
+            swap = {o : False if blocks[omap[o]][0] < blocks[omap[o]][1] else True for o in snpsLR}
+        else:
+            swap = {o : False if blocks[omap[o]][1] < blocks[omap[o]][0] else True for o in snpsLR}
+        isbal = False
+    else:
+        bkswap = {bk : False if np.random.random() < 0.5 else True for bk in blocks}
+        swap = {o : True if bkswap[omap[o]] else False for o in snpsLR}
         isbal = True
                 
     A = reduce(inupdate, (Counter(cA[c][o] if not swap[o] else cB[c][o]) for o in snpsLR))
