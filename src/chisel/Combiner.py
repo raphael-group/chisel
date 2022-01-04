@@ -254,6 +254,8 @@ def combine(job):
 
     # Fix potential phasing errors within each block
     def count_block(block, normalpha=10.0):
+        if len(block) == 1:
+            return (bulk[c][block[0]][0], bulk[c][block[0]][1])
         assert all(p < q for p, q in zip(block[:-1], block[1:])), "Positions in block {} are not sorted!".format(block)
         backward = {p : (sum(bulk[c][q][0] for q in block[:x+1]), 
                             sum(bulk[c][q][1] for q in block[:x+1])) for x, p in enumerate(block[:-1])}
