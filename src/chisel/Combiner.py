@@ -242,20 +242,6 @@ def combine(job):
 
     snpsLR = snps[c][L:R]
     assert all(snpsLR[x - 1] < snpsLR[x] if x > 0 else True for x, o in enumerate(snpsLR))
-
-    # Fix potential phasing errors within each block
-    def count_block(block):
-        assert all(p < q for p, q in zip(block[:-1], block[1:])), "Positions in block {} are not sorted!".format(block)
-        dotest = (lambda p, q, flip : sm.stats.proportions_ztest(count=(bulk[c][p][0], bulk[c][q][0 if not flip else 1]),
-                                                                 nobs=(sum(bulk[c][p]), sum(bulk[c][q])))[1]
-                                      if (bulk[c][p][0] + bulk[c][q][0 if not flip else 1]) > 0
-                                      else 1.0)
-        evaluate = (lambda test1, test2 : False if test1 >= alpha or test1 >= test2 else True)
-        tests = [evaluate(dotest(p, q, False), dotest(p, q, True)) for p, q in zip(block[:-1], block[1:])]
-        assert len(tests) == len(block) - 1
-        dofix = {p : bool(sum(tests[:x]) % 2) if x > 0 else False for x, p in enumerate(block)}
-        return (sum(bulk[c][p][0 if not dofix else 1] for p in block),
-                sum(bulk[c][p][1 if not dofix else 0] for p in block))
     
     que = deque(snpsLR)
     assert sorted(snpsLR) == list(que) and b[0] <= que[0] and que[-1] <= b[1]
@@ -264,7 +250,33 @@ def combine(job):
         while que and bk <= que[0] < bk + blocksize:
             o = que.popleft()
             omap[o] = bk
-    assert set(snpsLR) == set(omap.keys())        
+    assert set(snpsLR) == set(omap.keys())
+
+    # Fix potential phasing errors within each block
+    def count_block(block):
+        assert all(p < q for p, q in zip(block[:-1], block[1:])), "Positions in block {} are not sorted!".format(block)
+        backward = {p : (sum(bulk[c][q][0] for q in block[:x+1]), 
+                            sum(bulk[c][q][1] for q in block[:x+1])) for x, p in enumerate(block[:-1])}
+        forward = {p : (sum(bulk[c][q][0] for q in block[x+1:]), 
+                        sum(bulk[c][q][1] for q in block[x+1:])) for x, p in enumerate(block[:-1])}
+        dotest = (lambda p, flip : sm.stats.proportions_ztest(count=(backward[p][0], forward[p][0 if not flip else 1]),
+                                                              nobs=(sum(backward[p]), sum(forward[p])))
+                                        if 0 < (backward[p][0] + forward[p][0 if not flip else 1]) < (sum(backward[p]) + sum(forward[p]))
+                                        else (0.0, 1.0))
+        tstat, test1 = zip(*(dotest(p, False) for p in block[:-1]))
+        _, test2 = zip(*(dotest(p, True) for p in block[:-1]))
+        pvals = sorted(set(test1))
+        corralphas = dict(zip(pvals, sm.stats.multipletests(pvals, alpha=alpha, method='fdr_bh')[0]))
+        evaluate = (lambda test1, test2 : False if not corralphas[test1] or test1 >= test2 else True)
+        flips = [evaluate(*t) for t in zip(test1, test2)]
+        if sum(flips) > 0:
+            sel, _ = max(((x, abs(s)) for x, s in enumerate(tstat) if flips[x]), key=(lambda p : p[1]))
+        else:
+            sel = len(block) + 1
+        dofix = {p : x > sel for x, p in enumerate(block)}
+        return (sum(bulk[c][p][0 if not dofix[p] else 1] for p in block),
+                sum(bulk[c][p][1 if not dofix[p] else 0] for p in block))
+
     blocks = {bk : count_block(sorted(o for o in omap if omap[o] == bk)) for bk in set(omap.values())}
     blocks = {bk : blocks[bk] for bk in blocks if sum(blocks[bk]) > 0}
 
