@@ -253,7 +253,7 @@ def combine(job):
     assert set(snpsLR) == set(omap.keys())
 
     # Fix potential phasing errors within each block
-    def count_block(block, normalpha=10.0):
+    def count_block(block):
         if len(block) == 1:
             return (bulk[c][block[0]][0], bulk[c][block[0]][1])
         assert all(p < q for p, q in zip(block[:-1], block[1:])), "Positions in block {} are not sorted!".format(block)
@@ -268,8 +268,8 @@ def combine(job):
         tstat, test1 = zip(*(dotest(p, False) for p in block[:-1]))
         _, test2 = zip(*(dotest(p, True) for p in block[:-1]))
         pvals = sorted(set(test1))
-        corralphas = dict(zip(pvals, sm.stats.multipletests(pvals, alpha=alpha/normalpha, method='fdr_bh')[0]))
-        evaluate = (lambda test1, test2 : False if not corralphas[test1] or test1 >= test2 else True)
+        # corralphas = dict(zip(pvals, sm.stats.multipletests(pvals, alpha=alpha, method='fdr_bh')[0]))
+        evaluate = (lambda test1, test2 : False if test1 >= (alpha / (len(block) - 1)) or test1 >= test2 else True)
         flips = [evaluate(*t) for t in zip(test1, test2)]
         if sum(flips) > 0:
             sel, _ = max(((x, abs(s)) for x, s in enumerate(tstat) if flips[x]), key=(lambda p : p[1]))
