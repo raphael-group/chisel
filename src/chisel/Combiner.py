@@ -434,7 +434,7 @@ def gccorrecting(e):
     return e, {c : {b : getrdr(c, b) for b in data[c]} for c in data}
 
 
-def gccorr(curr, rkey='Tumor', plot=False, frac=0.3, tol=0.1, genomethres=0.1):
+def gccorr(curr, rkey='Tumor', plot=False, frac=0.3, tol=0.1, genomethres=0.4):
     reg = (lambda D : D / (np.sum(D) / float(len(D))))
     regD = (lambda D : {b : D[b] / (sum(D.values()) / float(len(D))) for b in D})
     ixs = sorted(curr.keys(), key=(lambda b : curr[b]['%GC']))
