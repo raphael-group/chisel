@@ -211,7 +211,7 @@ def combo(rdr, cA, cB, bulk, args):
     
 
 def init(_snps, _cA, _cB, _bulk, _cells, args):
-    global snps, cA, cB, bulk, cells, blocksize, restarts, boot, alpha, maxerror, minerror, missingsnps, minimumsnps
+    global snps, cA, cB, bulk, cells, blocksize, restarts, boot, alpha, alpha_correct, maxerror, minerror, missingsnps, minimumsnps
     snps = _snps
     cA = _cA
     cB = _cB
@@ -221,6 +221,7 @@ def init(_snps, _cA, _cB, _bulk, _cells, args):
     restarts = args['restarts']
     boot = args['bootstrap']
     alpha = args['significance']
+    alpha_correct = args['significance'] / (10 * (sum(max(p for p in bulk[c]) for c in bulk) / float(args['blocksize'])))
     maxerror = args['maxerror']
     minerror = args['minerror']
     minimumsnps = args['minimumsnps']
@@ -268,8 +269,7 @@ def combine(job):
         tstat, test1 = zip(*(dotest(p, False) for p in block[:-1]))
         _, test2 = zip(*(dotest(p, True) for p in block[:-1]))
         pvals = sorted(set(test1))
-        # corralphas = dict(zip(pvals, sm.stats.multipletests(pvals, alpha=alpha, method='fdr_bh')[0]))
-        evaluate = (lambda test1, test2 : False if test1 >= (alpha / (len(block) - 1)) or test1 >= test2 else True)
+        evaluate = (lambda test1, test2 : False if test1 >= alpha_correct or test1 >= test2 else True)
         flips = [evaluate(*t) for t in zip(test1, test2)]
         if sum(flips) > 0:
             sel, _ = max(((x, abs(s)) for x, s in enumerate(tstat) if flips[x]), key=(lambda p : p[1]))
@@ -434,7 +434,7 @@ def gccorrecting(e):
     return e, {c : {b : getrdr(c, b) for b in data[c]} for c in data}
 
 
-def gccorr(curr, rkey='Tumor', plot=False, frac=0.3, tol=0.1, genomethres=0.1):
+def gccorr(curr, rkey='Tumor', plot=False, frac=0.3, tol=0.1, genomethres=0.4):
     reg = (lambda D : D / (np.sum(D) / float(len(D))))
     regD = (lambda D : {b : D[b] / (sum(D.values()) / float(len(D))) for b in D})
     ixs = sorted(curr.keys(), key=(lambda b : curr[b]['%GC']))
