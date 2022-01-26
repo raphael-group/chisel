@@ -31,6 +31,7 @@ def parse_args(args):
     parser.add_argument("-j","--jobs", required=False, type=int, default=0, help="Number of parallele jobs to use (default: equal to number of available processors)")
     parser.add_argument("-d","--shift", required=False, type=float, default=0.05, help="Maximum estimate shift for base cluster, the value is increased when base is not found (default: 0.05)")
     parser.add_argument("-s","--significativity", required=False, type=float, default=0.02, help="Minimum proportion of the clusters use to select ploidy (default: 0.02)")
+    parser.add_argument("--maxhomodel", required=False, type=float, default=0.2, help="Maximum genome fraction affected by homozygous deletion (default: 0.2)")
     parser.add_argument("-l","--lorder", required=False, type=int, default=1, help="Order of the l-norm distance to be used, either 1 or 2 (default: 1)")
     parser.add_argument("--fastscaling", required=False, default=False, action='store_true', help="Consider average BAF of clusters instead of EM (default: False, using it is generally safe and significantly increases speed)")
     #parser.add_argument("--scoring", required=False, default=False, action='store_true', help=" (default: equal to number of available processors)")
@@ -42,6 +43,8 @@ def parse_args(args):
 
     if not 0.0 <= args.significativity <= 1.0:
         raise ValueError("Significativity must be in [0, 1]!")
+    if not 0.0 <= args.maxhomodel <= 1.0:
+        raise ValueError("Maxhomodel must be in [0, 1]!")
     if args.maxploidy < 2:
         raise ValueError("Maximum total copy number for base must be at least 2!")
     if not 0.0 <= args.shift <= 0.5:
@@ -69,6 +72,7 @@ def parse_args(args):
         'input' : args.INPUT,
         'sensitivity' : args.sensitivity,
         'significativity' : args.significativity,
+        'maxhomodel' : args.maxhomodel,
         'maxploidy' : args.maxploidy,
         'shift' : args.shift,
         'UB' : args.upperk,
@@ -132,7 +136,8 @@ def main(args=None, stdout_file=None):
     if stdout_file is not None:
         with open(stdout_file, 'w') as f:
             f.write(header + '\n')
-            f.write('\n'.join(gen))
+            for g in gen:
+                f.write('{}\n'.format(g))
     else:
         print header
         for g in gen:
@@ -202,7 +207,7 @@ def call(bins, members, mapb, clusters, cells, args):
 
 
 def init(_clusters, _totsize, args, _counts, _rdrs):
-    global clusters, totsize, maxploidy, significativity, shift, lord, fastscaling, counts, rdrs, sensitivity
+    global clusters, totsize, maxploidy, significativity, shift, lord, fastscaling, counts, rdrs, sensitivity, maxhomodel
     clusters = _clusters
     totsize = _totsize
     maxploidy = args['maxploidy']
@@ -213,6 +218,7 @@ def init(_clusters, _totsize, args, _counts, _rdrs):
     fastscaling = args['fastscaling']
     counts = _counts
     rdrs = _rdrs
+    maxhomodel = args['maxhomodel']
 
 
 def scoring(e):
@@ -290,22 +296,25 @@ def calling(e):
 
     cmax = {pl : max(int(round(clusters[c][e]['RDR'] * scale[pl])) for c in clusters) for pl in scale}
     mkstate = (lambda t, s : (max(s, t - s), min(s, t - s)))
-    allstates = {pl : {t : set(mkstate(t, s) for s in xrange(1, t+1)) for t in xrange(1, cmax[pl]+1)} for pl in scale}
+    allstates = {pl : {t : set(mkstate(t, s) for s in xrange(1, t+1)) if t>0 else {(0, 0)} for t in xrange(0, cmax[pl]+1)} for pl in scale}
     capp = {pl : {c : int(round(clusters[c][e]['RDR'] * scale[pl])) for c in clusters} for pl in scale}
-    bnd = (lambda v, pl : max(1, min(cmax[pl], v)))
+    bnd = (lambda v, pl : max(0, min(cmax[pl], v)))
     avail = (lambda pl, c : set(st for t in set(bnd(capp[pl][c]+i*d, pl) for i in xrange(2) for d in [1, -1]) for st in allstates[pl][t]))
     vmax = (lambda L, c, pl : max(((l, clh(l[0], l[1], c, pl)) for l in L), key=(lambda x : x[1])))
     states = {pl : {c : vmax(avail(pl, c), c, pl) if clusters[c][e]['RDR'] > 0 else ((0, 0), 1.0) for c in clusters} for pl in scale}
     
     norm = float(sum(clusters[c][e]['size'] for c in clusters if clusters[c][e]['RDR'] > 0))
     issupp = (lambda pl, t, THRES : (sum(clusters[c][e]['size'] for c in clusters if t == sum(states[pl][c][0])) / norm) >= THRES)
-    safemax = (lambda L : max(L) if len(L) > 0 else max(t for t in allstates[pl] if issupp(pl, t, 0.00)))
-    maxsupp = {pl : safemax([t for t in allstates[pl] if issupp(pl, t, 0.02)]) for pl in states}
+    safemax = (lambda pl, L : max(L) if len(L) > 0 else max(t for t in allstates[pl] if issupp(pl, t, 0.00)))
+    maxsupp = {pl : safemax(pl, [t for t in allstates[pl] if issupp(pl, t, 0.02)]) for pl in states}
     n = sum(len(ccnts[c]) for c in ccnts)
     lh = {pl : sum(states[pl][c][1] for c in states[pl]) for pl in states}
     ps = {pl : 1 + sum(len(allstates[pl][t]) for t in allstates[pl] if t <= maxsupp[pl]) for pl in states}
     bic = (lambda pl : sensitivity * math.log(n) * float(ps[pl]) * 2 - 2.0 * lh[pl])
-    best = min(lh.keys(), key=bic)
+    homodel = (lambda pl : (float(sum(clusters[c][e]['size'] for c in states[pl] if sum(states[pl][c][0])==0)) /
+                            float(sum(clusters[c][e]['size'] for c in states[pl]))) < maxhomodel)
+    safemin = (lambda filtered, original : min(filtered, key=bic) if len(filtered) > 0  else min(original, key=bic))
+    best = safemin([pl for pl in lh.keys() if homodel(pl)], lh.keys())
 
     return e, {c : states[best][c][0] for c in clusters}, best
 

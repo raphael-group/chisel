@@ -37,6 +37,7 @@ def parse_args(args):
     parser.add_argument("--minimumsnps", required=False, type=float, default=0.0, help="Minimum SNP density per kb (default: 0.0, reasonable values are 0.01, 0.02, etc.)")
     parser.add_argument("--missingsnps", required=False, type=str, default=None, help="A,B counts for genomic bins without minimum minimum SNP density (default: 0,0 i.e. BAF=0.5)")
     parser.add_argument("--gccorr", required=False, type=str, default=None, help="The reference genome to apply additional GC correction in addition to using a matched-normal sample (default: None)")
+    parser.add_argument("--nophasecorr", required=False, default=False, action='store_true', help="Disable correction for given phasing bias (default: enabled)")
     args = parser.parse_args(args)
 
     if not os.path.isfile(args.rdr):
@@ -105,7 +106,8 @@ def parse_args(args):
         'seed' : args.seed,
         'minimumsnps' : args.minimumsnps,
         'missingsnps' : missingsnps,
-        'gccorr' : args.gccorr
+        'gccorr' : args.gccorr,
+        "phasecorr" : not args.nophasecorr
     }
 
 
@@ -211,7 +213,7 @@ def combo(rdr, cA, cB, bulk, args):
     
 
 def init(_snps, _cA, _cB, _bulk, _cells, args):
-    global snps, cA, cB, bulk, cells, blocksize, restarts, boot, alpha, maxerror, minerror, missingsnps, minimumsnps
+    global snps, cA, cB, bulk, cells, blocksize, restarts, boot, alpha, alpha_correct, maxerror, minerror, missingsnps, minimumsnps, phasecorr
     snps = _snps
     cA = _cA
     cB = _cB
@@ -221,10 +223,12 @@ def init(_snps, _cA, _cB, _bulk, _cells, args):
     restarts = args['restarts']
     boot = args['bootstrap']
     alpha = args['significance']
+    alpha_correct = args['significance'] / (20 * float(sum(len(snps[c]) for c in snps)))
     maxerror = args['maxerror']
     minerror = args['minerror']
     minimumsnps = args['minimumsnps']
     missingsnps = args['missingsnps']
+    phasecorr = args['phasecorr']
 
 
 def combine(job):
@@ -242,46 +246,68 @@ def combine(job):
 
     snpsLR = snps[c][L:R]
     assert all(snpsLR[x - 1] < snpsLR[x] if x > 0 else True for x, o in enumerate(snpsLR))
+    
+    que = deque(snpsLR)
+    assert sorted(snpsLR) == list(que) and b[0] <= que[0] and que[-1] <= b[1]
+    omap = {}
+    for bk in range(b[0], b[1]+1, blocksize):
+        while que and bk <= que[0] < bk + blocksize:
+            o = que.popleft()
+            omap[o] = bk
+    assert set(snpsLR) == set(omap.keys())
 
-    if blocksize:
-        que = deque(snpsLR)
-        assert sorted(snpsLR) == list(que) and b[0] <= que[0] and que[-1] <= b[1]
-        omap = {}
-        blocks = {}
-        for bk in range(b[0], b[1]+1, blocksize):
-            block = (0, 0)
-            while que and bk <= que[0] < bk + blocksize:
-                o = que.popleft()
-                block = (block[0] + bulk[c][o][0], block[1] + bulk[c][o][1])
-                omap[o] = bk
-            if sum(block) > 0:
-                blocks[bk] = block
-        assert set(omap.values()) == set(blocks.keys())
-        assert set(snpsLR) == set(omap.keys())
-                
-        allblocks = blocks.values()
-        nis = [sum(block) for block in allblocks]
-        xis = [block[0] if np.random.random() < 0.5 else block[1] for block in allblocks]
-        beta = max((EM(ns=nis, xs=xis, start=np.random.randint(low=1, high=49)/100.0) for r in xrange(restarts)), key=(lambda x : x[1]))[0]
-        if maxerror is None:
-            thres = max(minerror, est_error(ns=nis, significance=alpha, restarts=restarts, bootstrap=boot))
-        else:
-            thres = maxerror
-            
-        if thres <= abs(beta - 0.5):
-            minel = (lambda p : 0 if p[0] < p[1] else 1)
-            sumpairs = (lambda I : reduce((lambda x, y : (x[0] + y[0], x[1] + y[1])), I))
-            if minel(sumpairs(allblocks)) == 0:
-                swap = {o : False if blocks[omap[o]][0] < blocks[omap[o]][1] else True for o in snpsLR}
+    # Fix potential phasing errors within each block
+    def count_block(block):
+        if phasecorr:
+            if len(block) == 1:
+                return (bulk[c][block[0]][0], bulk[c][block[0]][1])
+            assert all(p < q for p, q in zip(block[:-1], block[1:])), "Positions in block {} are not sorted!".format(block)
+            backward = {p : (sum(bulk[c][q][0] for q in block[:x+1]), 
+                                sum(bulk[c][q][1] for q in block[:x+1])) for x, p in enumerate(block[:-1])}
+            forward = {p : (sum(bulk[c][q][0] for q in block[x+1:]), 
+                            sum(bulk[c][q][1] for q in block[x+1:])) for x, p in enumerate(block[:-1])}
+            dotest = (lambda p, flip : sm.stats.proportions_ztest(count=(backward[p][0], forward[p][0 if not flip else 1]),
+                                                                nobs=(sum(backward[p]), sum(forward[p])))
+                                            if 0 < (backward[p][0] + forward[p][0 if not flip else 1]) < (sum(backward[p]) + sum(forward[p]))
+                                            else (0.0, 1.0))
+            tstat, test1 = zip(*(dotest(p, False) for p in block[:-1]))
+            _, test2 = zip(*(dotest(p, True) for p in block[:-1]))
+            pvals = sorted(set(test1))
+            evaluate = (lambda test1, test2 : False if test1 >= alpha_correct or test1 >= test2 else True)
+            flips = [evaluate(*t) for t in zip(test1, test2)]
+            if sum(flips) > 0:
+                sel, _ = max(((x, abs(s)) for x, s in enumerate(tstat) if flips[x]), key=(lambda p : p[1]))
             else:
-                swap = {o : False if blocks[omap[o]][1] < blocks[omap[o]][0] else True for o in snpsLR}
-            isbal = False
+                sel = len(block) + 1
+            dofix = {p : x > sel for x, p in enumerate(block)}
         else:
-            bkswap = {bk : False if np.random.random() < 0.5 else True for bk in blocks}
-            swap = {o : True if bkswap[omap[o]] else False for o in snpsLR}
-            isbal = True
+            dofix = {p : False for p in block}
+        return (sum(bulk[c][p][0 if not dofix[p] else 1] for p in block),
+                sum(bulk[c][p][1 if not dofix[p] else 0] for p in block))
+
+    blocks = {bk : count_block(sorted(o for o in omap if omap[o] == bk)) for bk in set(omap.values())}
+    blocks = {bk : blocks[bk] for bk in blocks if sum(blocks[bk]) > 0}
+
+    allblocks = blocks.values()
+    nis = [sum(block) for block in allblocks]
+    xis = [block[0] if np.random.random() < 0.5 else block[1] for block in allblocks]
+    beta = max((EM(ns=nis, xs=xis, start=np.random.randint(low=1, high=49)/100.0) for r in xrange(restarts)), key=(lambda x : x[1]))[0]
+    if maxerror is None:
+        thres = max(minerror, est_error(ns=nis, significance=alpha, restarts=restarts, bootstrap=boot))
     else:
-        swap = {o : False for o in snpsLR}
+        thres = maxerror
+
+    if thres <= abs(beta - 0.5):
+        minel = (lambda p : 0 if p[0] < p[1] else 1)
+        sumpairs = (lambda I : reduce((lambda x, y : (x[0] + y[0], x[1] + y[1])), I))
+        if minel(sumpairs(allblocks)) == 0:
+            swap = {o : False if blocks[omap[o]][0] < blocks[omap[o]][1] else True for o in snpsLR}
+        else:
+            swap = {o : False if blocks[omap[o]][1] < blocks[omap[o]][0] else True for o in snpsLR}
+        isbal = False
+    else:
+        bkswap = {bk : False if np.random.random() < 0.5 else True for bk in blocks}
+        swap = {o : True if bkswap[omap[o]] else False for o in snpsLR}
         isbal = True
                 
     A = reduce(inupdate, (Counter(cA[c][o] if not swap[o] else cB[c][o]) for o in snpsLR))
@@ -414,7 +440,7 @@ def gccorrecting(e):
     return e, {c : {b : getrdr(c, b) for b in data[c]} for c in data}
 
 
-def gccorr(curr, rkey='Tumor', plot=False, frac=0.3, tol=0.1, genomethres=0.1):
+def gccorr(curr, rkey='Tumor', plot=False, frac=0.3, tol=0.1, genomethres=0.4):
     reg = (lambda D : D / (np.sum(D) / float(len(D))))
     regD = (lambda D : {b : D[b] / (sum(D.values()) / float(len(D))) for b in D})
     ixs = sorted(curr.keys(), key=(lambda b : curr[b]['%GC']))

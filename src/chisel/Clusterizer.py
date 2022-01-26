@@ -107,7 +107,7 @@ def kclustering_fixed(points, K, restarts, TERROR, PAIRWISE, lord=1, j=1):
     
     initargs = (points.shape[0], points.shape[1], K, lord, TERROR, shared_points, shared_pairwise, shared_clus)
     pool = Pool(processes=min(j, restarts), initializer=init_kclustering, initargs=initargs)
-    progress = (lambda obj, it : bar.progress(advance=True, msg="Found clustering with obj: {} [Iterations: {}]".format(obj, it)))
+    progress = (lambda obj, it : bar.progress(advance=True, msg="Obj: {} [Iterations: {}]".format(obj, it)))
     best = min(((obj, idx) for obj, idx, it in pool.imap_unordered(run_kclustering, jobs) if progress(obj, it)), key=(lambda x : (x[0], x[1])))
     pool.close()
     pool.join()

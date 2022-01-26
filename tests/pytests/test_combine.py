@@ -17,4 +17,4 @@ def test_combine():
         ], stdout_file=f.name)
 
         assert hashlib.md5(open(f.name, 'rb').read()).hexdigest() == \
-               'e6860842b280054321588d2153b50b94'
+               '569c320780744a704a629989cb6d4a88'

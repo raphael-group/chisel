@@ -21,10 +21,10 @@ def parse_args(args):
     description = "Infer clones as subpopulations of cells with the same complement of CNAs and outputs a file with the mapping of every cell to the corresponding clone."
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("INPUT", type=str, help="Input file with RDR, BAF, and inferred copy numbers.")
-    parser.add_argument("-f", "--maxdiff", required=False, type=float, default=0.06, help="Maximum fraction of the genome with different copy-number states allowed in a clone (default: 0.06, when -1 is chosen the maximum cluster method of SciPy is used)")
-    parser.add_argument("-r", "--refinement", required=False, type=float, default=0.0, help="Maximum difference to assign noisy cells to a clone (default: 0.0)")
+    parser.add_argument("-f", "--maxdiff", required=False, type=float, default=0.07, help="Maximum fraction of the genome with different copy-number states allowed in a clone (default: 0.07, when -1 is chosen the maximum cluster method of SciPy is used)")
+    parser.add_argument("-r", "--refinement", required=False, type=float, default=0.15, help="Maximum difference to assign noisy cells to a clone (default: 0.15)")
     parser.add_argument("-s", "--minsize", required=False, type=int, default=14, help="Minimum size of subpopultation to define a clone (default: 14)")
-    parser.add_argument("-l", "--linkage", required=False, type=str, default='single', help="Linkage method to use for the hierarchical clustering (default: single, it must be a valid linkage method available in SciPy when using a non-euclidean distance, i.e. 'single', 'complete', 'average', 'weighted')")
+    parser.add_argument("-l", "--linkage", required=False, type=str, default='weighted', help="Linkage method to use for the hierarchical clustering (default: weighted, it must be a valid linkage method available in SciPy when using a non-euclidean distance, i.e. 'single', 'complete', 'average', 'weighted')")
     parser.add_argument("--seed", required=False, type=int, default=None, help="Random seed for replication (default: none)")
     args = parser.parse_args(args)
 

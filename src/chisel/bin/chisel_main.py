@@ -19,9 +19,11 @@ def parse_args():
     parser.add_argument("-b","--size", type=str, required=False, default="5Mb", help="Bin size, with or without \"kb\" or \"Mb\"")
     parser.add_argument("-k", "--blocksize", required=False, type=str, default="50kb", help="Size of the haplotype blocks (default: 50kb, use 0 to disable)")
     parser.add_argument("-c", "--chromosomes", type=str, required=False, default=' '.join(['chr{}'.format(i) for i in range(1, 23)]), help="Space-separeted list of chromosomes between apices (default: \"chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22\")")
-    parser.add_argument("-m","--minreads", type=int, required=False, default=100000, help="Minimum number total reads to select cells (default: 100000)")
+    parser.add_argument("-m","--minreads", type=int, required=False, default=300000, help="Minimum number total reads to select cells (default: 300000)")
     parser.add_argument("-p","--maxploidy", required=False, type=int, default=4, help="Maximum total copy number to consider for balanced cluster (default: 4, corresponding to a WGD)")
     parser.add_argument("-K","--upperk", required=False, type=int, default=100, help="Maximum number of bin clusters (default: 100, use 0 to consider maximum number of clusters)")
+    parser.add_argument("--addgccorr", required=False, default=False, action='store_true', help="Add additional custome correction for GC bias (default: disabled)")
+    parser.add_argument("--nophasecorr", required=False, default=False, action='store_true', help="Disable correction for given phasing bias (default: enabled)")
     parser.add_argument("--bcftools", required=False, default=None, type=str, help="Path to the directory to \"bcftools\" executable, required in default mode (default: bcftools is directly called as it is in user $PATH)")
     parser.add_argument("--samtools", required=False, default=None, type=str, help="Path to the directory to \"samtools\" executable, required in default mode (default: samtools is directly called as it is in user $PATH)")
     parser.add_argument("--cellprefix", type=str, required=False, default='CB:Z:', help="Prefix of cell barcode field in SAM format (default: CB:Z:)")
@@ -58,7 +60,7 @@ def parse_args():
         else:
             size = int(args.size)
     except:
-	raise ValueError("Size must be a number, optionally ending with either \"kb\" or \"Mb\"!")
+        raise ValueError("Size must be a number, optionally ending with either \"kb\" or \"Mb\"!")
 
     blocksize = 0
     try:
@@ -98,8 +100,10 @@ def parse_args():
         "blocksize" : blocksize,
         "chromosomes" : args.chromosomes,
         "minreads" : args.minreads,
-        "bcftools" : args.bcftools,
-        "samtools" : args.samtools,
+        "addgccorr" : args.addgccorr,
+        "phasecorr" : not args.nophasecorr,
+        "bcftools" : bcftools,
+        "samtools" : samtools,
         "maxploidy" : args.maxploidy,
         "upperk" : args.upperk,
         "cellprefix" : args.cellprefix,
@@ -152,6 +156,10 @@ def main():
     cmd = cmd.format(get_comp('Combiner.py'), rdr, baf, args['jobs'], args['blocksize'], lcel)
     if args['seed'] is not None:
         cmd += " --seed {}".format(args['seed'])
+    if args['addgccorr']:
+        cmd += " --gccorr {}".format(args['reference'])
+    if not args['phasecorr']:
+        cmd += " --nophasecorr"
     runcmd(cmd, dcom, out='combo.tsv')
     com = os.path.join(dcom, 'combo.tsv')
 
