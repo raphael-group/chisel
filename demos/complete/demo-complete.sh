@@ -33,14 +33,14 @@ mkdir -p data
 
 # Downloading tumor barcoded BAM file
 echo "Downloading tumor barcoded BAM file from Zenodo, please be patient as downloading time may vary."
-# curl -L 'https://zenodo.org/record/3950299/files/cells.bam?download=1' > data/cells.bam
-# curl -L 'https://zenodo.org/record/3950299/files/cells.bam.bai?download=1' > data/cells.bam.bai
+curl -L 'https://zenodo.org/record/3950299/files/cells.bam?download=1' > data/cells.bam
+curl -L 'https://zenodo.org/record/3950299/files/cells.bam.bai?download=1' > data/cells.bam.bai
 export TUM="data/cells.bam"
 
 # Downloading matched-normal BAM file
 echo "Downloading matched-normal BAM file from Zenodo, please be patient as downloading time may vary."
-# curl -L 'https://zenodo.org/record/3950299/files/normal.bam?download=1' > data/normal.bam
-# curl -L 'https://zenodo.org/record/3950299/files/normal.bam.bai?download=1' > data/normal.bam.bai
+curl -L 'https://zenodo.org/record/3950299/files/normal.bam?download=1' > data/normal.bam
+curl -L 'https://zenodo.org/record/3950299/files/normal.bam.bai?download=1' > data/normal.bam.bai
 export NOR="data/normal.bam"
 :<<'```shell' # Ignore this line
 ```
@@ -49,9 +49,9 @@ Next the corresponding reference genome is downloaded and unpacked
 
 ```shell
 echo "Downloading human reference genome, please be patient as downloading time may vary."
-# curl -L https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz | gzip -d > data/hg19.fa
-# samtools faidx data/hg19.fa
-# samtools dict data/hg19.fa > data/hg19.dict
+curl -L https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz | gzip -d > data/hg19.fa
+samtools faidx data/hg19.fa
+samtools dict data/hg19.fa > data/hg19.dict
 export REF="data/hg19.fa"
 export DIC="data/hg19.dict"
 :<<'```shell' # Ignore this line
@@ -60,7 +60,7 @@ export DIC="data/hg19.dict"
 Last, we download the pre-computed list of phased germline SNPs. Note that differently from the [one](https://github.com/raphael-group/chisel-data/raw/master/demos/completeE/phased.HRC.vcf.gz) obtained through the reccommended instructions (i.e. using BCFtools to call germline SNPs and Eagle2 throught the Michigan Imputation Serverve with HRC panel to phase the SNPs) this file only contains the lables `0|1` or `1|0` for every SNP, which is the minimum requirement for CHISEL.
 
 ```shell
-# curl -L 'https://zenodo.org/record/3950299/files/phases.tsv?download=1' > data/phases.tsv
+curl -L 'https://zenodo.org/record/3950299/files/phases.tsv?download=1' > data/phases.tsv
 export PHA="data/phases.tsv"
 :<<'```shell' # Ignore this line
 ```

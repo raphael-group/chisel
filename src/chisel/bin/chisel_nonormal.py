@@ -239,46 +239,35 @@ def main():
 
 
 def setup(args):
-    ddata = os.path.join(args['rundir'], 'data')
-    if os.path.isdir(ddata):
-        raise ValueError("The data directory in the running directory already exists! Please remove it or change running directory to avoid overwriting!")
-    else:
-        os.mkdir(ddata)
+    if any(os.path.isdir(os.path.join(args['rundir'], x)) for x in ['data', 'baf', 'rdr', 'combo', 'calls', 'clones', 'plots']):
+        log('Some of the working folders already exist in the running directory and content will be overwritten, please interrupt the process if this was not intended.', level='WARN')
 
+    ddata = os.path.join(args['rundir'], 'data')
+    if not os.path.isdir(ddata):
+        os.mkdir(ddata)
+    
     dbaf = os.path.join(args['rundir'], 'baf')
-    if os.path.isdir(dbaf):
-        raise ValueError("The baf directory in the running directory already exists! Please remove it or change running directory to avoid overwriting!")
-    else:
+    if not os.path.isdir(dbaf):
         os.mkdir(dbaf)
 
     drdr = os.path.join(args['rundir'], 'rdr')
-    if os.path.isdir(drdr):
-        raise ValueError("The rdr directory in the running directory already exists! Please remove it or change running directory to avoid overwriting!")
-    else:
+    if not os.path.isdir(drdr):
         os.mkdir(drdr)
 
     dcom = os.path.join(args['rundir'], 'combo')
-    if os.path.isdir(dcom):
-        raise ValueError("The combo directory in the running directory already exists! Please remove it or change running directory to avoid overwriting!")
-    else:
+    if not os.path.isdir(dcom):
         os.mkdir(dcom)
 
     dcal = os.path.join(args['rundir'], 'calls')
-    if os.path.isdir(dcal):
-        raise ValueError("The calls directory in the running directory already exists! Please remove it or change running directory to avoid overwriting!")
-    else:
+    if not os.path.isdir(dcal):
         os.mkdir(dcal)
 
     dclo = os.path.join(args['rundir'], 'clones')
-    if os.path.isdir(dclo):
-        raise ValueError("The clones directory in the running directory already exists! Please remove it or change running directory to avoid overwriting!")
-    else:
+    if not os.path.isdir(dclo):
         os.mkdir(dclo)
 
     dplo = os.path.join(args['rundir'], 'plots')
-    if os.path.isdir(dplo):
-        raise ValueError("The plots directory in the running directory already exists! Please remove it or change running directory to avoid overwriting!")
-    else:
+    if not os.path.isdir(dplo):
         os.mkdir(dplo)
 
     return ddata, dbaf, drdr, dcom, dcal, dclo, dplo
