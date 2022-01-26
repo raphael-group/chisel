@@ -1,6 +1,6 @@
-# Command `chisel.py`
+# Command `chisel`
 
-The CHISEL command `chisel.py` runs the entire CHISEL pipeline starting from the required inputs (e.g. BAM files).
+The CHISEL command `chisel` as well as the command `chisel_nonormal` runs the entire CHISEL pipeline starting from the required inputs (e.g. BAM files).
 During the executiong, the command creates six folders which contain the temporary and final results produced by the 5 distinct steps of CHISEL.
 
 ## Estimating RDRs

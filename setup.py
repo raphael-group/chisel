@@ -4,16 +4,15 @@ from setuptools import setup
 
 setuptools.setup(
     name='chisel',
-    version='1.0.0',
+    version='1.1',
     python_requires='==2.7.*',
     packages=['chisel', 'chisel.bin'],
     package_dir={'': 'src'},
     author='Simone Zaccaria',
-    author_email='zaccaria@princeton.edu',
+    author_email='s.zaccaria@ucl.ac.uk',
     description='Copy-number Haplotype Inference in Single-cell by Evolutionary Links',
     long_description='https://github.com/raphael-group/chisel',
-#    long_description_content_type='text/markdown',
-    url='https://github.com/ENCODE-DCC/caper',
+    url='https://github.com/raphael-group/chisel',
     install_requires=[
         'numpy>=1.16.1',
         'scipy>=1.2.1',

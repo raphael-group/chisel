@@ -1,7 +1,7 @@
-# Complete demo of CHISEL
+# Complete demo of CHISEL in nonormal mode
 : ex: set ft=markdown ;:<<'```shell' #
 
-The following CHISEL demo represents a guided example of the complete CHISEL pipeline starting from an exemplary barcoded [BAM file](https://doi.org/10.5281/zenodo.3950299) publicly available. From this directory, simply run this file through BASH as a standard script to run the complete demo. The demo can also be considered as a guided example of a complete execution and is correspondingly commented.
+The following CHISEL demo represents a guided example of the complete CHISEL pipeline in nonormal mode starting from an exemplary barcoded [BAM file](https://doi.org/10.5281/zenodo.3950299) publicly available. From this directory, simply run this file through BASH as a standard script to run the complete demo. The demo can also be considered as a guided example of a complete execution and is correspondingly commented.
 
 ## Requirements and set up
 
@@ -36,12 +36,6 @@ echo "Downloading tumor barcoded BAM file from Zenodo, please be patient as down
 # curl -L 'https://zenodo.org/record/3950299/files/cells.bam?download=1' > data/cells.bam
 # curl -L 'https://zenodo.org/record/3950299/files/cells.bam.bai?download=1' > data/cells.bam.bai
 export TUM="data/cells.bam"
-
-# Downloading matched-normal BAM file
-echo "Downloading matched-normal BAM file from Zenodo, please be patient as downloading time may vary."
-# curl -L 'https://zenodo.org/record/3950299/files/normal.bam?download=1' > data/normal.bam
-# curl -L 'https://zenodo.org/record/3950299/files/normal.bam.bai?download=1' > data/normal.bam.bai
-export NOR="data/normal.bam"
 :<<'```shell' # Ignore this line
 ```
 
@@ -70,6 +64,6 @@ export PHA="data/phases.tsv"
 We now run the complete pipeline of CHISEL with the corresponding command `chisel`.
 
 ```shell
-chisel -t ${TUM} -n ${NOR} -r ${REF} -l ${PHA} --seed 12
+chisel_nonormal -t ${TUM} -r ${REF} -l ${PHA} --seed 12
 exit $?
 ```
