@@ -136,7 +136,8 @@ def main(args=None, stdout_file=None):
     if stdout_file is not None:
         with open(stdout_file, 'w') as f:
             f.write(header + '\n')
-            f.write('\n'.join(gen))
+            for g in gen:
+                f.write('{}\n'.format(g))
     else:
         print header
         for g in gen:

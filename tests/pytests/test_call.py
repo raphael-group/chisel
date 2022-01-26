@@ -16,4 +16,4 @@ def test_call():
         ], stdout_file=f.name)
 
         assert hashlib.md5(open(f.name, 'rb').read()).hexdigest() == \
-               'f5b1005a730048efd8213465ed0b8398'
+               'be0b7472a1c8d6f8f96b9aa0fb8df3c9'
