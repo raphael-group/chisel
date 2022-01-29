@@ -39,13 +39,14 @@ export TUM="data/cells.bam"
 :<<'```shell' # Ignore this line
 ```
 
-Next the corresponding reference genome is downloaded and unpacked
+Next the corresponding reference genome is downloaded and unpacked. Also, the required indexes are generated.
 
 ```shell
 echo "Downloading human reference genome, please be patient as downloading time may vary."
 curl -L https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz | gzip -d > data/hg19.fa
 samtools faidx data/hg19.fa
 samtools dict data/hg19.fa > data/hg19.dict
+bwa index data/hg19.fa
 export REF="data/hg19.fa"
 export DIC="data/hg19.dict"
 :<<'```shell' # Ignore this line
@@ -61,9 +62,9 @@ export PHA="data/phases.tsv"
 
 ## Run CHISEL
 
-We now run the complete pipeline of CHISEL with the corresponding command `chisel`.
+We now run the complete pipeline of CHISEL with the corresponding command `chisel_nonormal`.
 
 ```shell
-chisel_nonormal -t ${TUM} -r ${REF} -l ${PHA} --seed 12
+chisel_nonormal -t ${TUM} -r ${REF} -l ${PHA} --simcov 0.2 --seed 12
 exit $?
 ```

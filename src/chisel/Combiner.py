@@ -16,6 +16,7 @@ from functools import reduce
 import numpy as np
 import scipy.stats
 import statsmodels.api as sm
+from matplotlib import pyplot as plt
 
 from Utils import *
 
@@ -37,6 +38,7 @@ def parse_args(args):
     parser.add_argument("--minimumsnps", required=False, type=float, default=0.0, help="Minimum SNP density per kb (default: 0.0, reasonable values are 0.01, 0.02, etc.)")
     parser.add_argument("--missingsnps", required=False, type=str, default=None, help="A,B counts for genomic bins without minimum minimum SNP density (default: 0,0 i.e. BAF=0.5)")
     parser.add_argument("--gccorr", required=False, type=str, default=None, help="The reference genome to apply additional GC correction in addition to using a matched-normal sample (default: None)")
+    parser.add_argument("--alphagc", required=False, type=float, default=0.05, help="Significance level to decide GC correction (default: 0.05)")
     parser.add_argument("--nophasecorr", required=False, default=False, action='store_true', help="Disable correction for given phasing bias (default: enabled)")
     args = parser.parse_args(args)
 
@@ -55,6 +57,8 @@ def parse_args(args):
         raise ValueError("The number of bootstrapping points must be positive!")
     if not 0.0 <= args.significance <= 1.0:
         raise ValueError("The maxerror must be in [0, 1]!")
+    if not 0.0 <= args.alphagc <= 1.0:
+        raise ValueError("The alphagc must be in [0, 1]!")
     if args.maxerror is not None and not 0.0 <= args.maxerror <= 0.5:
         raise ValueError("The maxerror must be in [0, 0.5]!")
     if args.minerror is not None and not 0.0 <= args.minerror <= 0.5:
@@ -100,6 +104,7 @@ def parse_args(args):
         'restarts' : args.restarts,
         'bootstrap' : args.bootstrap,
         'significance' : args.significance,
+        'alphagc' : args.alphagc,
         'maxerror' : args.maxerror,
         'minerror' : args.minerror,
         'listofcells' : args.listofcells,
@@ -354,7 +359,7 @@ def est_error(ns, significance=0.05, restarts=50, bootstrap=100):
 
 def addgccorrect(data, isbalanced, args):
     gcs = gccount(args['gccorr'], data, args['j'])
-    gccorrect(data, gcs, isbalanced, args['j'])
+    gccorrect(data, gcs, isbalanced, args['j'], args['alphagc'])
 
     
 def gccount(ref, data, j=56):
@@ -405,10 +410,10 @@ def gccounting(c):
     return c, res
 
 
-def gccorrect(data, gcs, isbalanced, j):
+def gccorrect(data, gcs, isbalanced, j, alphagc):
     jobs = set(e for c in data for b in data[c] for e in data[c][b])
     bar = ProgressBar(total=len(jobs), length=min(len(jobs), 40), verbose=False)
-    initargs = (data, gcs, isbalanced)
+    initargs = (data, gcs, isbalanced, alphagc)
     pool = Pool(processes=min(j, len(jobs)), initializer=init_gccorrecting, initargs=initargs)
     progress = (lambda e : bar.progress(advance=True, msg="GC Corrected cell {}".format(e)))
     for e, gcs in pool.imap_unordered(gccorrecting, jobs):
@@ -421,29 +426,45 @@ def gccorrect(data, gcs, isbalanced, j):
     return
 
 
-def init_gccorrecting(_data, _gcs, _isbalanced):
-    global data, gcs, isbalanced
+def init_gccorrecting(_data, _gcs, _isbalanced, _alphagc):
+    global data, gcs, isbalanced, alphagc, gcnormal
     data = _data
     gcs = _gcs
     isbalanced = _isbalanced
+    alphagc = _alphagc / (20.0 * len({e for c in _data for b in _data[c] for e in _data[c][b]}))
 
 
 def gccorrecting(e):
     getgc = (lambda C : ((C['C'] + C['G']) / float(C['C'] + C['G'] + C['A'] + C['T'])) if (C['C'] + C['G'] + C['A'] + C['T']) > 0 else 0.5)
-    form = (lambda c, b : {'Tumor' : data[c][b][e]['readcount'], 'Normal' : data[c][b][e]['normalcount'], '%GC' : getgc(gcs[c][b]), 'isbalanced' : isbalanced[c][b] if isbalanced is not None else True})
+    safediv = (lambda n, t : n / t if t > 0.0 else 1.0)
+    norm = safediv(sum(data[c][b][e]['normalcount'] for c in data for b in data[c]), float(sum(data[c][b][e]['readcount'] for c in data for b in data[c])))
+    form = (lambda c, b : {'Tumor' : data[c][b][e]['readcount'],
+                           'Normal' : data[c][b][e]['normalcount'],
+                           '%GC' : getgc(gcs[c][b]),
+                           'isbalanced' : isbalanced[c][b] if isbalanced is not None else True})
     curr = {(c, b[0], b[1]) : form(c, b) for c in data for b in data[c]}
     with warnings.catch_warnings() as w:
         warnings.simplefilter("ignore")
-        tcorr = gccorr(curr, rkey='Tumor')
-        ncorr = gccorr(curr, rkey='Normal')
+        tcorr = gccorr(curr, alphagc=alphagc, rkey='Tumor')
+        ncorr = gccorr(curr, alphagc=alphagc, rkey='Normal')
     getrdr = (lambda c, b : (tcorr[(c, b[0], b[1])] / ncorr[(c, b[0], b[1])]) if ncorr[(c, b[0], b[1])] > 0 else 0.0)
     return e, {c : {b : getrdr(c, b) for b in data[c]} for c in data}
 
 
-def gccorr(curr, rkey='Tumor', plot=False, frac=0.3, tol=0.1, genomethres=0.4):
+def gccorr(curr, alphagc, rkey='Tumor', plot=False, frac=1.0, tol=0.2, genomethres=0.4):
     reg = (lambda D : D / (np.sum(D) / float(len(D))))
     regD = (lambda D : {b : D[b] / (sum(D.values()) / float(len(D))) for b in D})
     ixs = sorted(curr.keys(), key=(lambda b : curr[b]['%GC']))
+    dist = reg(np.array([curr[b][rkey] for b in ixs]))
+    extperc = (lambda l, u : dist[int(round(len(dist) * l)):int(round(len(dist) * u)+1)])
+    low = extperc(0.0, 0.2)
+    low = [np.average(np.random.choice(low, len(low), replace=True)) for x in range(100)]
+    mid = extperc(0.4, 0.6)
+    mid = [np.average(np.random.choice(mid, len(mid), replace=True)) for x in range(100)]
+    top = extperc(0.8, 1.0)
+    top = [np.average(np.random.choice(top, len(top), replace=True)) for x in range(100)]
+    if scipy.stats.ranksums(low, mid)[1] >= alphagc and scipy.stats.ranksums(mid, top)[1] >= alphagc:
+        return regD({b : curr[b][rkey] for b in ixs})
 
     sel1 = [b for b in ixs if curr[b]['isbalanced']]
     if (len(sel1) / float(len(ixs))) <= genomethres:
@@ -484,7 +505,7 @@ def gccorr(curr, rkey='Tumor', plot=False, frac=0.3, tol=0.1, genomethres=0.4):
     fs = np.interp(x=xs1, xp=xs2, fp=fs2)
     xs = map((lambda b : curr[b]['%GC']), ixs)
     assert xs == sorted(xs), xs
-    fs = reg(np.interp(x=xs, xp=xs1, fp=fs))
+    fs = np.interp(x=xs, xp=xs1, fp=fs)
     fs[(np.isnan(fs)) | (fs < tol)] = tol
     res = regD({b : curr[b][rkey] * (max(fs) / f) for b, f in zip(ixs, fs)})
     if plot:
