@@ -104,7 +104,7 @@ def main():
     chrs = bins.keys()
     
     log('Counting reads on barcoded cells')
-    counts = counting_cells(counts, args['tumor'], bins, args['samtools'], args['jobs'], args['prefix'], args['suffix'])
+    counts = counting_cells(counts, args['tumor'], bins, args['samtools'], args['jobs'], args['cellprefix'], args['cellsuffix'])
     cells = set(e for c in counts for b in counts[c] for e in counts[c][b])
     
     log('Computing total numbers of sequenced reads')
