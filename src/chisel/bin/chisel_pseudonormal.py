@@ -33,7 +33,7 @@ def parse_args():
     parser.add_argument("--tmpdir", required=False, default='_TMP', type=str, help="Temporary directory in running directory (default: _TMP)")
     parser.add_argument("-n","--normal", required=False, type=str, default="pseudonormal.bam", help="Name of the generated pseudo matched-normal BAM file (default: pseudonormal.bam)")
     parser.add_argument("--cellprefix", type=str, required=False, default='CB:Z:', help="Prefix of cell barcode field in SAM format (default: CB:Z:)")
-    parser.add_argument("--cellsuffix", type=str, required=False, default=None, help="Suffix of cell barcode field in SAM format (default: none)")
+    parser.add_argument("--cellsuffix", type=str, required=False, default='', help="Suffix of cell barcode field in SAM format (default: none)")
     args = parser.parse_args()
 
     if not os.path.isdir(args.rundir):
@@ -106,6 +106,7 @@ def main():
     log('Counting reads on barcoded cells')
     counts = counting_cells(counts, args['tumor'], bins, args['samtools'], args['jobs'], args['cellprefix'], args['cellsuffix'])
     cells = set(e for c in counts for b in counts[c] for e in counts[c][b])
+    log('Number of identified cells: {}'.format(len(cells)), level='INFO')
     
     log('Computing total numbers of sequenced reads')
     total = reduce(inupdate, (Counter(counts[c][b]) for c in counts for b in counts[c]))
@@ -121,17 +122,19 @@ def main():
     with open(dlist, 'w') as o:
         o.write('\n'.join(diploid) + '\n')
     log('Number of identified diploid cells: {}'.format(len(diploid)), level='INFO')
-    cov = (float(sum(total[e] for e in diploid)) * 100.0) / float(sum(b[1] - b[0] for c in counts for b in counts[c]))
-    log('Approximate sequencing coverage of pseudo matched-normal sample: {}'.format(cov), level='INFO')
 
-    log('Extracting sequencing reads from selected diploid cells')
-    extracting_diploid(args['tumor'], args['samtools'], chrs, args['tmpdir'], dlist, args['jobs'])
+    if len(diploid) > 0:
+        cov = (float(sum(total[e] for e in diploid)) * 100.0) / float(sum(b[1] - b[0] for c in counts for b in counts[c]))
+        log('Approximate sequencing coverage of pseudo matched-normal sample: {}'.format(cov), level='INFO')
 
-    log('Merging and extracted sequencing reads and indexing the output pseduo matched-normal sample')
-    merging_diploid(chrs, args['tmpdir'], args['samtools'], os.path.join(args['rundir'], args['normal']))
+        log('Extracting sequencing reads from selected diploid cells')
+        extracting_diploid(args['tumor'], args['samtools'], chrs, args['tmpdir'], dlist, args['jobs'])
 
-    log('Removing temporary files')
-    shutil.rmtree(args['tmpdir'])
+        log('Merging and extracted sequencing reads and indexing the output pseduo matched-normal sample')
+        merging_diploid(chrs, args['tmpdir'], args['samtools'], os.path.join(args['rundir'], args['normal']))
+
+        log('Removing temporary files')
+        shutil.rmtree(args['tmpdir'])
 
     log('KTHXBYE')
 
