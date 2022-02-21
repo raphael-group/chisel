@@ -32,6 +32,8 @@ def parse_args():
     parser.add_argument("-j","--jobs", required=False, type=int, default=0, help="Number of parallele jobs to use (default: equal to number of available processors)")
     parser.add_argument("--tmpdir", required=False, default='_TMP', type=str, help="Temporary directory in running directory (default: _TMP)")
     parser.add_argument("-n","--normal", required=False, type=str, default="pseudonormal.bam", help="Name of the generated pseudo matched-normal BAM file (default: pseudonormal.bam)")
+    parser.add_argument("--cellprefix", type=str, required=False, default='CB:Z:', help="Prefix of cell barcode field in SAM format (default: CB:Z:)")
+    parser.add_argument("--cellsuffix", type=str, required=False, default=None, help="Suffix of cell barcode field in SAM format (default: none)")
     args = parser.parse_args()
 
     if not os.path.isdir(args.rundir):
@@ -83,6 +85,8 @@ def parse_args():
         "chromosomes" : args.chromosomes,
         "minreads" : args.minreads,
         "samtools" : samtools,
+        "cellprefix" : args.cellprefix,
+        "cellsuffix" : args.cellsuffix,
         "jobs" : args.jobs
     }
 
