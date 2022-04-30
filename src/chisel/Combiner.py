@@ -16,6 +16,9 @@ from functools import reduce
 import numpy as np
 import scipy.stats
 import statsmodels.api as sm
+
+import matplotlib as mpl
+mpl.use('Agg')
 from matplotlib import pyplot as plt
 
 from Utils import *
