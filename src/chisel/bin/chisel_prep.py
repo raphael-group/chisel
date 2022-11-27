@@ -220,7 +220,7 @@ def read_table(file):
     if {'b'} == exts:
         binfo = {os.path.abspath(r[0]) : r[1] for r in read}
         reps = defaultdict(lambda : [])
-        map(lambda f : reps[binfo[f]].append((f, len(reps[binfo[f]]))), binfo)
+        map(lambda f : reps[binfo[f]].append((f, len(reps[binfo[f]]))), sorted(binfo))
         reps = {s : dict(reps[s]) for s in reps}
         return inputs, {f : {'cell' : binfo[f], 'reps' : reps[binfo[f]][f]} for f in binfo}
     elif {'q'} == exts:
@@ -228,7 +228,7 @@ def read_table(file):
         reps = defaultdict(lambda : [])
         found = set()
         proc = (lambda Q, f, R : reps[Q['cell']].append((R, len(reps[Q['cell']]))) or found.add(R) if R not in found else None)
-        map(lambda f : proc(qinfo[f], f, f.replace(qinfo[f]['read'], '')), qinfo)
+        map(lambda f : proc(qinfo[f], f, f.replace(qinfo[f]['read'], '')), sorted(qinfo))
         reps = {s : dict(reps[s]) for s in reps}
         return inputs, {f : {'cell' : qinfo[f]['cell'], 'reps' : reps[qinfo[f]['cell']][f.replace(qinfo[f]['read'], '')], 'read' : qinfo[f]['read']} for f in qinfo}
     else:
@@ -244,7 +244,7 @@ def match_fastq(inputs, args):
         reps = defaultdict(lambda : [])
         found = set()
         proc = (lambda Q, f, R : reps[Q['cell']].append((R, len(reps[Q['cell']]))) or found.add(R) if R not in found else None)
-        map(lambda f : proc(qinfo[f], f, f.replace(qinfo[f]['read'], '')), qinfo)
+        map(lambda f : proc(qinfo[f], f, f.replace(qinfo[f]['read'], '')), sorted(qinfo))
         reps = {s : dict(reps[s]) for s in reps}
         qinfo = {f : {'cell' : qinfo[f]['cell'], 'reps' : reps[qinfo[f]['cell']][f.replace(qinfo[f]['read'], '')], 'read' : qinfo[f]['read']} for f in qinfo}
         return make_fastqinfo(inputs, qinfo, args)
@@ -280,7 +280,7 @@ def make_fastqinfo(inputs, fastqinfo, args):
 def make_baminfo(inputs):
     binfo = {os.path.abspath(f) : os.path.basename(f) for f in inputs}
     lanes = defaultdict(lambda : [])
-    map(lambda f : lanes[binfo[f]].append((f, len(lanes[binfo[f]]))), binfo)
+    map(lambda f : lanes[binfo[f]].append((f, len(lanes[binfo[f]]))), sorted(binfo))
     lanes = {s : dict(lanes[s]) for s in lanes}
     return {f : {'cell' : binfo[f], 'reps' : lanes[binfo[f]][f]} for f in binfo}
 
@@ -365,12 +365,12 @@ def mkbarcodes(files, length, info):
     assert len(barcodes) == len(files), '{} != {}'.format(len(files), len(barcodes))
     getfile = (lambda f : f[0] if type(f) == tuple else f)
     reps = defaultdict(lambda : [])
-    map(lambda f : reps[info[getfile(f)]['cell']].append(f), files)
+    map(lambda f : reps[info[getfile(f)]['cell']].append(f), sorted(files))
     dup = [s for s in reps if len(reps[s]) != len(set(info[getfile(f)]['reps'] for f in reps[s]))]
     if len(dup) > 0:
         raise ValueError(error('Two or more of these files have the same cell name but also the same rep number:\n{}'.format('\n'.join([f for f in reps[dup[0]]]))))
     assign = dict(zip(files, barcodes))
-    return map(lambda f : assign[reps[info[getfile(f)]['cell']][0]], files)
+    return map(lambda f : assign[reps[info[getfile(f)]['cell']][0]], sorted(files))
     
     
 def align(files, names, barcodes, lanes, tmpdir, errdir, ref, bwa, samtools, J):
