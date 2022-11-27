@@ -9,10 +9,10 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: [2.7]
+        python: [2.7.18]
 
     steps:
       - uses: actions/checkout@v2
