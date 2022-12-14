@@ -1,9 +1,11 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 
 import os, sys
 import shlex
 import argparse
 import subprocess as sp
+import functools
+import math
 
 from multiprocessing import Lock, Value, Pool
 from collections import Counter
@@ -48,7 +50,7 @@ def parse_args(args):
         else:
             size = int(args.size)
     except:
-	raise ValueError("Size must be a number, optionally ending with either \"kb\" or \"Mb\"!")
+        raise ValueError("Size must be a number, optionally ending with either \"kb\" or \"Mb\"!")
 
     samtools = args.samtools
     if not samtools:
@@ -108,7 +110,7 @@ def main(args=None, stdout_file=None):
         names = set(e for c in counts for b in counts[c] for e in counts[c][b] if e in clist)
 
     log('Computing total numbers of sequenced reads')
-    total = reduce(inupdate, (Counter(counts[c][b]) for c in counts for b in counts[c]))
+    total = functools.reduce(inupdate, (Counter(counts[c][b]) for c in counts for b in counts[c]))
 
     log('Selecting cells')
     if args['minreads']:
@@ -137,7 +139,7 @@ def main(args=None, stdout_file=None):
                 if stdout_file is not None:
                     stdout_f.write(line + '\n')
                 else:
-                    print line
+                    print(line)
 
     if stdout_file is not None:
         stdout_f.close()
@@ -163,10 +165,10 @@ def counting_normal(normal, bins, samtools, J):
                 counts[c][b]['normal'] = 0
         pool.close()
         pool.join()
-    except Exception, e:
+    except Exception as e:
         pool.close()
         pool.terminate()
-        raise RuntimeError("ERROR: " + str(e))
+        raise RuntimeError('ERROR: ' + str(e))
         sys.exit(1)
 
     return counts
@@ -194,8 +196,9 @@ def counting_cells(counts, tumor, bins, samtools, J, prefix, suffix):
     pool = Pool(processes=min(J, len(jobs)), initializer=init_extracting, initargs=initargs)
 
     for c, b, rd in pool.imap_unordered(extracting, jobs):
-        if rd != '':
-            for l in rd.strip().split('\n'):
+        rd_ = rd.decode("utf-8")
+        if rd_ != '':
+            for l in rd_.strip().split('\n'):
                 p = l.split()
                 assert p[0] not in counts[c][b]
                 counts[c][b][p[0]] = int(p[1])
@@ -224,6 +227,7 @@ def extracting(job):
 def get_bins(ref, chromosomes, bsize, bams=None, samtools=None):
     chrs = set(c.replace('chr', '') for c in chromosomes)
     ends = {}
+    # Uses reference genome file given as input to find last genomic position of each chromosome
     refdict = os.path.splitext(ref)[0] + '.dict'
     with open(refdict, 'r') as i:
         for l in i:
@@ -233,7 +237,8 @@ def get_bins(ref, chromosomes, bsize, bams=None, samtools=None):
                 if c.replace('chr', '') in chrs:
                     end = int(l.split('LN:')[1].split()[0])
                     ends[c] = end
-                    
+
+    # Makes sure chromosomes are in reference genome
     missing = [c for c in chrs if c not in ends and 'chr{}'.format(c) not in ends]
     if missing:
         msg = "The following chromosomes have not been found in the dictionary of the reference genome with or without chr-notation: \n\t{}"
@@ -243,7 +248,8 @@ def get_bins(ref, chromosomes, bsize, bams=None, samtools=None):
         for bam in bams:
             cmd = "{} view -H {}".format(samtools, bam)
             stdout, stderr = sp.Popen(shlex.split(cmd), stdout=sp.PIPE, stderr=sp.PIPE).communicate()
-            allchrs = set(p.replace('SN:','') for l in stdout.strip().split('\n') if l[:3] == '@SQ' for p in l.strip().split() if p[:3])
+            stdout_ = stdout.decode("utf-8")
+            allchrs = set(p.replace('SN:','') for l in stdout_.strip().split('\n') if l[:3] == '@SQ' for p in l.strip().split() if p[:3])
             missing = [c for c in ends if c not in allchrs]
             if missing:
                 msg = "The following chromosomes have not been found in {} with these exact names: \n\t{}"
