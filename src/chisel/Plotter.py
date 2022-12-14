@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 
 import sys, os
 import argparse
@@ -405,7 +405,7 @@ def totalcns(bins, pos, cells, index=None, clones=None, selected=None, args=None
     palette.update({4 : 'navajowhite'})
     palette.update({5 : 'red'})
     palette.update({6 : 'orchid'})
-    colors = [palette[x] for x in xrange(7) if x in set(df['Total CN'])]
+    colors = [palette[x] for x in range(7) if x in set(df['Total CN'])]
     cmap = LinearSegmentedColormap.from_list('multi-level', colors, len(colors))
     draw(table, bins, pos, cells, index, mapc, palette=cmap, center=None, method='single', metric='hamming', title=title, out=out, args=args)
 
@@ -449,7 +449,7 @@ def bcns(bins, pos, cells, index=None, clones=None, selected=None, args=None, ou
 
 
 def states(bins, pos, cells, index=None, clones=None, selected=None, args=None, out='allelecn.', val='CNS'):
-    avail = [(t - i, i) for t in xrange(7) for i in reversed(xrange(t+1)) if i <= t - i]
+    avail = [(t - i, i) for t in range(7) for i in reversed(range(t+1)) if i <= t - i]
     order = (lambda p : (max(p), min(p)))
     convert = (lambda p : order(p) if sum(p) <= 6 else min(avail, key=(lambda x : abs(p[0] - x[0]) + abs(p[1] - x[1]))))
     df = []
