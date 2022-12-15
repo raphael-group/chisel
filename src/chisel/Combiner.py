@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 
 import os, sys
 import argparse
@@ -155,7 +155,7 @@ def main(args=None, stdout_file=None):
         if stdout_file is not None:
             stdout_f.write(line + '\n')
         else:
-            print line
+            print(line)
 
     if stdout_file is not None:
         stdout_f.close()
@@ -206,13 +206,13 @@ def combo(rdr, cA, cB, bulk, args):
     cells = set(e for c in rdr for b in rdr[c] for e in rdr[c][b])
     jobs = ((c, b, np.random.randint(1000)) for c in rdr for b in rdr[c])
     njobs = sum(len(rdr[c].keys()) for c in rdr)
-    snps = {c : sorted(cA[c].keys()) if c in cA else [] for c in rdr}
+    snps = {c : sorted(cA[c].keys()) if c in cA else [] for c in rdr} # Checks each chr to see if A-allele exists
     bar = ProgressBar(total=njobs, length=40, verbose=False)
     initargs = (snps, cA, cB, bulk, cells, args)
     pool = Pool(processes=min(args['j'], njobs), initializer=init, initargs=initargs)
     counts = (lambda c, b, e : rdr[c][b][e].items())
     for c, b, A, B, isbal in pool.imap_unordered(combine, jobs):
-        rb[c][b] = {e : dict(counts(c, b, e) + [('BAF', (A[e], B[e]) if e in A else (0, 0))]) for e in cells}
+        rb[c][b] = {e : dict(list(counts(c, b, e)) + [('BAF', (A[e], B[e]) if e in A else (0, 0))]) for e in cells}
         isbalanced[c][b] = isbal
         bar.progress(advance=True, msg="Combined bin {}:{}-{}".format(c, b[0], b[1]))
     pool.close()
@@ -299,7 +299,7 @@ def combine(job):
     allblocks = blocks.values()
     nis = [sum(block) for block in allblocks]
     xis = [block[0] if np.random.random() < 0.5 else block[1] for block in allblocks]
-    beta = max((EM(ns=nis, xs=xis, start=np.random.randint(low=1, high=49)/100.0) for r in xrange(restarts)), key=(lambda x : x[1]))[0]
+    beta = max((EM(ns=nis, xs=xis, start=np.random.randint(low=1, high=49)/100.0) for r in range(restarts)), key=(lambda x : x[1]))[0]
     if maxerror is None:
         thres = max(minerror, est_error(ns=nis, significance=alpha, restarts=restarts, bootstrap=boot))
     else:
@@ -352,10 +352,10 @@ def est_error(ns, significance=0.05, restarts=50, bootstrap=100):
     nis = np.array(ns)
     N = nis.size
     genstart = (lambda : np.random.randint(low=1, high=49)/100.0)
-    runEM = (lambda xis : max((EM(ns=nis, xs=xis, start=genstart()) for x in xrange(restarts)), key=(lambda x : x[1]))[0])
+    runEM = (lambda xis : max((EM(ns=nis, xs=xis, start=genstart()) for x in range(restarts)), key=(lambda x : x[1]))[0])
     mirror = (lambda b : min(b, 1 - b))
     genneu = scipy.stats.binom.rvs
-    betas = sorted(mirror(runEM(genneu(n=nis, p=0.5, size=len(nis)))) for x in xrange(bootstrap))
+    betas = sorted(mirror(runEM(genneu(n=nis, p=0.5, size=len(nis)))) for x in range(bootstrap))
     betas = betas[int(round(len(betas) * significance)):]
     return 0.5 - betas[0]
 
