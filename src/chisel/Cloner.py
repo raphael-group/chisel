@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 
 import sys, os
 import argparse
@@ -86,9 +86,9 @@ def main(args=None, stdout_file=None):
             for c in cells:
                 f.write('\t'.join(map(str, [c, clus[c], 'Clone{}'.format(clones[c]) if c in clones else 'None'])) + '\n')
     else:
-        print header
+        print(header)
         for c in cells:
-            print '\t'.join(map(str, [c, clus[c], 'Clone{}'.format(clones[c]) if c in clones else 'None']))
+            print('\t'.join(map(str, [c, clus[c], 'Clone{}'.format(clones[c]) if c in clones else 'None'])))
 
     log('Writing clone-corrected copy numbers in provided input')
     ftmp = args['input'] + '_TMP'
@@ -142,11 +142,14 @@ def refining(cns, clus, chosen, maxdiff):
     clones = set(chosen.values())
     safeargmax = (lambda C : argmax(C) if len(C) > 0 else (1, 1))
     getcn = (lambda g, i : safeargmax(Counter([cns[g][c] for c in chosen if chosen[c] == i])))
+    # Gets copy number for each chr, bin pos, and cell by looking at all copy numbers assigned to cell and taking max or assigning it to (1,1)
     profile = {g : {i : getcn(g, i) for i in clones} for g in cns}
     diff = (lambda i, c, g : 1 if profile[g][i] != cns[g][c] else 0)
     weight = (lambda i, c : float(sum(diff(i, c, g) for g in profile)) / float(len(profile)))
+    # Find weight of differences for all instances of cell (if cn assignment is diff then diff = 1)
     closest = (lambda c : min([(i, weight(i, c)) for i in clones], key=(lambda x : x[1])))
-    ref = {c : closest(c) for c in clus if c not in chosen.keys()}
+    # Choose the clone that minimizes the cell's weight
+    ref = {c : closest(c) for c in clus if c not in chosen.keys()} # Only for cells in clus-chosen
     newclones = {c : chosen[c] if c in chosen else ref[c][0] for c in clus if c in chosen or ref[c][1] <= maxdiff}
     newclus = {c : newclones[c] if c in newclones else clus[c] for c in clus}
     assert False not in set(len({clus[c], chosen[c], newclus[c], newclones[c]}) == 1 for c in chosen)
@@ -157,7 +160,7 @@ def profiling(cns, clus):
     clones = set(clus.values())
     # safeargmax = (lambda C : argmax(C) if len(C) > 0 else (1, 1))
     # getcn = (lambda g, i : safeargmax(Counter([cns[g][c] for c in clus if clus[c] == i])))
-    mapclo = {i : filter(lambda e : clus[e] == i, clus.keys()) for i in clones}
+    mapclo = {i : list(filter(lambda e : clus[e] == i, clus.keys())) for i in clones}
     assert all(len(mapclo[i]) > 0 for i in mapclo), 'Found cluster assignment with no corresponding cell'
     getcn = (lambda g, i : argmax(Counter([cns[g][e] for e in mapclo[i]])))
     return {g : {i : getcn(g, i) for i in clones} for g in cns}    
