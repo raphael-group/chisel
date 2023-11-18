@@ -4,7 +4,7 @@ from setuptools import setup
 
 setuptools.setup(
     name='chisel',
-    version='1.1.2',
+    version='1.2',
     python_requires='==2.7.*',
     packages=['chisel', 'chisel.bin'],
     package_dir={'': 'src'},
@@ -43,6 +43,8 @@ setuptools.setup(
         'copy-number'],
     entry_points={'console_scripts': ['chisel=chisel.bin.chisel_main:main',
                                       'chisel_nonormal=chisel.bin.chisel_nonormal:main',
+                                      'chisel_preprocess=chisel.bin.chisel_preprocess:main',
+                                      'chisel_combocall=chisel.bin.chisel_combocall:main',
                                       'chisel_calling=chisel.bin.chisel_calling:main',
                                       'chisel_cloning=chisel.bin.chisel_cloning:main',
                                       'chisel_plotting=chisel.bin.chisel_plotting:main',
