@@ -97,6 +97,7 @@ First, `bioconda` [requires](https://bioconda.github.io/user/index.html) to set 
 conda config --add channels defaults
 conda config --add channels bioconda
 conda config --add channels conda-forge
+conda config --set channel_priority strict
 ```
 
 Next, `chisel` can be installed with the following one-time command:
@@ -205,6 +206,10 @@ Every command can be run directly when CHISEL has been correctly installed.
 |---------|-------------|----------------|--------|
 | [`chisel`](man/chisel.md) | Running the complete CHISEL pipeline | All 4 required input data | [Final results and plots](doc/chisel.md) |
 | [`chisel_nonormal`](man/chisel.md) | Running the complete CHISEL pipeline without matched normal sample | The first 3 required input data | [Final results and plots](doc/chisel.md) |
+| [`chisel_preprocess`](man/chisel.md) | Running the pre-processing part of CHISEL pipeline to only compute RDRs and phased BAFs | All 4 required input data  | [Final results and plots](doc/chisel.md) |
+| [`chisel_nonormal_preprocess`](man/chisel.md) | Running the pre-processing part of CHISEL nonormal pipeline to only compute RDRs and phased BAFs | The first 3 required input data | [Final results and plots](doc/chisel.md) |
+| [`chisel_combocall`](man/chisel.md) | Running the complete part of CHISEL pipeline starting from computed RDRs and phased BAFs for one or more multiple input samples | One or more running directories of previous runs of CHISEL preprocessing | [Final results and plots](doc/chisel.md) |
+| [`chisel_nonormal_combocall`](man/chisel.md) | Running the complete part of CHISEL nonormal pipeline starting from computed RDRs and phased BAFs for one or more multiple input samples | One or more running directories of previous runs of CHISEL nonormal preprocessing | [Final results and plots](doc/chisel.md) |
 | [`chisel_calling`](man/chisel-calling.md) | Running from the inference of copy numbers | Computed RDRs and BAFs | [Final results and plots](doc/chisel-calling.md) |
 | [`chisel_cloning`](man/chisel-cloning.md) | Running from the identification of clones | Inferred copy numbers | [Final results and plots](doc/chisel-cloning.md) |
 | [`chisel_plotting`](man/chisel-plotting.md) | Running plot generation | Inferred copy numbers and clones | [Final plots](doc/chisel-plotting.md) |
@@ -245,6 +250,7 @@ The following recommendations guide the user in the process of quality control f
 <a name="updates"></a>
 ### Recent and important updates
 
+- **[19-Nov-2023]** CHISEL v1.2 introduces the new commands `chisel_preprocess` and `chisel_nonormal_preprocess` to run the CHISEL pipelines to only compute RDRs and phased BAFs. It also introduces the new commands `chisel_combocall` and `chisel_nonormal_combocall` to run the complete CHISEL pipelines starting from computed RDRs and phased BAFs for one or more samples.
 - **[26-Jan-2022]** CHISEL v1.1 introduces the new command `chisel_nonormal` to run the complete CHISEL pipeline without a matched-normal sample. In addition, the new version introduces the possibility to add additional GC correction in the default mode by adding the flag `--addgccorr` and it introduces a statistical test which attempts to correct phasing errors (which can disable by the flag `--nophasecorr` in case of high quality phasing).
 - **[12-Jan-2021]** Introducing two new CHISEL commands: `chisel_prep` to generate input barcoded BAM file from standard formats, and `chisel_bedding` to generate BED files with CHISEL results.
 - **[20-Jul-2020]** CHISEL has been deposited and approved in [Bioconda](https://bioconda.github.io/recipes/chisel/README.html); check the new streamlined installation procedure.
