@@ -94,7 +94,7 @@ def parse_args():
         raise ValueError("samtools has not been found or is not executable!")
 
     return {
-        "input" : os.path.abspath(args.INPUT),
+        "input" : args.INPUT,
         "names" : args.names,
         "rundir" : args.rundir,
         "blocksize" : blocksize,
