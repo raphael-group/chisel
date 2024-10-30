@@ -22,8 +22,11 @@ argmin = (lambda d : min(d, key=(lambda x : d[x])))
 def log(m):
     sys.stderr.write('# ' + m + '\n')
 
-
-orderchrs = (lambda x : int(''.join([l for l in x if l.isdigit()])))
+checkchrs = (lambda digit_x, x : digit_x if len(digit_x) > 0 else 
+                                (23 if 'X' in x else 
+                                (24 if 'Y' in x else 
+                                (25 if 'M' in x else 26))))
+orderchrs = (lambda x : int(checkchrs(''.join([l for l in x if l.isdigit()]), x)))
 
 
 def inupdate(a, b):
