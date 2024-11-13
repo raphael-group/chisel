@@ -18,6 +18,7 @@ def parse_args():
     description = "CHISEL command to run the complete pipeline starting from RDRs and BAFs for one or multiple samples from previously executions of CHISEL or CHISEl preprocess."
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("INPUT", type=str, nargs='+', help="One or multiple CHISEL directory runs for different samples from which to combine RDRs and BAFs")
+    parser.add_argument("-r","--reference", type=str, required=True, help="Reference genome")
     parser.add_argument("--names", required=False, default=None, type=str, nargs='+', help="Sample names when combining multiple samples (default: idx used)")
     parser.add_argument("-x","--rundir", required=False, default='./', type=str, help="Running directory (default: current directory)")
     parser.add_argument("-k", "--blocksize", required=False, type=str, default="50kb", help="Size of the haplotype blocks (default: 50kb, use 0 to disable)")
@@ -65,6 +66,12 @@ def parse_args():
     if args.binstats is not None and args.binstats <= 0:
         raise ValueError("The number of bins for sequencing stats must be >= 0.0!")
 
+    if not os.path.isfile(args.reference):
+        raise ValueError(error("Reference genome file does not exist: {}".format(args.reference)))
+    refidx = ['{}.{}'.format(args.reference, ix) for ix in ['amb', 'ann', 'bwt', 'pac', 'sa']]
+    if not all(os.path.isfile(f) for f in refidx):
+        raise ValueError(error("Some of the BWA index files are missing, please make sure these are available and generated through the command \n\t``bwa index {}''.\n Expected files are: {}".format(args.reference, '\n'.join(refidx))))
+
     blocksize = 0
     try:
         if args.blocksize[-2:] == "kb":
@@ -95,6 +102,7 @@ def parse_args():
 
     return {
         "input" : args.INPUT,
+        "reference" : os.path.abspath(args.reference),
         "names" : args.names,
         "rundir" : args.rundir,
         "blocksize" : blocksize,
