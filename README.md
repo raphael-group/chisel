@@ -15,7 +15,7 @@ pip install -e .
 
 1. **Barcoded BAM** of the single cells, sorted and indexed; every read carries its cell barcode (`CB:Z:` by default). `chisel_prep` makes one from per-cell FASTQs or BAMs.
 2. **Reference genome** the reads were aligned to, with its `.fai` and `.dict`.
-3. **Phased germline SNPs**: a VCF of heterozygous SNPs phased `0|1` / `1|0` (e.g. called from the normal and phased with Eagle2).
+3. **Phased germline SNPs**: a VCF of heterozygous SNPs phased `0|1` / `1|0` (e.g. called from the normal and phased with Eagle2 - use UGP (https://github.com/raphael-group/Universal-Genotyping-Pipeline)).
 4. **Matched-normal BAM** (`chisel_nonormal` runs without one).
 
 ## Algorithm
@@ -23,16 +23,15 @@ pip install -e .
 - **CHISEL**: computes the RDR and BAF of every cell in every bin, clusters bins across all cells, calls allele-specific copy numbers per cluster and cell (choosing the ploidy), phases them into haplotype-specific copy numbers, and (with `--cloner`) groups cells into clones.
 - **Variable-length bins**: 1 kb windows are merged until every bin has enough SNP-covering reads over all cells, so bins carry similar BAF information.
 - **HMM bin clustering** (`--hmm`): a HATCHet2-style Gaussian HMM along the genome replaces k-medians; its variances come from each bin's read counts, so short noisy bins do not form their own clusters.
-- **Choosing K**: without the cloner, K is where the fit gains most over a null whose bins are shifted per cell; with the cloner, BIC.
 - **Cloner** (`--cloner`): cells are split top-down wherever a principal component beats a permutation noise floor; the clones are then pooled for the HMM and the calls.
-- **Per-cell HMM** (`chisel_cellhmm`): every cell gets its own state in every bin, the cells sharing K (RDR, BAF) states started from copy-number grid points.
+- **EXPERIMENTAL Per-cell HMM** (`chisel_cellhmm`): every cell gets its own state in every bin, the cells sharing K (RDR, BAF) states started from copy-number grid points.
 
 ## Important options
 
 | option | what it does |
 |---|---|
 | `--bins FILE` | use these bins (CHR START END), e.g. UGP's |
-| `--varbins --minsnpreadspercell N` | compute variable-length bins with N SNP-covering reads per cell per bin |
+| `--varbins --minsnpreadspercell N` | compute variable-length bins with N SNP-covering reads per cell per bin (we recommend just running UGP and submitting the --bins file) |
 | `--hmm --hmmk K` | HMM bin clustering with K clusters |
 | `--hmm --hmmmink A --hmmmaxk B` | HMM, K chosen in A..B |
 | `--cloner` | group cells into clones (default: off, every cell is called on its own reads) |
